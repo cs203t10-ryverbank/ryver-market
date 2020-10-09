@@ -35,39 +35,46 @@ public class StockSgxScrapingService implements StockService {
         Set<Stock> result = new HashSet<>(30);
         try {
             driver.get(SGX_URL);
-            WebDriverWait wait = new WebDriverWait(driver, 10);
+            // Add stock data that is initially mounted to the DOM.
+            result.addAll(getCurrentStocksFromMountedRows(driver));
 
-            List<WebElement> tableRows = wait.until(
-                    presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
-            result = tableRows.stream()
-                    .map(StockSgxScrapingService::getStock)
-                    .collect(Collectors.toSet());
+            scrollTableDown(driver);
 
-            // Scroll the data table down to render the rest of data required.
-            WebElement scrollBar = driver.findElement(
-                    By.cssSelector(".vertical-scrolling-bar"));
-            Actions dragger = new Actions(driver);
-            dragger
-                .moveToElement(scrollBar)
-                .clickAndHold()
-                .moveByOffset(0, 400)
-                .build().perform();
-
-            // Give some time for the data to load.
-            Thread.sleep(800);
-
-            tableRows = wait.until(
-                    presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
-            result.addAll(tableRows.stream()
-                    .map(StockSgxScrapingService::getStock)
-                    .collect(Collectors.toSet()));
-
+            // Add any stock data that has been newly mounted to the DOM.
+            result.addAll(getCurrentStocksFromMountedRows(driver));
             return List.copyOf(result);
         } catch (Exception e) {
             return List.copyOf(result);
         } finally {
             driver.quit();
         }
+    }
+
+    /**
+     * Scrape stock data from data table rows which are currently mounted
+     * to the DOM.
+     */
+    private Set<Stock> getCurrentStocksFromMountedRows(WebDriver driver) throws InterruptedException {
+        // Give some time for data to hydrate the DOM.
+        Thread.sleep(800);
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        List<WebElement> tableRows = wait.until(
+                presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
+        return tableRows.stream()
+                .map(StockSgxScrapingService::getStock)
+                .collect(Collectors.toSet());
+    }
+
+    public void scrollTableDown(WebDriver driver) {
+        // Scroll the data table down to render the rest of data required.
+        WebElement scrollBar = driver.findElement(
+                By.cssSelector(".vertical-scrolling-bar"));
+        Actions dragger = new Actions(driver);
+        dragger
+            .moveToElement(scrollBar)
+            .clickAndHold()
+            .moveByOffset(0, 400)
+            .build().perform();
     }
 
     private static Stock getStock(WebElement row) {
