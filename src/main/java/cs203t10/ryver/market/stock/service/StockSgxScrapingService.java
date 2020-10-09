@@ -57,7 +57,8 @@ public class StockSgxScrapingService implements StockService {
      * Scrape stock data from data table rows which are currently mounted
      * to the DOM.
      */
-    private Set<Stock> getCurrentStocksFromMountedRows(WebDriver driver) throws InterruptedException {
+    private Set<Stock> getCurrentStocksFromMountedRows(WebDriver driver)
+            throws InterruptedException {
         // Give some time for data to hydrate the DOM.
         Thread.sleep(800);
         WebDriverWait wait = new WebDriverWait(driver, 10);
