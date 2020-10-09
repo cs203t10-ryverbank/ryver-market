@@ -1,4 +1,4 @@
-package cs203t10.ryver.auth.user;
+package cs203t10.ryver.market.stock;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,24 +12,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UserControllerTest {
+public class StockControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void getUsersUnauthorized() throws Exception {
-        mockMvc.perform(get("/users")).andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser(roles = { "USER" })
-    public void getUsersForbidden() throws Exception {
-        mockMvc.perform(get("/users")).andExpect(status().isForbidden());
-    }
-
-    @Test
     @WithMockUser(roles = { "MANAGER" })
-    public void getUsers() throws Exception {
-        mockMvc.perform(get("/users")).andExpect(status().isOk());
+    public void getStocks() throws Exception {
+        mockMvc.perform(get("/stocks")).andExpect(status().isOk());
     }
 }
