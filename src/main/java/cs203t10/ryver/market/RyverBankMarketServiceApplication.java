@@ -1,0 +1,27 @@
+package cs203t10.ryver.market;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.annotations.ApiOperation;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+@RestController
+public class RyverBankMarketServiceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(RyverBankMarketServiceApplication.class, args);
+	}
+
+    @GetMapping("/")
+    @ApiOperation(value = "Check the service name")
+    public String getRoot() {
+        return "ryver-market service";
+    }
+
+}
+
