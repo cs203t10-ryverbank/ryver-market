@@ -1,12 +1,15 @@
 package cs203t10.ryver.market.stock.service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 
@@ -29,13 +32,39 @@ public class StockSgxScrapingService implements StockService {
     @Override
     public List<Stock> getAllStocks() {
         WebDriver driver = new ChromeDriver();
-        WebDriverWait wait = new WebDriverWait(driver, 10);
+        Set<Stock> result = new HashSet<>(30);
         try {
             driver.get(SGX_URL);
-            List<WebElement> tableRows = wait.until(presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
-            return tableRows.stream()
+            WebDriverWait wait = new WebDriverWait(driver, 10);
+
+            List<WebElement> tableRows = wait.until(
+                    presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
+            result = tableRows.stream()
                     .map(StockSgxScrapingService::getStock)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
+
+            // Scroll the data table down to render the rest of data required.
+            WebElement scrollBar = driver.findElement(
+                    By.cssSelector(".vertical-scrolling-bar"));
+            Actions dragger = new Actions(driver);
+            dragger
+                .moveToElement(scrollBar)
+                .clickAndHold()
+                .moveByOffset(0, 400)
+                .build().perform();
+
+            // Give some time for the data to load.
+            Thread.sleep(800);
+
+            tableRows = wait.until(
+                    presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
+            result.addAll(tableRows.stream()
+                    .map(StockSgxScrapingService::getStock)
+                    .collect(Collectors.toSet()));
+
+            return List.copyOf(result);
+        } catch (Exception e) {
+            return List.copyOf(result);
         } finally {
             driver.quit();
         }
@@ -60,13 +89,21 @@ public class StockSgxScrapingService implements StockService {
 
     private static Double getLastPrice(WebElement row) {
         String value = getCellWithId(row, "lt").getAttribute("innerHTML");
-        return Double.parseDouble(value);
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
     }
 
     private static Integer getTotalVolume(WebElement row) {
         String value = getCellWithId(row, "vl").getAttribute("innerHTML");
         value = value.replaceAll(",", "");
-        return (int) (Double.parseDouble(value) * 1000);
+        try {
+            return (int) (Double.parseDouble(value) * 1000);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
 }
