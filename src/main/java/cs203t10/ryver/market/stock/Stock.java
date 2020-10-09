@@ -15,7 +15,7 @@ import lombok.*;
  * If the prices are equal, then the bid submitted earlier takes
  * precedence.
  */
-@Data
+@Data @Builder
 public class Stock {
 
     @NotNull(message = "Symbol cannot be null")
@@ -24,6 +24,8 @@ public class Stock {
     @NotNull(message = "Last price cannot be null")
     @Min(value = 0, message = "Last price cannot be less than 0")
     private Double lastPrice;
+
+    private Integer totalVolume;
 
     private Integer bidVolume;
 
