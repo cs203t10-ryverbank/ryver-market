@@ -1,3 +1,6 @@
 ### Check root route
 GET http://localhost:8086/
 
+### Get default stocks
+GET http://localhost:8086/stocks
+

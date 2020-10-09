@@ -2,7 +2,7 @@ package cs203t10.ryver.market.stock.view;
 
 import lombok.*;
 
-@Data
+@Data @Builder(toBuilder = true)
 public class StockView {
 
     private String symbol;
