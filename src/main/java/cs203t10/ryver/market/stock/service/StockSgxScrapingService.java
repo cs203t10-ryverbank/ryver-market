@@ -35,6 +35,7 @@ public class StockSgxScrapingService implements StockService {
     public List<Stock> getAllStocks() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
+        options.addArguments("--window-size=800,600");
         WebDriver driver = new ChromeDriver(options);
         Set<Stock> result = new HashSet<>(30);
         try {
