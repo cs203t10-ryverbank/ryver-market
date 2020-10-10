@@ -4,3 +4,20 @@ GET http://localhost:8086/
 ### Get default stocks
 GET http://localhost:8086/stocks
 
+### Create new trade
+POST http://localhost:8086/trades
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzE2ODY2NX0.SVqRFUEzwsZQs0roeIQ5JFgJHdIkpu4pfGYwQGmpkHqKRUjy1s0Y54CoWKlSmmOjkQ_mFARnlB-YHO9o2cmhQQ
+
+{
+    "action":"buy",
+    "symbol":"A17U",
+    "quantity":1000, 
+    "bid":3.28, 
+    "ask":3.27, 
+    "avg_price":3.30,
+    "filled_quantity":0,
+    "account_id":1234, 
+    "customer_id":1234, 
+    "status":"open"
+}
