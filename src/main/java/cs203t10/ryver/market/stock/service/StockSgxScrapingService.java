@@ -82,11 +82,12 @@ public class StockSgxScrapingService implements StockService {
     }
 
     private static Stock getStock(WebElement row) {
-        return Stock.builder()
-                .symbol(getSymbol(row))
-                .lastPrice(getLastPrice(row))
-                .totalVolume(getTotalVolume(row))
-                .build();
+        return null;
+        // return Stock.builder()
+        //         .symbol(getSymbol(row))
+        //         .lastPrice(getLastPrice(row))
+        //         .totalVolume(getTotalVolume(row))
+        //         .build();
     }
 
     private static WebElement getCellWithId(WebElement row, String id) {
