@@ -11,7 +11,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Entity
-@Data @Builder
+@Getter @Setter
+@AllArgsConstructor @NoArgsConstructor
+@Data @Builder(toBuilder = true)
+@EqualsAndHashCode @ToString
 public class Trade {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

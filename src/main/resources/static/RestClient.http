@@ -4,20 +4,49 @@ GET http://localhost:8086/
 ### Get default stocks
 GET http://localhost:8086/stocks
 
+###
+GET http://localhost:8080/customers
+Authorization: Basic manager_1 01_manager_01
+
+###
+POST http://localhost:8080/login 
+Authorization: Basic marktan password
+
+### Create new user
+POST http://localhost:8080/customers
+Content-Type: application/json
+Authorization: Basic manager_1 01_manager_01
+
+{
+    "full_name":"Mark Tan",
+    "nric":"S8291266I",
+    "phone":"91251234",
+    "address":"27 Jalan Alamak S680234",
+    "username":"marktan",
+    "password":"password",
+    "authorities":"ROLE_USER",
+    "active": true
+}
+
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzE2ODY2NX0.SVqRFUEzwsZQs0roeIQ5JFgJHdIkpu4pfGYwQGmpkHqKRUjy1s0Y54CoWKlSmmOjkQ_mFARnlB-YHO9o2cmhQQ
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
 
 {
     "action":"buy",
-    "symbol":"A17U",
+    "symbol":"A17E",
     "quantity":1000, 
     "bid":3.28, 
     "ask":3.27, 
     "avg_price":3.30,
     "filled_quantity":0,
     "account_id":1234, 
-    "customer_id":1234, 
+    "customer_id":7, 
     "status":"open"
 }
+
+### Get trade by id
+GET http://localhost:8086/trades/9
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg

@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static cs203t10.ryver.market.trade.TradeException.TradeNotFoundException;
+
 @Service
 public class TradeServiceImpl implements TradeService {
 
@@ -18,7 +20,8 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     public Trade getTrade(Integer tradeId) {
-        return tradeRepo.findById(tradeId).orElse(null);
+        return tradeRepo.findById(tradeId)
+                    .orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
 }   
