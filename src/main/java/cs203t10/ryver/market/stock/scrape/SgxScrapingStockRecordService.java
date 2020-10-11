@@ -29,11 +29,18 @@ public class SgxScrapingStockRecordService implements StockRecordService {
     public List<StockRecord> loadStockRecords() {
         SgxScraper scraper = new SgxScraper();
         List<StockRecord> newRecords = scraper.getAllStockRecords();
+        // Store all newly discovered stocks.
         newRecords.stream()
             .map(StockRecord::getStock)
             .map(stockRepo::save)
             .forEach(System.out::println);
+        // Only add records for stocks without any records.
         newRecords.stream()
+            // Find stocks with no records.
+            .filter(record -> {
+                String symbol = record.getStock().getSymbol();
+                return stockRecordRepo.findAllByStockSymbol(symbol).size() == 0;
+            })
             .map(stockRecordRepo::save)
             .forEach(System.out::println);
         return newRecords;
