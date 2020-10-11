@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
+import cs203t10.ryver.market.trade.Trade;
 import lombok.*;
 
 @Entity
@@ -19,6 +20,9 @@ public class Stock {
 
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL)
     private List<StockRecord> records;
+
+    @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL)
+    private List<Trade> trades;
 
 }
 

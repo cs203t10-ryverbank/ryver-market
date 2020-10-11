@@ -1,9 +1,10 @@
-package cs203t10.ryver.market.trade;
+package cs203t10.ryver.market.stock;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TradeRepository extends JpaRepository<Trade, Integer> {
+public interface StockRecordRepository extends JpaRepository<StockRecord, StockRecordId> {
 
 }
+

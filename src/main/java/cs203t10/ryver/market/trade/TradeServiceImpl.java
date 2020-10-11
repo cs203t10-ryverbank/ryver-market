@@ -1,7 +1,5 @@
 package cs203t10.ryver.market.trade;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +11,6 @@ public class TradeServiceImpl implements TradeService {
     @Autowired
     private TradeRepository tradeRepo;
 
-    @Override
     public Trade saveTrade(Trade trade) {
         return tradeRepo.save(trade);
     }
@@ -24,4 +21,4 @@ public class TradeServiceImpl implements TradeService {
                     .orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
-}   
+}
