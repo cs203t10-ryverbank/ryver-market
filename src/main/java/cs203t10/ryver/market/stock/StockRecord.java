@@ -7,6 +7,8 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.*;
 
 import lombok.*;
@@ -29,7 +31,7 @@ public class StockRecord {
     @ManyToOne @JoinColumn(name = "stock_id")
     private Stock stock;
 
-    @Id
+    @Id @Temporal(TemporalType.TIMESTAMP)
     private Date submittedDate;
 
     @NotNull(message = "Price cannot be null")
