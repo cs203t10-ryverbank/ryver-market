@@ -33,6 +33,9 @@ public class SgxScrapingStockRecordService implements StockRecordService {
             .map(StockRecord::getStock)
             .map(stockRepo::save)
             .forEach(System.out::println);
+        newRecords.stream()
+            .map(stockRecordRepo::save)
+            .forEach(System.out::println);
         return newRecords;
     }
 
