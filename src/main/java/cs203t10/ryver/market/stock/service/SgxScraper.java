@@ -1,5 +1,6 @@
 package cs203t10.ryver.market.stock.service;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import cs203t10.ryver.market.stock.Stock;
+import cs203t10.ryver.market.stock.StockRecord;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfAllElementsLocatedBy;
 
@@ -31,8 +33,8 @@ public class SgxScraper {
         driver = new ChromeDriver(options);
     }
 
-    public List<Stock> getAllStocks() {
-        Set<Stock> result = new HashSet<>(30);
+    public List<StockRecord> getAllStockRecords() {
+        Set<StockRecord> result = new HashSet<>(30);
         try {
             driver.get(SGX_URL);
             // Wait for page data to load.
@@ -40,12 +42,12 @@ public class SgxScraper {
             scrollToTable();
             hideConsentBanner();
             // Add stock data that is initially mounted to the DOM.
-            result.addAll(getCurrentStocksFromMountedRows());
+            result.addAll(getCurrentStockRecordsFromMountedRows());
             scrollTableDown();
             // Give some time for data to hydrate the DOM.
             Thread.sleep(800);
             // Add any stock data that has been newly mounted to the DOM.
-            result.addAll(getCurrentStocksFromMountedRows());
+            result.addAll(getCurrentStockRecordsFromMountedRows());
             return List.copyOf(result);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -72,7 +74,7 @@ public class SgxScraper {
      * Scrape stock data from data table rows which are currently mounted
      * to the DOM.
      */
-    private Set<Stock> getCurrentStocksFromMountedRows()
+    private Set<StockRecord> getCurrentStockRecordsFromMountedRows()
             throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, 10);
         List<WebElement> tableRows = wait.until(
@@ -99,9 +101,14 @@ public class SgxScraper {
             .build().perform();
     }
 
-    private Stock getStock(WebElement row) {
-        String symbol = getSymbol(row);
-        return Stock.builder().symbol(symbol).build();
+    private StockRecord getStock(WebElement row) {
+        Stock stock = Stock.builder().symbol(getSymbol(row)).build();
+        return StockRecord.builder()
+                .stock(stock)
+                .submittedDate(new Date())
+                .price(getLastPrice(row))
+                .totalVolume(getTotalVolume(row))
+                .build();
     }
 
     private static WebElement getCellWithId(WebElement row, String id) {

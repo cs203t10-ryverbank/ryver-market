@@ -5,17 +5,17 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import cs203t10.ryver.market.stock.service.StockService;
+import cs203t10.ryver.market.stock.service.StockRecordService;
 
 @RestController
 public class StockController {
 
     @Autowired
-    StockService stockService;
+    StockRecordService stockRecordService;
 
     @GetMapping("/stocks")
-    public List<Stock> getAllStocks() {
-        return stockService.getAllStocks();
+    public List<StockRecord> getAllStockRecords() {
+        return stockRecordService.getAllStockRecords();
     }
 
 }

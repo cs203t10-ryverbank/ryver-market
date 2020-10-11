@@ -4,22 +4,22 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import cs203t10.ryver.market.stock.Stock;
+import cs203t10.ryver.market.stock.StockRecord;
 
 /**
  * Scrape SGX for updated Straits Time Index data.
  */
 @Service
-public class StockSgxScrapingService implements StockService {
+public class SgxScrapingStockRecordService implements StockRecordService {
 
-    public StockSgxScrapingService() {
+    public SgxScrapingStockRecordService() {
         System.setProperty("webdriver.chrome.driver", "lib/chromedriver");
     }
 
     @Override
-    public List<Stock> getAllStocks() {
+    public List<StockRecord> getAllStockRecords() {
         SgxScraper scraper = new SgxScraper();
-        return scraper.getAllStocks();
+        return scraper.getAllStockRecords();
     }
 
 }
