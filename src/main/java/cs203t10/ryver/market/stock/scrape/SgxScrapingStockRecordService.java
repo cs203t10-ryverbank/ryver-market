@@ -2,10 +2,13 @@ package cs203t10.ryver.market.stock.scrape;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.stock.StockRecord;
+import cs203t10.ryver.market.stock.StockRecordRepository;
 import cs203t10.ryver.market.stock.StockRecordService;
+import cs203t10.ryver.market.stock.StockRepository;
 
 /**
  * Scrape SGX for updated Straits Time Index data.
@@ -13,14 +16,30 @@ import cs203t10.ryver.market.stock.StockRecordService;
 @Service
 public class SgxScrapingStockRecordService implements StockRecordService {
 
+    @Autowired
+    StockRepository stockRepo;
+
+    @Autowired
+    StockRecordRepository stockRecordRepo;
+
     public SgxScrapingStockRecordService() {
         System.setProperty("webdriver.chrome.driver", "lib/chromedriver");
     }
 
+    public List<StockRecord> loadStockRecords() {
+        SgxScraper scraper = new SgxScraper();
+        List<StockRecord> newRecords = scraper.getAllStockRecords();
+        newRecords.stream()
+            .map(StockRecord::getStock)
+            .map(stockRepo::save)
+            .forEach(System.out::println);
+        return newRecords;
+    }
+
     @Override
     public List<StockRecord> getAllStockRecords() {
-        SgxScraper scraper = new SgxScraper();
-        return scraper.getAllStockRecords();
+        return stockRecordRepo.findAll();
     }
 
 }
+
