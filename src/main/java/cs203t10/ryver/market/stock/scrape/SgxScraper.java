@@ -26,6 +26,8 @@ public class SgxScraper {
 
     WebDriver driver;
 
+    Date scrapeDate = new Date();
+
     public SgxScraper() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
@@ -105,7 +107,9 @@ public class SgxScraper {
         Stock stock = Stock.builder().symbol(getSymbol(row)).build();
         return StockRecord.builder()
                 .stock(stock)
-                .submittedDate(new Date())
+                // Use date when scraper was initialized as the submitted
+                // date for all stocks scraped in this instance.
+                .submittedDate(scrapeDate)
                 .price(getLastPrice(row))
                 .totalVolume(getTotalVolume(row))
                 .build();
