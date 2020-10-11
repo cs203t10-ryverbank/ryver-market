@@ -5,8 +5,8 @@ import java.util.Date;
 
 import lombok.*;
 
-@AllArgsConstructor
-@EqualsAndHashCode
+@Data
+@NoArgsConstructor @AllArgsConstructor
 public class StockRecordId implements Serializable {
 
 	private static final long serialVersionUID = 1L;

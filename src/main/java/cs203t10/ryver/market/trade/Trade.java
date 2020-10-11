@@ -17,6 +17,7 @@ import lombok.*;
 
 @Entity
 @Data
+@AllArgsConstructor @NoArgsConstructor
 public abstract class Trade {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -13,15 +13,20 @@ import lombok.*;
 
 @Entity
 @Data @Builder
+@AllArgsConstructor @NoArgsConstructor
 public class Stock {
 
     @Id @NotNull(message = "Symbol cannot be null")
     private String symbol;
 
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL)
+    @Getter(value = AccessLevel.NONE)
+    @Setter(value = AccessLevel.NONE)
     private List<StockRecord> records;
 
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL)
+    @Getter(value = AccessLevel.NONE)
+    @Setter(value = AccessLevel.NONE)
     private List<Trade> trades;
 
 }

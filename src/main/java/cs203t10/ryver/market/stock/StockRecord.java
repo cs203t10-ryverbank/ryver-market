@@ -22,6 +22,7 @@ import lombok.*;
  */
 @Entity @IdClass(StockRecordId.class)
 @Data @Builder
+@AllArgsConstructor @NoArgsConstructor
 public class StockRecord {
 
     @Id
