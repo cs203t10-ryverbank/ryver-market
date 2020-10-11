@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -34,23 +35,43 @@ public class StockSgxScrapingService implements StockService {
     public List<Stock> getAllStocks() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
+        options.addArguments("--window-size=800,600");
         WebDriver driver = new ChromeDriver(options);
         Set<Stock> result = new HashSet<>(30);
         try {
             driver.get(SGX_URL);
+            // Wait for page data to load.
+            Thread.sleep(800);
+            scrollToTable(driver);
+            hideConsentBanner(driver);
             // Add stock data that is initially mounted to the DOM.
             result.addAll(getCurrentStocksFromMountedRows(driver));
-
             scrollTableDown(driver);
-
+            // Give some time for data to hydrate the DOM.
+            Thread.sleep(800);
             // Add any stock data that has been newly mounted to the DOM.
             result.addAll(getCurrentStocksFromMountedRows(driver));
             return List.copyOf(result);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return List.copyOf(result);
         } finally {
+            System.out.println("SIZE: " + result.size());
             driver.quit();
         }
+    }
+
+    private void scrollToTable(WebDriver driver) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("document.querySelector('sgx-table-list')"
+                + ".scrollIntoView()", "");
+    }
+
+    private void hideConsentBanner(WebDriver driver) {
+        // Hide consent banner.
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("document.querySelector('sgx-consent-banner')"
+                + ".style.display = 'none'", "");
     }
 
     /**
@@ -59,8 +80,6 @@ public class StockSgxScrapingService implements StockService {
      */
     private Set<Stock> getCurrentStocksFromMountedRows(WebDriver driver)
             throws InterruptedException {
-        // Give some time for data to hydrate the DOM.
-        Thread.sleep(800);
         WebDriverWait wait = new WebDriverWait(driver, 10);
         List<WebElement> tableRows = wait.until(
                 presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
@@ -69,7 +88,12 @@ public class StockSgxScrapingService implements StockService {
                 .collect(Collectors.toSet());
     }
 
-    public void scrollTableDown(WebDriver driver) {
+    /**
+     * Simulate interaction with the interface.
+     *
+     * The scrollbar element must be visible.
+     */
+    private void scrollTableDown(WebDriver driver) {
         // Scroll the data table down to render the rest of data required.
         WebElement scrollBar = driver.findElement(
                 By.cssSelector(".vertical-scrolling-bar"));
@@ -77,7 +101,7 @@ public class StockSgxScrapingService implements StockService {
         dragger
             .moveToElement(scrollBar)
             .clickAndHold()
-            .moveByOffset(0, 400)
+            .moveByOffset(0, 200)
             .build().perform();
     }
 
