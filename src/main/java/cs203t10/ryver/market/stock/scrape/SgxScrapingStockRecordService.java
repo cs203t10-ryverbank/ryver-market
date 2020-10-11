@@ -1,10 +1,11 @@
-package cs203t10.ryver.market.stock.service;
+package cs203t10.ryver.market.stock.scrape;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.stock.StockRecord;
+import cs203t10.ryver.market.stock.StockRecordService;
 
 /**
  * Scrape SGX for updated Straits Time Index data.

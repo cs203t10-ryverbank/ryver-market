@@ -1,4 +1,4 @@
-package cs203t10.ryver.market.stock.service;
+package cs203t10.ryver.market.stock.scrape;
 
 import java.util.Date;
 import java.util.HashSet;
