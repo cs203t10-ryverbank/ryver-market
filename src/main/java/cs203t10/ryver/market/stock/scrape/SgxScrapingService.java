@@ -7,16 +7,13 @@ import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordRepository;
-import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.stock.StockRepository;
-
-import static cs203t10.ryver.market.stock.StockException.NoSuchStockException;
 
 /**
  * Scrape SGX for updated Straits Time Index data.
  */
 @Service
-public class SgxScrapingStockRecordService implements StockRecordService {
+public class SgxScrapingService implements ScrapingService {
 
     @Autowired
     StockRepository stockRepo;
@@ -24,7 +21,7 @@ public class SgxScrapingStockRecordService implements StockRecordService {
     @Autowired
     StockRecordRepository stockRecordRepo;
 
-    public SgxScrapingStockRecordService() {
+    public SgxScrapingService() {
         System.setProperty("webdriver.chrome.driver", "lib/chromedriver");
     }
 
@@ -46,18 +43,6 @@ public class SgxScrapingStockRecordService implements StockRecordService {
             .map(stockRecordRepo::save)
             .forEach(System.out::println);
         return newRecords;
-    }
-
-    @Override
-    public List<StockRecord> getAllLatestStockRecords() {
-        return stockRecordRepo.findAllLatestStockRecords();
-    }
-
-    @Override
-    public StockRecord getLatestStockRecordBySymbol(String symbol) {
-        return stockRecordRepo
-                .findLatestStockRecordBySymbol(symbol)
-                .orElseThrow(() -> new NoSuchStockException(symbol));
     }
 
 }

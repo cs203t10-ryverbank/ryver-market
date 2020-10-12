@@ -21,12 +21,12 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
     "quantity":1000,
     "bid":0,
     "ask":0,
-    "avg_price":0,
-    "filled_quantity":0,
+    "avg_price":3.2,
+    "filled_quantity":300,
     "date":1602535210000,
     "account_id":1234,
     "customer_id":7,
-    "status":"open"
+    "status":"partial-filled"
 }
 
 ### Get user trades
