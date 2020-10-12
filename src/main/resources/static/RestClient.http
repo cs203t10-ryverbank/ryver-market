@@ -8,26 +8,6 @@ GET http://localhost:8086/stocks
 GET http://localhost:8080/customers
 Authorization: Basic manager_1 01_manager_01
 
-###
-POST http://localhost:8080/login 
-Authorization: Basic marktan password
-
-### Create new user
-POST http://localhost:8080/customers
-Content-Type: application/json
-Authorization: Basic manager_1 01_manager_01
-
-{
-    "full_name":"Mark Tan",
-    "nric":"S8291266I",
-    "phone":"91251234",
-    "address":"27 Jalan Alamak S680234",
-    "username":"marktan",
-    "password":"password",
-    "authorities":"ROLE_USER",
-    "active": true
-}
-
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
@@ -36,13 +16,13 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
 {
     "action":"buy",
     "symbol":"A17E",
-    "quantity":1000, 
-    "bid":3.28, 
-    "ask":3.27, 
+    "quantity":1000,
+    "bid":3.28,
+    "ask":3.27,
     "avg_price":3.30,
     "filled_quantity":0,
-    "account_id":1234, 
-    "customer_id":7, 
+    "account_id":1234,
+    "customer_id":7,
     "status":"open"
 }
 

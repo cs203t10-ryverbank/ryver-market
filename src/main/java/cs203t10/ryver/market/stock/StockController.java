@@ -13,7 +13,7 @@ public class StockController {
 
     @GetMapping("/stocks")
     public List<StockRecord> getAllStockRecords() {
-        return stockRecordService.getAllStockRecords();
+        return stockRecordService.getAllLatestStockRecords();
     }
 
 }

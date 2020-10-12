@@ -37,18 +37,18 @@ public class SgxScrapingStockRecordService implements StockRecordService {
         // Only add records for stocks without any records.
         newRecords.stream()
             // Find stocks with no records.
-            .filter(record -> {
-                String symbol = record.getStock().getSymbol();
-                return stockRecordRepo.findAllByStockSymbol(symbol).size() == 0;
-            })
+            // .filter(record -> {
+            //     String symbol = record.getStock().getSymbol();
+            //     return stockRecordRepo.findAllByStockSymbol(symbol).size() == 0;
+            // })
             .map(stockRecordRepo::save)
             .forEach(System.out::println);
         return newRecords;
     }
 
     @Override
-    public List<StockRecord> getAllStockRecords() {
-        return stockRecordRepo.findAll();
+    public List<StockRecord> getAllLatestStockRecords() {
+        return stockRecordRepo.findAllLatestStockRecords();
     }
 
 }
