@@ -7,8 +7,11 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import cs203t10.ryver.market.stock.Stock;
+
+import static cs203t10.ryver.market.stock.StockException.NoSuchStockException;
 
 public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
 
@@ -29,9 +32,13 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
 
     @Override
     public Trade saveWithSymbol(Trade trade, String symbol) {
-        Stock stockRef = entityManager.getReference(Stock.class, symbol);
-        trade.setStock(stockRef);
-        return tradeRepo.save(trade);
+        try {
+            Stock stockRef = entityManager.getReference(Stock.class, symbol);
+            trade.setStock(stockRef);
+            return tradeRepo.save(trade);
+        } catch (DataIntegrityViolationException e) {
+            throw new NoSuchStockException(symbol);
+        }
     }
 }
 
