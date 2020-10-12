@@ -1,8 +1,11 @@
 package cs203t10.ryver.market.stock;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -40,7 +43,7 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
     }
 
     @Override
-    public StockRecord findLatestStockRecordBySymbol(String symbol) {
+    public Optional<StockRecord> findLatestStockRecordBySymbol(String symbol) {
         String sql = String.join(" ",
                 "SELECT * FROM STOCK_RECORD",
                 "WHERE stock_id = :stock_id",
@@ -52,7 +55,12 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
         Query query = entityManager
                 .createNativeQuery(sql, StockRecord.class)
                 .setParameter("stock_id", symbol);
-        return (StockRecord) query.getSingleResult();
+        try {
+            StockRecord result = (StockRecord) query.getSingleResult();
+            return Optional.of(result);
+        } catch (NoResultException | NonUniqueResultException e) {
+            return Optional.empty();
+        }
     }
 
 }

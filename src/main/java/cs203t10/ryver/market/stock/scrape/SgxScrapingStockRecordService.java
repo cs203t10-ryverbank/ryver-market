@@ -10,6 +10,8 @@ import cs203t10.ryver.market.stock.StockRecordRepository;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.stock.StockRepository;
 
+import static cs203t10.ryver.market.stock.StockException.NoSuchStockException;
+
 /**
  * Scrape SGX for updated Straits Time Index data.
  */
@@ -53,7 +55,9 @@ public class SgxScrapingStockRecordService implements StockRecordService {
 
     @Override
     public StockRecord getLatestStockRecordBySymbol(String symbol) {
-        return stockRecordRepo.findLatestStockRecordBySymbol(symbol);
+        return stockRecordRepo
+                .findLatestStockRecordBySymbol(symbol)
+                .orElseThrow(() -> new NoSuchStockException(symbol));
     }
 
 }
