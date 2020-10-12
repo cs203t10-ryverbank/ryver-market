@@ -26,7 +26,7 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
 
     @Override
     public List<StockRecord> findAllLatestStockRecords() {
-        String sql = String.join(" ",
+        final String sql = String.join(" ",
             "SELECT * FROM STOCK_RECORD sr",
             "JOIN (",
                 "SELECT MAX(submitted_date) AS latest_date, stock_id",
@@ -44,7 +44,7 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
 
     @Override
     public Optional<StockRecord> findLatestStockRecordBySymbol(String symbol) {
-        String sql = String.join(" ",
+        final String sql = String.join(" ",
             "SELECT * FROM STOCK_RECORD",
             "WHERE stock_id = :stock_id",
             "AND submitted_date = (",
