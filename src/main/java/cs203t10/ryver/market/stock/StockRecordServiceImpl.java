@@ -5,11 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cs203t10.ryver.market.stock.StockRecord;
-import cs203t10.ryver.market.stock.StockRecordRepository;
-import cs203t10.ryver.market.stock.StockRecordService;
-import cs203t10.ryver.market.stock.StockRepository;
-
 import static cs203t10.ryver.market.stock.StockException.NoSuchStockException;
 
 /**
@@ -26,13 +21,13 @@ public class StockRecordServiceImpl implements StockRecordService {
 
     @Override
     public List<StockRecord> getAllLatestStockRecords() {
-        return stockRecordRepo.findAllLatestStockRecords();
+        return stockRecordRepo.findAllLatestPerStock();
     }
 
     @Override
     public StockRecord getLatestStockRecordBySymbol(String symbol) {
         return stockRecordRepo
-                .findLatestStockRecordBySymbol(symbol)
+                .findLatestBySymbol(symbol)
                 .orElseThrow(() -> new NoSuchStockException(symbol));
     }
 

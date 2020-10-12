@@ -16,7 +16,7 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
     private EntityManager entityManager;
 
     @Override
-    public List<StockRecord> findAllByStockSymbol(String symbol) {
+    public List<StockRecord> findAllBySymbol(String symbol) {
         String jpql = "FROM StockRecord WHERE stock_id = :stock_id";
         TypedQuery<StockRecord> query = entityManager.createQuery(jpql, StockRecord.class);
         return query
@@ -25,7 +25,8 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
     }
 
     @Override
-    public List<StockRecord> findAllLatestStockRecords() {
+    @SuppressWarnings("unchecked")
+    public List<StockRecord> findAllLatestPerStock() {
         final String sql = String.join(" ",
             "SELECT * FROM STOCK_RECORD sr",
             "JOIN (",
@@ -37,13 +38,11 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
             "AND sr.submitted_date = sr2.latest_date"
         );
         Query query = entityManager.createNativeQuery(sql, StockRecord.class);
-        @SuppressWarnings("unchecked")
-        List<StockRecord> result = query.getResultList();
-        return result;
+        return query.getResultList();
     }
 
     @Override
-    public Optional<StockRecord> findLatestStockRecordBySymbol(String symbol) {
+    public Optional<StockRecord> findLatestBySymbol(String symbol) {
         final String sql = String.join(" ",
             "SELECT * FROM STOCK_RECORD",
             "WHERE stock_id = :stock_id",

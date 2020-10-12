@@ -38,7 +38,7 @@ public class SgxScrapingService implements ScrapingService {
             // Find stocks with no records.
             .filter(record -> {
                 String symbol = record.getStock().getSymbol();
-                return stockRecordRepo.findAllByStockSymbol(symbol).size() == 0;
+                return stockRecordRepo.findLatestBySymbol(symbol).isEmpty();
             })
             .map(stockRecordRepo::save)
             .forEach(System.out::println);
