@@ -27,14 +27,14 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
     @Override
     public List<StockRecord> findAllLatestStockRecords() {
         String sql = String.join(" ",
-                "SELECT * FROM STOCK_RECORD sr",
-                "JOIN (",
+            "SELECT * FROM STOCK_RECORD sr",
+            "JOIN (",
                 "SELECT MAX(submitted_date) AS latest_date, stock_id",
                 "FROM STOCK_RECORD",
                 "GROUP BY stock_id",
-                ") sr2",
-                "ON sr.stock_id = sr2.stock_id",
-                "AND sr.submitted_date = sr2.latest_date"
+            ") sr2",
+            "ON sr.stock_id = sr2.stock_id",
+            "AND sr.submitted_date = sr2.latest_date"
         );
         Query query = entityManager.createNativeQuery(sql, StockRecord.class);
         @SuppressWarnings("unchecked")
@@ -45,12 +45,12 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
     @Override
     public Optional<StockRecord> findLatestStockRecordBySymbol(String symbol) {
         String sql = String.join(" ",
-                "SELECT * FROM STOCK_RECORD",
-                "WHERE stock_id = :stock_id",
-                "AND submitted_date = (",
+            "SELECT * FROM STOCK_RECORD",
+            "WHERE stock_id = :stock_id",
+            "AND submitted_date = (",
                 "SELECT MAX(submitted_date) FROM STOCK_RECORD",
                 "WHERE stock_id = :stock_id",
-                ")"
+            ")"
         );
         Query query = entityManager
                 .createNativeQuery(sql, StockRecord.class)
