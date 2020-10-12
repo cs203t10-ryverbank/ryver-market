@@ -6,12 +6,13 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import cs203t10.ryver.market.trade.Trade.Action;
+import cs203t10.ryver.market.trade.Trade.Status;
+import cs203t10.ryver.market.trade.view.TradeView;
 
-import cs203t10.ryver.market.security.RyverPrincipal;
-
-import static cs203t10.ryver.market.trade.TradeException.CustomerNoAccessException;
+import java.util.Date;
 
 @RestController
 public class TradeController {
@@ -20,21 +21,16 @@ public class TradeController {
     TradeService tradeService;
 
     @GetMapping("/trades/{tradeId}")
-    public Trade getTrade(@PathVariable Integer tradeId) {
-        return tradeService.getTrade(tradeId);
+    public TradeView getTrade(@PathVariable Integer tradeId) {
+        return new TradeView(Action.BUY, "A17U", 1000, 0.0, 3.0, 2.9, 0, new Date(), 3, 2, Status.OPEN);
+        // return tradeService.getTrade(tradeId);
     }
 
     @PostMapping("/trades")
-    @RolesAllowed("USER")
+    @PreAuthorize("principal.uid == #trade.getCustomerId() and hasRole('USER')")
     @ResponseStatus(HttpStatus.CREATED)
-    public Trade addTrade(@Valid @RequestBody Trade trade,
-            @AuthenticationPrincipal RyverPrincipal principal) {
-        if (Math.toIntExact(principal.uid) != trade.getCustomerId()) {
-            throw new CustomerNoAccessException(trade.getCustomerId());
-        }
-        Trade savedTrade = null;
-        savedTrade = tradeService.saveTrade(trade);
-        return savedTrade;
+    public TradeView addTrade(@Valid @RequestBody TradeView trade) {
+        return null;
     }
 
 }

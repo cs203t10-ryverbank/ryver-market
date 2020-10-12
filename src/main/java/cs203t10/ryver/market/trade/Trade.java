@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import cs203t10.ryver.market.stock.Stock;
 
 import lombok.*;
@@ -32,13 +34,17 @@ public abstract class Trade {
 
     private Date submittedDate;
 
-    public enum Type {
-        ASK, BID;
+    @AllArgsConstructor
+    public enum Action {
+        BUY("buy"), SELL("sell");
+
+        @Getter @JsonValue
+        private String action;
     }
 
     @Enumerated(EnumType.STRING)
     @Setter(value = AccessLevel.NONE)
-    private Type type;
+    private Action action;
 
     private Integer volume;
 
@@ -46,12 +52,16 @@ public abstract class Trade {
 
     private Double price;
 
+    @AllArgsConstructor
     public enum Status {
-        OPEN,
-        FILLED,
-        PARTIAL_FILLED,
-        CANCELLED,
-        EXPIRED,
+        OPEN("open"),
+        FILLED("filled"),
+        PARTIAL_FILLED("partial-filled"),
+        CANCELLED("cancelled"),
+        EXPIRED("expired");
+
+        @Getter @JsonValue
+        private String status;
     }
 
     @Enumerated(EnumType.STRING)

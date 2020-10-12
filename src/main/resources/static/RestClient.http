@@ -10,10 +10,6 @@ GET http://localhost:8086/stocks/A17U
 ### Get non-existent stock
 GET http://localhost:8086/stocks/A17V
 
-###
-GET http://localhost:8080/customers
-Authorization: Basic manager_1 01_manager_01
-
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
