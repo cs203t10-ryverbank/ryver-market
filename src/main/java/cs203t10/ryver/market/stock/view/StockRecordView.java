@@ -1,8 +1,7 @@
 package cs203t10.ryver.market.stock.view;
 
 import cs203t10.ryver.market.stock.StockRecord;
-import cs203t10.ryver.market.trade.BuyTrade;
-import cs203t10.ryver.market.trade.SellTrade;
+import cs203t10.ryver.market.trade.Trade;
 import lombok.*;
 
 @Data @Builder
@@ -21,17 +20,17 @@ public class StockRecordView {
     private Double ask;
 
     public static StockRecordView fromRecordAskBid(StockRecord record) {
-        return fromRecordAskBid(record, new BuyTrade(), new SellTrade());
+        return fromRecordAskBid(record, new Trade(), new Trade());
     }
 
-    public static StockRecordView fromRecordAskBid(StockRecord record, BuyTrade buy, SellTrade sell) {
+    public static StockRecordView fromRecordAskBid(StockRecord record, Trade buy, Trade sell) {
         return StockRecordView.builder()
                 .symbol(record.getStock().getSymbol())
                 .lastPrice(record.getPrice())
-                .bidVolume(buy.getVolume())
-                .bid(buy.getBidPrice())
-                .askVolume(sell.getVolume())
-                .ask(sell.getAskPrice())
+                .bidVolume(buy.getQuantity())
+                .bid(buy.getPrice())
+                .askVolume(sell.getQuantity())
+                .ask(sell.getPrice())
                 .build();
     }
 

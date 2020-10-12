@@ -20,19 +20,10 @@ import lombok.*;
 @Entity
 @Data
 @AllArgsConstructor @NoArgsConstructor
-public abstract class Trade {
+public class Trade {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne @JoinColumn(name = "stock_id")
-    private Stock stock;
-
-    private Integer customerId;
-
-    private Integer accountId;
-
-    private Date submittedDate;
 
     @AllArgsConstructor
     public enum Action {
@@ -43,12 +34,20 @@ public abstract class Trade {
     }
 
     @Enumerated(EnumType.STRING)
-    @Setter(value = AccessLevel.NONE)
     private Action action;
 
-    private Integer volume;
+    @ManyToOne @JoinColumn(name = "stock_id")
+    private Stock stock;
 
-    private Integer filledVolume;
+    private Integer quantity;
+
+    private Integer filledQuantity;
+
+    private Integer customerId;
+
+    private Integer accountId;
+
+    private Date submittedDate;
 
     private Double price;
 

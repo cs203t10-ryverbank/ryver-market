@@ -5,12 +5,15 @@ import org.springframework.stereotype.Service;
 
 import static cs203t10.ryver.market.trade.TradeException.TradeNotFoundException;
 
+import java.util.List;
+
 @Service
 public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private TradeRepository tradeRepo;
 
+    @Override
     public Trade saveTrade(Trade trade) {
         return tradeRepo.save(trade);
     }
@@ -19,6 +22,11 @@ public class TradeServiceImpl implements TradeService {
     public Trade getTrade(Integer tradeId) {
         return tradeRepo.findById(tradeId)
                     .orElseThrow(() -> new TradeNotFoundException(tradeId));
+    }
+
+    @Override
+    public List<Trade> getAllUserOpenTrades(Long customerId) {
+        return tradeRepo.findAllByCustomerId(customerId);
     }
 
 }
