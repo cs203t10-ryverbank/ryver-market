@@ -37,9 +37,9 @@ public class Trade {
     @ManyToOne @JoinColumn(name = "stock_id")
     private Stock stock;
 
-    private Integer quantity;
+    private Integer quantity = 0;
 
-    private Integer filledQuantity;
+    private Integer filledQuantity = 0;
 
     private Integer customerId;
 
@@ -62,6 +62,8 @@ public class Trade {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    private Double price;
+    private Double totalPrice = 0.0;
+
+    private Double price = 0.0;
 }
 
