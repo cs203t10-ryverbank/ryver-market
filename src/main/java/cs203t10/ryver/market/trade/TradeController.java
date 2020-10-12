@@ -2,7 +2,6 @@ package cs203t10.ryver.market.trade;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -37,9 +36,7 @@ public class TradeController {
     @PreAuthorize("principal.uid == #tradeView.getCustomerId() and hasRole('USER')")
     @ResponseStatus(HttpStatus.CREATED)
     public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
-        Trade trade = new Trade();
-        BeanUtils.copyProperties(tradeView, trade);
-        Trade savedTrade = tradeService.saveTrade(trade);
+        Trade savedTrade = tradeService.saveTrade(tradeView);
         return TradeView.fromTrade(savedTrade);
     }
 

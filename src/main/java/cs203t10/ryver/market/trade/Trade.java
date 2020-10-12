@@ -15,6 +15,11 @@ import lombok.*;
 @AllArgsConstructor @NoArgsConstructor
 public class Trade {
 
+    public Trade(Stock stock) {
+        this();
+        this.stock = stock;
+    }
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
