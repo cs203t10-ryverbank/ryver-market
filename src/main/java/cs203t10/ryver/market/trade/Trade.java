@@ -2,14 +2,7 @@ package cs203t10.ryver.market.trade;
 
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -49,8 +42,6 @@ public class Trade {
 
     private Date submittedDate;
 
-    private Double price;
-
     @AllArgsConstructor
     public enum Status {
         OPEN("open"),
@@ -66,5 +57,6 @@ public class Trade {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    private Double price;
 }
 

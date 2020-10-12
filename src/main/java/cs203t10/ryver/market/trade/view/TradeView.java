@@ -30,21 +30,27 @@ public class TradeView {
 
     private Integer accountId;
 
-    private Double bid;
-
-    private Double ask;
-
-    private Double avgPrice;
-
     @JsonProperty("date")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date submittedDate;
 
     private Status status;
 
+    /**
+     * The better-priced trade will be matched first.
+     *
+     * If prices are the same, earlier trade will be matched first
+     */
+    private Double bid;
+
+    private Double ask;
+
+    private Double avgPrice;
+
     public static TradeView fromTrade(Trade trade) {
         TradeView view = new TradeView();
         BeanUtils.copyProperties(trade, view);
+        view.setSymbol(trade.getStock().getSymbol());
         return view;
     }
 
