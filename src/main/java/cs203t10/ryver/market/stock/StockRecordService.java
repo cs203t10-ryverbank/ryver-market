@@ -4,4 +4,5 @@ import java.util.List;
 
 public interface StockRecordService {
     List<StockRecord> getAllLatestStockRecords();
+    StockRecord getLatestStockRecordBySymbol(String symbol);
 }

@@ -4,6 +4,9 @@ GET http://localhost:8086/
 ### Get default stocks
 GET http://localhost:8086/stocks
 
+### Get one stock
+GET http://localhost:8086/stocks/A17U
+
 ###
 GET http://localhost:8080/customers
 Authorization: Basic manager_1 01_manager_01

@@ -22,5 +22,11 @@ public class StockController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/stocks/{symbol}")
+    public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
+        StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
+        return StockRecordView.fromRecordAskBid(latestStockRecord);
+    }
+
 }
 

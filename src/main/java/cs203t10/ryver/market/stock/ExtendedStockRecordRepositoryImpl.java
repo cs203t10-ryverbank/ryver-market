@@ -39,5 +39,21 @@ public class ExtendedStockRecordRepositoryImpl implements ExtendedStockRecordRep
         return result;
     }
 
+    @Override
+    public StockRecord findLatestStockRecordBySymbol(String symbol) {
+        String sql = String.join(" ",
+                "SELECT * FROM STOCK_RECORD",
+                "WHERE stock_id = :stock_id",
+                "AND submitted_date = (",
+                "SELECT MAX(submitted_date) FROM STOCK_RECORD",
+                "WHERE stock_id = :stock_id",
+                ")"
+        );
+        Query query = entityManager
+                .createNativeQuery(sql, StockRecord.class)
+                .setParameter("stock_id", symbol);
+        return (StockRecord) query.getSingleResult();
+    }
+
 }
 
