@@ -27,9 +27,9 @@ public class TradeController {
     }
 
     @PostMapping("/trades")
-    @PreAuthorize("principal.uid == #trade.getCustomerId() and hasRole('USER')")
+    @PreAuthorize("principal.uid == #tradeView.getCustomerId() and hasRole('USER')")
     @ResponseStatus(HttpStatus.CREATED)
-    public TradeView addTrade(@Valid @RequestBody TradeView trade) {
+    public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
         return null;
     }
 
