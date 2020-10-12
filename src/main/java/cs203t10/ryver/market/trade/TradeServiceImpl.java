@@ -4,7 +4,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cs203t10.ryver.market.stock.StockRepository;
 import cs203t10.ryver.market.trade.view.TradeView;
 
 import static cs203t10.ryver.market.trade.TradeException.TradeNotFoundException;
