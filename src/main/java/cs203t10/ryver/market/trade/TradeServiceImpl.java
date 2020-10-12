@@ -4,20 +4,15 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRepository;
 import cs203t10.ryver.market.trade.view.TradeView;
 
-import static cs203t10.ryver.market.stock.StockException.NoSuchStockException;
 import static cs203t10.ryver.market.trade.TradeException.TradeNotFoundException;
 
 import java.util.List;
 
 @Service
 public class TradeServiceImpl implements TradeService {
-
-    @Autowired
-    private StockRepository stockRepo;
 
     @Autowired
     private TradeRepository tradeRepo;
@@ -29,12 +24,9 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     public Trade saveTrade(TradeView tradeView) {
-        String symbol = tradeView.getSymbol();
-        Stock stock = stockRepo.findById(symbol)
-                .orElseThrow(() -> new NoSuchStockException(symbol));
-        Trade trade = new Trade(stock);
+        Trade trade = new Trade();
         BeanUtils.copyProperties(tradeView, trade);
-        return tradeRepo.save(trade);
+        return tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
     }
 
     @Override
