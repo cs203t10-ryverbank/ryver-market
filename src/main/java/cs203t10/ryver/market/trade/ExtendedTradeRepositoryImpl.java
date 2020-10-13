@@ -122,6 +122,52 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
+    public Optional<Trade> findBestBuyBySymbol(String symbol) {
+        final String sql = String.join(" ",
+            "SELECT * FROM TRADE",
+            "WHERE stock_id = :stock_id",
+            "AND action = 'BUY'",
+            "AND price = (",
+                "SELECT MAX(price) FROM TRADE",
+                "WHERE stock_id = :stock_id",
+                "AND action = 'BUY'",
+            ")"
+        );
+        Query query = entityManager
+                .createNativeQuery(sql, Trade.class)
+                .setParameter("stock_id", symbol);
+        try {
+            Trade result = (Trade) query.getSingleResult();
+            return Optional.of(result);
+        } catch (NoResultException | NonUniqueResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Trade> findBestSellBySymbol(String symbol) {
+        final String sql = String.join(" ",
+            "SELECT * FROM TRADE",
+            "WHERE stock_id = :stock_id",
+            "AND action = 'SELL'",
+            "AND price = (",
+                "SELECT MIN(price) FROM TRADE",
+                "WHERE stock_id = :stock_id",
+                "AND action = 'SELL'",
+            ")"
+        );
+        Query query = entityManager
+                .createNativeQuery(sql, Trade.class)
+                .setParameter("stock_id", symbol);
+        try {
+            Trade result = (Trade) query.getSingleResult();
+            return Optional.of(result);
+        } catch (NoResultException | NonUniqueResultException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public Map<String, Trade> findAllBestBuy() {
         final String sql = String.join(" ",
             "SELECT * FROM TRADE t",

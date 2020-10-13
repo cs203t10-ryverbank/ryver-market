@@ -13,6 +13,10 @@ public class TradeException {
             super(String.format("Trade with id: %s not found", id));
         }
 
+        public TradeNotFoundException(String symbol) {
+            super(String.format("Trade with symbol: %s not found", symbol));
+        }
+
     }
 
 }

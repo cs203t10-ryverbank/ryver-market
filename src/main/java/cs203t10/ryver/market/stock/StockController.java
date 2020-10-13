@@ -39,7 +39,10 @@ public class StockController {
     @GetMapping("/stocks/{symbol}")
     public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
-        return StockRecordView.fromRecordAskBid(latestStockRecord);
+        return StockRecordView.fromRecordAskBid(
+                latestStockRecord,
+                tradeService.getBestBuyTradeBySymbol(symbol),
+                tradeService.getBestSellTradeBySymbol(symbol));
     }
 
 }

@@ -12,6 +12,8 @@ public interface ExtendedTradeRepository {
     Long getTotalQuantityBySymbol(String symbol);
     Long getBuyQuantityBySymbol(String symbol);
     Long getSellQuantityBySymbol(String symbol);
+    Optional<Trade> findBestBuyBySymbol(String symbol);
+    Optional<Trade> findBestSellBySymbol(String symbol);
     Map<String, Trade> findAllBestBuy();
     Map<String, Trade> findAllBestSell();
 }
