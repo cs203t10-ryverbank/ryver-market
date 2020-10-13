@@ -1,6 +1,7 @@
 package cs203t10.ryver.market.trade;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,16 @@ public class TradeServiceImpl implements TradeService {
     public Trade getTrade(Integer tradeId) {
         return tradeRepo.findById(tradeId)
                     .orElseThrow(() -> new TradeNotFoundException(tradeId));
+    }
+
+    @Override
+    public Map<String, Trade> getAllBestBuyTrades() {
+        return tradeRepo.findAllBestBuy();
+    }
+
+    @Override
+    public Map<String, Trade> getAllBestSellTrades() {
+        return tradeRepo.findAllBestSell();
     }
 
     @Override

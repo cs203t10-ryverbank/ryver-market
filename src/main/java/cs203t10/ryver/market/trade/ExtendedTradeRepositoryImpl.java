@@ -1,7 +1,9 @@
 package cs203t10.ryver.market.trade;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -117,6 +119,54 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         Query query = entityManager.createNativeQuery(sql);
         BigInteger result = (BigInteger) query.setParameter("stock_id", symbol).getSingleResult();
         return result.longValue();
+    }
+
+    @Override
+    public Map<String, Trade> findAllBestBuy() {
+        final String sql = String.join(" ",
+            "SELECT * FROM TRADE t",
+            "JOIN (",
+                "SELECT MAX(price) AS best_price, stock_id",
+                "FROM TRADE",
+                "GROUP BY stock_id",
+            ") t2",
+            "ON t.stock_id = t2.stock_id",
+            "AND t.price = t2.best_price",
+            "WHERE t.action = 'BUY'",
+            "ORDER BY submitted_date"
+        );
+        Query query = entityManager.createNativeQuery(sql, Trade.class);
+        @SuppressWarnings("unchecked")
+        List<Trade> trades = query.getResultList();
+        Map<String, Trade> result = new HashMap<>();
+        for (Trade trade : trades) {
+            result.put(trade.getStock().getSymbol(), trade);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Trade> findAllBestSell() {
+        final String sql = String.join(" ",
+            "SELECT * FROM TRADE t",
+            "JOIN (",
+                "SELECT MIN(price) AS best_price, stock_id",
+                "FROM TRADE",
+                "GROUP BY stock_id",
+            ") t2",
+            "ON t.stock_id = t2.stock_id",
+            "AND t.price = t2.best_price",
+            "WHERE t.action = 'SELL'",
+            "ORDER BY submitted_date"
+        );
+        Query query = entityManager.createNativeQuery(sql, Trade.class);
+        @SuppressWarnings("unchecked")
+        List<Trade> trades = query.getResultList();
+        Map<String, Trade> result = new HashMap<>();
+        for (Trade trade : trades) {
+            result.put(trade.getStock().getSymbol(), trade);
+        }
+        return result;
     }
 
 }

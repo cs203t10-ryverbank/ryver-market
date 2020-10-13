@@ -23,14 +23,14 @@ public class StockRecordView {
         return fromRecordAskBid(record, new Trade(), new Trade());
     }
 
-    public static StockRecordView fromRecordAskBid(StockRecord record, Trade buy, Trade sell) {
+    public static StockRecordView fromRecordAskBid(StockRecord record, Trade bestBuy, Trade bestSell) {
         return StockRecordView.builder()
                 .symbol(record.getStock().getSymbol())
                 .lastPrice(record.getPrice())
-                .bidVolume(buy.getQuantity())
-                .bid(buy.getPrice())
-                .askVolume(sell.getQuantity())
-                .ask(sell.getPrice())
+                .bidVolume(bestBuy.getQuantity())
+                .bid(bestBuy.getPrice())
+                .askVolume(bestSell.getQuantity())
+                .ask(bestSell.getPrice())
                 .build();
     }
 
