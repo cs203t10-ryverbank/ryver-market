@@ -46,15 +46,23 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public Trade getBestBuyTradeBySymbol(String symbol) {
-        return tradeRepo.findBestBuyBySymbol(symbol)
-                    .orElseThrow(() -> new TradeNotFoundException(symbol));
+    public Trade getBestMarketBuyBySymbol(String symbol) {
+        return tradeRepo.findBestMarketBuyBySymbol(symbol).orElse(null);
     }
 
     @Override
-    public Trade getBestSellTradeBySymbol(String symbol) {
-        return tradeRepo.findBestSellBySymbol(symbol)
-                    .orElseThrow(() -> new TradeNotFoundException(symbol));
+    public Trade getBestMarketSellBySymbol(String symbol) {
+        return tradeRepo.findBestMarketSellBySymbol(symbol).orElse(null);
+    }
+
+    @Override
+    public Trade getBestLimitBuyBySymbol(String symbol) {
+        return tradeRepo.findBestLimitBuyBySymbol(symbol).orElse(null);
+    }
+
+    @Override
+    public Trade getBestLimitSellBySymbol(String symbol) {
+        return tradeRepo.findBestLimitSellBySymbol(symbol).orElse(null);
     }
 
     @Override

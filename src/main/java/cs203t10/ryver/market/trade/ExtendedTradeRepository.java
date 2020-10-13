@@ -9,8 +9,10 @@ public interface ExtendedTradeRepository {
     Optional<Trade> findLatestBySymbol(String symbol);
     List<Trade> findAllByCustomerId(Long customerId);
     List<Trade> findAllLatestPerStock();
-    Optional<Trade> findBestBuyBySymbol(String symbol);
-    Optional<Trade> findBestSellBySymbol(String symbol);
+    Optional<Trade> findBestMarketBuyBySymbol(String symbol);
+    Optional<Trade> findBestMarketSellBySymbol(String symbol);
+    Optional<Trade> findBestLimitBuyBySymbol(String symbol);
+    Optional<Trade> findBestLimitSellBySymbol(String symbol);
     Map<String, Trade> findAllBestBuy();
     Map<String, Trade> findAllBestSell();
     Long getTotalQuantityBySymbol(String symbol);

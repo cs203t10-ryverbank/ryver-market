@@ -39,10 +39,51 @@ public class StockController {
     @GetMapping("/stocks/{symbol}")
     public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
+        Trade bestMarketBuy = tradeService.getBestMarketBuyBySymbol(symbol);
+        Trade bestLimitBuy = tradeService.getBestLimitBuyBySymbol(symbol);
+        Trade bestMarketSell = tradeService.getBestMarketSellBySymbol(symbol);
+        Trade bestLimitSell = tradeService.getBestLimitSellBySymbol(symbol);
         return StockRecordView.fromRecordAskBid(
                 latestStockRecord,
-                tradeService.getBestBuyTradeBySymbol(symbol),
-                tradeService.getBestSellTradeBySymbol(symbol));
+                getBestBuy(bestMarketBuy, bestLimitBuy),
+                getBestSell(bestMarketSell, bestLimitSell)
+        );
+    }
+
+    private static Trade getBestBuy(Trade buy, Trade otherBuy) {
+        if (otherBuy == null && buy == null) return null;
+        if (buy == null) return otherBuy;
+        if (otherBuy == null) return buy;
+        // The buy with a higher price is better, as it gives the
+        // matcher (seller) more per stock traded.
+        if (buy.getPrice() > otherBuy.getPrice()) {
+            return buy;
+        } else if (buy.getPrice() < otherBuy.getPrice()) {
+            return otherBuy;
+        }
+        // If price is the same, then the earlier buy is returned.
+        if (buy.getSubmittedDate().before(otherBuy.getSubmittedDate())) {
+            return buy;
+        }
+        return otherBuy;
+    }
+
+    private static Trade getBestSell(Trade sell, Trade otherSell) {
+        if (otherSell == null && sell == null) return null;
+        if (sell == null) return otherSell;
+        if (otherSell == null) return sell;
+        // The sell with a lower price is better, as it lets the
+        // matcher (buyer) get more stocks for a lower price.
+        if (sell.getPrice() < otherSell.getPrice()) {
+            return sell;
+        } else if (sell.getPrice() > otherSell.getPrice()) {
+            return otherSell;
+        }
+        // If price is the same, then the earlier sell is returned.
+        if (sell.getSubmittedDate().before(otherSell.getSubmittedDate())) {
+            return sell;
+        }
+        return otherSell;
     }
 
 }
