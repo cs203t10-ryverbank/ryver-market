@@ -1,15 +1,20 @@
 package cs203t10.ryver.market.portfolio.asset;
 
+import javax.persistence.Entity;
+import javax.persistence.Embeddable;
+
 import javax.validation.constraints.*;
 
+import cs203t10.ryver.market.stock.Stock;
 import lombok.*;
 
-@Entity
+@Embeddable
 @Getter @Setter @Builder(toBuilder = true)
 @ToString
 public class Asset {
-  @NotNull(message = "Stock cannot be null")
-  private Stock stock; 
+
+  @NotNull(message = "Code cannot be null")
+  private String code; 
 
   @NotNull(message = "Quantity cannot be null")
   private Integer quantity;
