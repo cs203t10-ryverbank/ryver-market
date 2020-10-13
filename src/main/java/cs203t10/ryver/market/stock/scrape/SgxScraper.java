@@ -1,5 +1,6 @@
-package cs203t10.ryver.market.stock.service;
+package cs203t10.ryver.market.stock.scrape;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,61 +14,58 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.stock.Stock;
+import cs203t10.ryver.market.stock.StockRecord;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfAllElementsLocatedBy;
 
-/**
- * Scrape SGX for updated Straits Time Index data.
- */
-@Service
-public class StockSgxScrapingService implements StockService {
+public class SgxScraper {
 
     public final static String SGX_URL = "https://www.sgx.com/indices/products/sti/";
 
-    public StockSgxScrapingService() {
-        System.setProperty("webdriver.chrome.driver", "lib/chromedriver");
-    }
+    WebDriver driver;
 
-    @Override
-    public List<Stock> getAllStocks() {
+    Date scrapeDate = new Date();
+
+    public SgxScraper() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
         options.addArguments("--window-size=800,600");
-        WebDriver driver = new ChromeDriver(options);
-        Set<Stock> result = new HashSet<>(30);
+        driver = new ChromeDriver(options);
+    }
+
+    public List<StockRecord> getAllStockRecords() {
+        Set<StockRecord> result = new HashSet<>(30);
         try {
             driver.get(SGX_URL);
             // Wait for page data to load.
             Thread.sleep(800);
-            scrollToTable(driver);
-            hideConsentBanner(driver);
+            scrollToTable();
+            hideConsentBanner();
             // Add stock data that is initially mounted to the DOM.
-            result.addAll(getCurrentStocksFromMountedRows(driver));
-            scrollTableDown(driver);
+            result.addAll(getCurrentStockRecordsFromMountedRows());
+            scrollTableDown();
             // Give some time for data to hydrate the DOM.
             Thread.sleep(800);
             // Add any stock data that has been newly mounted to the DOM.
-            result.addAll(getCurrentStocksFromMountedRows(driver));
+            result.addAll(getCurrentStockRecordsFromMountedRows());
             return List.copyOf(result);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return List.copyOf(result);
         } finally {
-            System.out.println("SIZE: " + result.size());
             driver.quit();
         }
     }
 
-    private void scrollToTable(WebDriver driver) {
+    private void scrollToTable() {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("document.querySelector('sgx-table-list')"
                 + ".scrollIntoView()", "");
     }
 
-    private void hideConsentBanner(WebDriver driver) {
+    private void hideConsentBanner() {
         // Hide consent banner.
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("document.querySelector('sgx-consent-banner')"
@@ -78,13 +76,13 @@ public class StockSgxScrapingService implements StockService {
      * Scrape stock data from data table rows which are currently mounted
      * to the DOM.
      */
-    private Set<Stock> getCurrentStocksFromMountedRows(WebDriver driver)
+    private Set<StockRecord> getCurrentStockRecordsFromMountedRows()
             throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, 10);
         List<WebElement> tableRows = wait.until(
                 presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
         return tableRows.stream()
-                .map(StockSgxScrapingService::getStock)
+                .map(row -> getStock(row))
                 .collect(Collectors.toSet());
     }
 
@@ -93,7 +91,7 @@ public class StockSgxScrapingService implements StockService {
      *
      * The scrollbar element must be visible.
      */
-    private void scrollTableDown(WebDriver driver) {
+    private void scrollTableDown() {
         // Scroll the data table down to render the rest of data required.
         WebElement scrollBar = driver.findElement(
                 By.cssSelector(".vertical-scrolling-bar"));
@@ -105,10 +103,14 @@ public class StockSgxScrapingService implements StockService {
             .build().perform();
     }
 
-    private static Stock getStock(WebElement row) {
-        return Stock.builder()
-                .symbol(getSymbol(row))
-                .lastPrice(getLastPrice(row))
+    private StockRecord getStock(WebElement row) {
+        Stock stock = Stock.builder().symbol(getSymbol(row)).build();
+        return StockRecord.builder()
+                .stock(stock)
+                // Use date when scraper was initialized as the submitted
+                // date for all stocks scraped in this instance.
+                .submittedDate(scrapeDate)
+                .price(getLastPrice(row))
                 .totalVolume(getTotalVolume(row))
                 .build();
     }
