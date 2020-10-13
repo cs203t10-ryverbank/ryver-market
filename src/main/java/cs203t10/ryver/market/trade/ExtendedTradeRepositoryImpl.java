@@ -132,11 +132,11 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
-            "AND action = :action'",
+            "AND action = :action",
             "AND price = (",
                 "SELECT " + bestFunction + "(price) FROM TRADE",
                 "WHERE stock_id = :stock_id",
-                "AND action = 'SELL'",
+                "AND action = :action",
                 "AND price <> 0",
             ")",
             "ORDER BY submitted_date"
