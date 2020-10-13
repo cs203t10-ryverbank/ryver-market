@@ -131,17 +131,18 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 "SELECT MAX(price) FROM TRADE",
                 "WHERE stock_id = :stock_id",
                 "AND action = 'BUY'",
-            ")"
+            ")",
+            "ORDER BY submitted_date"
         );
         Query query = entityManager
                 .createNativeQuery(sql, Trade.class)
                 .setParameter("stock_id", symbol);
-        try {
-            Trade result = (Trade) query.getSingleResult();
-            return Optional.of(result);
-        } catch (NoResultException | NonUniqueResultException e) {
+        @SuppressWarnings("unchecked")
+        List<Trade> result = query.getResultList();
+        if (result.size() == 0) {
             return Optional.empty();
         }
+        return Optional.of(result.get(0));
     }
 
     @Override
@@ -154,17 +155,18 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 "SELECT MIN(price) FROM TRADE",
                 "WHERE stock_id = :stock_id",
                 "AND action = 'SELL'",
-            ")"
+            ")",
+            "ORDER BY submitted_date"
         );
         Query query = entityManager
                 .createNativeQuery(sql, Trade.class)
                 .setParameter("stock_id", symbol);
-        try {
-            Trade result = (Trade) query.getSingleResult();
-            return Optional.of(result);
-        } catch (NoResultException | NonUniqueResultException e) {
+        @SuppressWarnings("unchecked")
+        List<Trade> result = query.getResultList();
+        if (result.size() == 0) {
             return Optional.empty();
         }
+        return Optional.of(result.get(0));
     }
 
     @Override
