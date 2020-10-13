@@ -186,7 +186,8 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         List<Trade> trades = query.getResultList();
         Map<String, Trade> result = new HashMap<>();
         for (Trade trade : trades) {
-            result.put(trade.getStock().getSymbol(), trade);
+            // Place the first (earliest) trade into the result.
+            result.putIfAbsent(trade.getStock().getSymbol(), trade);
         }
         return result;
     }
@@ -210,7 +211,8 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         List<Trade> trades = query.getResultList();
         Map<String, Trade> result = new HashMap<>();
         for (Trade trade : trades) {
-            result.put(trade.getStock().getSymbol(), trade);
+            // Place the first (earliest) trade into the result.
+            result.putIfAbsent(trade.getStock().getSymbol(), trade);
         }
         return result;
     }

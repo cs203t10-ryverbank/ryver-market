@@ -11,13 +11,27 @@ public class StockRecordView {
 
     private Double lastPrice;
 
-    private Integer bidVolume;
+    /**
+     * Only show information for the best trade.
+     *
+     * The best trade is determined by:
+     * 1. The price:
+     *   - for buy trades, the higher the bid, the better;
+     *   - for sell trades, the lower the ask, the better.
+     * 2. The date submitted:
+     *   - the earlier, the better.
+     */
+    @Builder.Default
+    private Integer bidVolume = 0;
 
-    private Double bid;
+    @Builder.Default
+    private Double bid = 0.0;
 
-    private Integer askVolume;
+    @Builder.Default
+    private Integer askVolume = 0;
 
-    private Double ask;
+    @Builder.Default
+    private Double ask = 0.0;
 
     public static StockRecordView fromRecordAskBid(StockRecord record) {
         return fromRecordAskBid(record, new Trade(), new Trade());
