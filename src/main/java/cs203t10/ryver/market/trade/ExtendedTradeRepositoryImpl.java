@@ -29,6 +29,17 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     private TradeRepository tradeRepo;
 
     @Override
+    public Trade saveWithSymbol(Trade trade, String symbol) {
+        try {
+            Stock stockRef = entityManager.getReference(Stock.class, symbol);
+            trade.setStock(stockRef);
+            return tradeRepo.save(trade);
+        } catch (DataIntegrityViolationException e) {
+            throw new NoSuchStockException(symbol);
+        }
+    }
+
+    @Override
     public Optional<Trade> findLatestBySymbol(String symbol) {
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
@@ -59,17 +70,6 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public Trade saveWithSymbol(Trade trade, String symbol) {
-        try {
-            Stock stockRef = entityManager.getReference(Stock.class, symbol);
-            trade.setStock(stockRef);
-            return tradeRepo.save(trade);
-        } catch (DataIntegrityViolationException e) {
-            throw new NoSuchStockException(symbol);
-        }
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public List<Trade> findAllLatestPerStock() {
         final String sql = String.join(" ",
@@ -84,41 +84,6 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         );
         Query query = entityManager.createNativeQuery(sql, Trade.class);
         return query.getResultList();
-    }
-
-    @Override
-    public Long getTotalQuantityBySymbol(String symbol) {
-        final String sql = String.join(" ",
-            "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
-            "WHERE stock_id = :stock_id"
-        );
-        Query query = entityManager.createNativeQuery(sql);
-        BigInteger result = (BigInteger) query.setParameter("stock_id", symbol).getSingleResult();
-        return result.longValue();
-    }
-
-    @Override
-    public Long getBuyQuantityBySymbol(String symbol) {
-        final String sql = String.join(" ",
-            "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
-            "WHERE stock_id = :stock_id",
-            "AND action = 'BUY'"
-        );
-        Query query = entityManager.createNativeQuery(sql);
-        BigInteger result = (BigInteger) query.setParameter("stock_id", symbol).getSingleResult();
-        return result.longValue();
-    }
-
-    @Override
-    public Long getSellQuantityBySymbol(String symbol) {
-        final String sql = String.join(" ",
-            "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
-            "WHERE stock_id = :stock_id",
-            "AND action = 'SELL'"
-        );
-        Query query = entityManager.createNativeQuery(sql);
-        BigInteger result = (BigInteger) query.setParameter("stock_id", symbol).getSingleResult();
-        return result.longValue();
     }
 
     @Override
@@ -217,6 +182,41 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
             result.putIfAbsent(trade.getStock().getSymbol(), trade);
         }
         return result;
+    }
+
+    @Override
+    public Long getTotalQuantityBySymbol(String symbol) {
+        final String sql = String.join(" ",
+            "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
+            "WHERE stock_id = :stock_id"
+        );
+        Query query = entityManager.createNativeQuery(sql);
+        BigInteger result = (BigInteger) query.setParameter("stock_id", symbol).getSingleResult();
+        return result.longValue();
+    }
+
+    @Override
+    public Long getBuyQuantityBySymbol(String symbol) {
+        final String sql = String.join(" ",
+            "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
+            "WHERE stock_id = :stock_id",
+            "AND action = 'BUY'"
+        );
+        Query query = entityManager.createNativeQuery(sql);
+        BigInteger result = (BigInteger) query.setParameter("stock_id", symbol).getSingleResult();
+        return result.longValue();
+    }
+
+    @Override
+    public Long getSellQuantityBySymbol(String symbol) {
+        final String sql = String.join(" ",
+            "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
+            "WHERE stock_id = :stock_id",
+            "AND action = 'SELL'"
+        );
+        Query query = entityManager.createNativeQuery(sql);
+        BigInteger result = (BigInteger) query.setParameter("stock_id", symbol).getSingleResult();
+        return result.longValue();
     }
 
 }

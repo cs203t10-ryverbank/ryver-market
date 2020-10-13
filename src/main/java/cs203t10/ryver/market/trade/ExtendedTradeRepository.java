@@ -5,15 +5,15 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ExtendedTradeRepository {
+    Trade saveWithSymbol(Trade trade, String symbol);
     Optional<Trade> findLatestBySymbol(String symbol);
     List<Trade> findAllByCustomerId(Long customerId);
-    Trade saveWithSymbol(Trade trade, String symbol);
     List<Trade> findAllLatestPerStock();
-    Long getTotalQuantityBySymbol(String symbol);
-    Long getBuyQuantityBySymbol(String symbol);
-    Long getSellQuantityBySymbol(String symbol);
     Optional<Trade> findBestBuyBySymbol(String symbol);
     Optional<Trade> findBestSellBySymbol(String symbol);
     Map<String, Trade> findAllBestBuy();
     Map<String, Trade> findAllBestSell();
+    Long getTotalQuantityBySymbol(String symbol);
+    Long getBuyQuantityBySymbol(String symbol);
+    Long getSellQuantityBySymbol(String symbol);
 }
