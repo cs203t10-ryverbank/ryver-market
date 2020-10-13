@@ -1,4 +1,4 @@
-package cs203t10.ryver.market.portfolio.asset;
+package cs203t10.ryver.market.portfolio;
 
 import javax.persistence.Entity;
 import javax.persistence.Embeddable;

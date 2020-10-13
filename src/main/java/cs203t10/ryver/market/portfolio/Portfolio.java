@@ -10,7 +10,7 @@ import javax.validation.constraints.*;
 
 import lombok.*;
 
-import cs203t10.ryver.market.portfolio.asset.Asset;
+import cs203t10.ryver.market.portfolio.Asset;
 
 @Entity
 @Getter @Setter @Builder(toBuilder = true)

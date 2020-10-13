@@ -21,3 +21,8 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsI
     "customer_id":1234, 
     "status":"open"
 }
+
+### View own portolio
+GET http://localhost:8086/portfolio
+Accept: application/json
+Authorization: Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzE2ODY2NX0.SVqRFUEzwsZQs0roeIQ5JFgJHdIkpu4pfGYwQGmpkHqKRUjy1s0Y54CoWKlSmmOjkQ_mFARnlB-YHO9o2cmhQQ
