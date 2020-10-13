@@ -84,6 +84,7 @@ public class SgxScraper {
                 presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
         return tableRows.stream()
                 .map(row -> getStock(row))
+                .filter(record -> !record.getStock().getSymbol().isBlank())
                 .collect(Collectors.toSet());
     }
 
