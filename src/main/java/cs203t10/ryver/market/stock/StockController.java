@@ -1,7 +1,6 @@
 package cs203t10.ryver.market.stock;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,11 @@ public class StockController {
         return latestStockRecords.stream()
                 .map(record -> {
                     String symbol = record.getStock().getSymbol();
-                    return StockRecordView.fromRecordAskBid(record);
+                    return StockRecordView.fromRecordAskBid(
+                            record,
+                            getBestBuy(symbol),
+                            getBestSell(symbol)
+                    );
                 })
                 .collect(Collectors.toList());
     }
@@ -34,51 +37,51 @@ public class StockController {
     @GetMapping("/stocks/{symbol}")
     public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
-        Trade bestMarketBuy = tradeService.getBestMarketBuyBySymbol(symbol);
-        Trade bestLimitBuy = tradeService.getBestLimitBuyBySymbol(symbol);
-        Trade bestMarketSell = tradeService.getBestMarketSellBySymbol(symbol);
-        Trade bestLimitSell = tradeService.getBestLimitSellBySymbol(symbol);
         return StockRecordView.fromRecordAskBid(
                 latestStockRecord,
-                getBestBuy(bestMarketBuy, bestLimitBuy),
-                getBestSell(bestMarketSell, bestLimitSell)
+                getBestBuy(symbol),
+                getBestSell(symbol)
         );
     }
 
-    private static Trade getBestBuy(Trade buy, Trade otherBuy) {
-        if (otherBuy == null && buy == null) return null;
-        if (buy == null) return otherBuy;
-        if (otherBuy == null) return buy;
+    private Trade getBestBuy(String symbol) {
+        Trade bestMarket = tradeService.getBestMarketBuyBySymbol(symbol);
+        Trade bestLimit = tradeService.getBestLimitBuyBySymbol(symbol);
+        if (bestMarket == null && bestLimit == null) return null;
+        if (bestLimit == null) return bestMarket;
+        if (bestMarket == null) return bestLimit;
         // The buy with a higher price is better, as it gives the
         // matcher (seller) more per stock traded.
-        if (buy.getPrice() > otherBuy.getPrice()) {
-            return buy;
-        } else if (buy.getPrice() < otherBuy.getPrice()) {
-            return otherBuy;
+        if (bestLimit.getPrice() > bestMarket.getPrice()) {
+            return bestLimit;
+        } else if (bestLimit.getPrice() < bestMarket.getPrice()) {
+            return bestMarket;
         }
         // If price is the same, then the earlier buy is returned.
-        if (buy.getSubmittedDate().before(otherBuy.getSubmittedDate())) {
-            return buy;
+        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
+            return bestLimit;
         }
-        return otherBuy;
+        return bestMarket;
     }
 
-    private static Trade getBestSell(Trade sell, Trade otherSell) {
-        if (otherSell == null && sell == null) return null;
-        if (sell == null) return otherSell;
-        if (otherSell == null) return sell;
+    private Trade getBestSell(String symbol) {
+        Trade bestMarket = tradeService.getBestMarketSellBySymbol(symbol);
+        Trade bestLimit = tradeService.getBestLimitSellBySymbol(symbol);
+        if (bestMarket == null && bestLimit == null) return null;
+        if (bestLimit == null) return bestMarket;
+        if (bestMarket == null) return bestLimit;
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.
-        if (sell.getPrice() < otherSell.getPrice()) {
-            return sell;
-        } else if (sell.getPrice() > otherSell.getPrice()) {
-            return otherSell;
+        if (bestLimit.getPrice() < bestMarket.getPrice()) {
+            return bestLimit;
+        } else if (bestLimit.getPrice() > bestMarket.getPrice()) {
+            return bestMarket;
         }
         // If price is the same, then the earlier sell is returned.
-        if (sell.getSubmittedDate().before(otherSell.getSubmittedDate())) {
-            return sell;
+        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
+            return bestLimit;
         }
-        return otherSell;
+        return bestMarket;
     }
 
 }
