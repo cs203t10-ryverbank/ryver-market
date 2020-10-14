@@ -45,6 +45,49 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
+    public Trade getBestBuy(String symbol) {
+        Trade bestMarket = getBestMarketBuyBySymbol(symbol);
+        Trade bestLimit = getBestLimitBuyBySymbol(symbol);
+        if (bestMarket == null && bestLimit == null) return null;
+        if (bestLimit == null) return bestMarket;
+        if (bestMarket == null) return bestLimit;
+        // The buy with a higher price is better, as it gives the
+        // matcher (seller) more per stock traded.
+        if (bestLimit.getPrice() > bestMarket.getPrice()) {
+            return bestLimit;
+        } else if (bestLimit.getPrice() < bestMarket.getPrice()) {
+            return bestMarket;
+        }
+        // If price is the same, then the earlier buy is returned.
+        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
+            return bestLimit;
+        }
+        return bestMarket;
+    }
+
+    @Override
+    public Trade getBestSell(String symbol) {
+        Trade bestMarket = getBestMarketSellBySymbol(symbol);
+        Trade bestLimit = getBestLimitSellBySymbol(symbol);
+        if (bestMarket == null && bestLimit == null) return null;
+        if (bestLimit == null) return bestMarket;
+        if (bestMarket == null) return bestLimit;
+        // The sell with a lower price is better, as it lets the
+        // matcher (buyer) get more stocks for a lower price.
+        if (bestLimit.getPrice() < bestMarket.getPrice()) {
+            return bestLimit;
+        } else if (bestLimit.getPrice() > bestMarket.getPrice()) {
+            return bestMarket;
+        }
+        // If price is the same, then the earlier sell is returned.
+        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
+            return bestLimit;
+        }
+        return bestMarket;
+    }
+
+
+    @Override
     public Trade getBestMarketBuyBySymbol(String symbol) {
         return tradeRepo.findBestMarketBuyBySymbol(symbol).orElse(null);
     }

@@ -27,8 +27,8 @@ public class StockController {
                     String symbol = record.getStock().getSymbol();
                     return StockRecordView.fromRecordAskBid(
                             record,
-                            getBestBuy(symbol),
-                            getBestSell(symbol)
+                            tradeService.getBestBuy(symbol),
+                            tradeService.getBestSell(symbol)
                     );
                 })
                 .collect(Collectors.toList());
@@ -39,49 +39,9 @@ public class StockController {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
         return StockRecordView.fromRecordAskBid(
                 latestStockRecord,
-                getBestBuy(symbol),
-                getBestSell(symbol)
+                tradeService.getBestBuy(symbol),
+                tradeService.getBestSell(symbol)
         );
-    }
-
-    private Trade getBestBuy(String symbol) {
-        Trade bestMarket = tradeService.getBestMarketBuyBySymbol(symbol);
-        Trade bestLimit = tradeService.getBestLimitBuyBySymbol(symbol);
-        if (bestMarket == null && bestLimit == null) return null;
-        if (bestLimit == null) return bestMarket;
-        if (bestMarket == null) return bestLimit;
-        // The buy with a higher price is better, as it gives the
-        // matcher (seller) more per stock traded.
-        if (bestLimit.getPrice() > bestMarket.getPrice()) {
-            return bestLimit;
-        } else if (bestLimit.getPrice() < bestMarket.getPrice()) {
-            return bestMarket;
-        }
-        // If price is the same, then the earlier buy is returned.
-        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
-            return bestLimit;
-        }
-        return bestMarket;
-    }
-
-    private Trade getBestSell(String symbol) {
-        Trade bestMarket = tradeService.getBestMarketSellBySymbol(symbol);
-        Trade bestLimit = tradeService.getBestLimitSellBySymbol(symbol);
-        if (bestMarket == null && bestLimit == null) return null;
-        if (bestLimit == null) return bestMarket;
-        if (bestMarket == null) return bestLimit;
-        // The sell with a lower price is better, as it lets the
-        // matcher (buyer) get more stocks for a lower price.
-        if (bestLimit.getPrice() < bestMarket.getPrice()) {
-            return bestLimit;
-        } else if (bestLimit.getPrice() > bestMarket.getPrice()) {
-            return bestMarket;
-        }
-        // If price is the same, then the earlier sell is returned.
-        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
-            return bestLimit;
-        }
-        return bestMarket;
     }
 
 }
