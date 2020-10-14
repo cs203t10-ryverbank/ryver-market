@@ -4,8 +4,13 @@ GET http://localhost:8086/
 ### Get default stocks
 GET http://localhost:8086/stocks
 
-### Get one stock
+### Get one stock as manager
 GET http://localhost:8086/stocks/A17U
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYW5hZ2VyXzEiLCJ1aWQiOjEsImF1dGgiOiJST0xFX01BTkFHRVIiLCJleHAiOjE2MDM1NDg3NTh9.C_VgHqTZAQf_u4digKkBUhIh-5Nuj5yZWZPoBg4woc8QfUVc8wsVhgt2sRNiIUmJZyrzvcqy4lwqQXAxkaI3Ew
+
+### Get one stock as customer
+GET http://localhost:8086/stocks/A17U
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
 
 ### Get non-existent stock
 GET http://localhost:8086/stocks/A17V
