@@ -22,65 +22,52 @@ import static cs203t10.ryver.market.security.SecurityConstants.BASIC_PREFIX;
 public class FundTransferService {
 
     @Autowired
+    private DiscoveryClient discoveryClient;
+
+    @Autowired
     private RestTemplate restTemplate;
 
-    @Autowired
-    HttpServletRequest request;
-
-    @Autowired
-    DiscoveryClient discoveryClient;
-
-    //private final String REQUEST_URI = "http://localhost:8080/accounts/";
-
-    private String prepURI(){
-         // Find an instance of the ryver market service
-         List<ServiceInstance> instances = discoveryClient.getInstances("ryver-market");
-         if (instances.size() == 0) {
-             //throw new NoInstanceException("ryver-market");
-             System.out.println("no ryver-market");
-         }
-         String url = instances.get(0).getUri().toString();
-         String accountsUrl = url + "accounts/";
-         return accountsUrl;
-    }
-
-    //Preps the Request Body for restTemplate 
-    private HttpEntity<String> prepRequest(){
-        String authHeader = request.getHeader(AUTH_HEADER_KEY);
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(AUTH_HEADER_KEY, authHeader);
-        HttpEntity<String> req = new HttpEntity<>("", headers);
-        return req;
+    private String getFtsHostUrl() {
+        // Find an instance of the ryver market service
+        List<ServiceInstance> instances = discoveryClient.getInstances("ryver-fts");
+        if (instances.size() == 0) {
+            //throw new NoInstanceException("ryver-market");
+            System.out.println("no ryver-fts");
+        }
+        return instances.get(0).getUri().toString();
     }
 
     public void deductAvailableBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
-                String uri = prepURI();
-                HttpEntity<String> req = prepRequest();
-                ResponseEntity<String> response = restTemplate.exchange(uri + "{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        // TODO: fix
+        String url = getFtsHostUrl();
+        ResponseEntity<String> req = null;
+        ResponseEntity<String> response = restTemplate.exchange(url + "{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
-                //for debugging
-                System.out.println("Deduct Available Balance: " + response.getBody());
+        //for debugging
+        System.out.println("Deduct Available Balance: " + response.getBody());
     }
 
     public void deductBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
-                String uri = prepURI();
-                HttpEntity<String> req = prepRequest();
-                ResponseEntity<String> response = restTemplate.exchange(uri + "{accountId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
-                
-                //for debugging
-                System.out.println("Deduct Balance: " + response.getBody());
+        // TODO: fix
+        String url = getFtsHostUrl();
+        ResponseEntity<String> req = null;
+        ResponseEntity<String> response = restTemplate.exchange(url + "{accountId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+
+        //for debugging
+        System.out.println("Deduct Balance: " + response.getBody());
     }
 
     public void addBalance(Integer customerId, Integer accountId, Double amount)
             throws AccountNotAllowedException {
-                String uri = prepURI();
-                HttpEntity<String> req = prepRequest();
-                ResponseEntity<String> response = restTemplate.exchange(uri + "{accountId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
-                
-                //for debugging
-                System.out.println("Add Balance: " + response.getBody());
+        // TODO: fix
+        String url = getFtsHostUrl();
+        ResponseEntity<String> req = null;
+        ResponseEntity<String> response = restTemplate.exchange(url + "{accountId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+
+        //for debugging
+        System.out.println("Add Balance: " + response.getBody());
     }
 
 }
