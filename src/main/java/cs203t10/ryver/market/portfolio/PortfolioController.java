@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
 public class PortfolioController {
+
     @Autowired
     private PortfolioService portfolioService;
 
@@ -21,3 +22,4 @@ public class PortfolioController {
     }
 
 }
+
