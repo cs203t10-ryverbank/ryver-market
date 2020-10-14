@@ -23,15 +23,10 @@ public class StockController {
     @GetMapping("/stocks")
     public List<StockRecordView> getAllLatestStockRecords() {
         List<StockRecord> latestStockRecords = stockRecordService.getAllLatestStockRecords();
-        Map<String, Trade> bestBuyTrades = tradeService.getAllBestBuyTrades();
-        Map<String, Trade> bestSellTrades = tradeService.getAllBestSellTrades();
         return latestStockRecords.stream()
                 .map(record -> {
                     String symbol = record.getStock().getSymbol();
-                    return StockRecordView.fromRecordAskBid(
-                            record,
-                            bestBuyTrades.get(symbol),
-                            bestSellTrades.get(symbol));
+                    return StockRecordView.fromRecordAskBid(record);
                 })
                 .collect(Collectors.toList());
     }

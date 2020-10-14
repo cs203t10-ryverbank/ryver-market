@@ -154,56 +154,6 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public Map<String, Trade> findAllBestBuy() {
-        final String sql = String.join(" ",
-            "SELECT * FROM TRADE t",
-            "JOIN (",
-                "SELECT MAX(price) AS best_price, stock_id",
-                "FROM TRADE",
-                "GROUP BY stock_id",
-            ") t2",
-            "ON t.stock_id = t2.stock_id",
-            "AND t.price = t2.best_price",
-            "WHERE t.action = 'BUY'",
-            "ORDER BY submitted_date"
-        );
-        Query query = entityManager.createNativeQuery(sql, Trade.class);
-        @SuppressWarnings("unchecked")
-        List<Trade> trades = query.getResultList();
-        Map<String, Trade> result = new HashMap<>();
-        for (Trade trade : trades) {
-            // Place the first (earliest) trade into the result.
-            result.putIfAbsent(trade.getStock().getSymbol(), trade);
-        }
-        return result;
-    }
-
-    @Override
-    public Map<String, Trade> findAllBestSell() {
-        final String sql = String.join(" ",
-            "SELECT * FROM TRADE t",
-            "JOIN (",
-                "SELECT MIN(price) AS best_price, stock_id",
-                "FROM TRADE",
-                "GROUP BY stock_id",
-            ") t2",
-            "ON t.stock_id = t2.stock_id",
-            "AND t.price = t2.best_price",
-            "WHERE t.action = 'SELL'",
-            "ORDER BY submitted_date"
-        );
-        Query query = entityManager.createNativeQuery(sql, Trade.class);
-        @SuppressWarnings("unchecked")
-        List<Trade> trades = query.getResultList();
-        Map<String, Trade> result = new HashMap<>();
-        for (Trade trade : trades) {
-            // Place the first (earliest) trade into the result.
-            result.putIfAbsent(trade.getStock().getSymbol(), trade);
-        }
-        return result;
-    }
-
-    @Override
     public Long getTotalQuantityBySymbol(String symbol) {
         final String sql = String.join(" ",
             "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
