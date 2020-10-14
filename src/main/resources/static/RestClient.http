@@ -29,6 +29,11 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
     "status":"partial-filled"
 }
 
+### View own portolio
+GET http://localhost:8086/portfolio
+Accept: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzE2ODY2NX0.SVqRFUEzwsZQs0roeIQ5JFgJHdIkpu4pfGYwQGmpkHqKRUjy1s0Y54CoWKlSmmOjkQ_mFARnlB-YHO9o2cmhQQ
+
 ### Get user trades
 GET http://localhost:8086/trades
 Content-Type: application/json
@@ -38,3 +43,4 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
 GET http://localhost:8086/trades/6
 Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
+
