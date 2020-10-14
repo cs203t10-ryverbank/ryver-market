@@ -1,6 +1,7 @@
 package cs203t10.ryver.market.fund;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import cs203t10.ryver.market.fund.exception.AccountNotAllowedException;
 import cs203t10.ryver.market.fund.exception.InsufficientBalanceException;
@@ -24,7 +27,22 @@ public class FundTransferService {
     @Autowired
     HttpServletRequest request;
 
-    private final String REQUEST_URI = "http://localhost:8080/accounts/";
+    @Autowired
+    DiscoveryClient discoveryClient;
+
+    //private final String REQUEST_URI = "http://localhost:8080/accounts/";
+
+    private String prepURI(){
+         // Find an instance of the ryver market service
+         List<ServiceInstance> instances = discoveryClient.getInstances("ryver-market");
+         if (instances.size() == 0) {
+             //throw new NoInstanceException("ryver-market");
+             System.out.println("no ryver-market");
+         }
+         String url = instances.get(0).getUri().toString();
+         String accountsUrl = url + "accounts/";
+         return accountsUrl;
+    }
 
     //Preps the Request Body for restTemplate 
     private HttpEntity<String> prepRequest(){
@@ -37,8 +55,9 @@ public class FundTransferService {
 
     public void deductAvailableBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
+                String uri = prepURI();
                 HttpEntity<String> req = prepRequest();
-                ResponseEntity<String> response = restTemplate.exchange(REQUEST_URI + "{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+                ResponseEntity<String> response = restTemplate.exchange(uri + "{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
                 //for debugging
                 System.out.println("Deduct Available Balance: " + response.getBody());
@@ -46,8 +65,9 @@ public class FundTransferService {
 
     public void deductBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
+                String uri = prepURI();
                 HttpEntity<String> req = prepRequest();
-                ResponseEntity<String> response = restTemplate.exchange(REQUEST_URI + "{accountId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+                ResponseEntity<String> response = restTemplate.exchange(uri + "{accountId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
                 
                 //for debugging
                 System.out.println("Deduct Balance: " + response.getBody());
@@ -55,8 +75,9 @@ public class FundTransferService {
 
     public void addBalance(Integer customerId, Integer accountId, Double amount)
             throws AccountNotAllowedException {
+                String uri = prepURI();
                 HttpEntity<String> req = prepRequest();
-                ResponseEntity<String> response = restTemplate.exchange(REQUEST_URI + "{accountId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+                ResponseEntity<String> response = restTemplate.exchange(uri + "{accountId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
                 
                 //for debugging
                 System.out.println("Add Balance: " + response.getBody());
