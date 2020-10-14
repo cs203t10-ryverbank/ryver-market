@@ -9,10 +9,10 @@
         <relativePath></relativePath>
     </parent>
     <groupId>cs203t10.ryver</groupId>
-    <artifactId>auth</artifactId>
+    <artifactId>market</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Ryver Bank Auth Service</name>
-    <description>The authentication service for the Ryver Bank API</description>
+    <name>Ryver Bank Market Service</name>
+    <description>The stock and trading platform of the Ryver Bank API</description>
     <properties>
         <java.version>11</java.version>
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>

@@ -1,8 +1,7 @@
 package cs203t10.ryver.market.stock.view;
 
 import cs203t10.ryver.market.stock.StockRecord;
-import cs203t10.ryver.market.trade.Ask;
-import cs203t10.ryver.market.trade.Bid;
+import cs203t10.ryver.market.trade.Trade;
 import lombok.*;
 
 @Data @Builder
@@ -12,26 +11,46 @@ public class StockRecordView {
 
     private Double lastPrice;
 
-    private Integer bidVolume;
+    /**
+     * Only show information for the best trade.
+     *
+     * The best trade is determined by:
+     * 1. The price:
+     *   - for buy trades, the higher the bid, the better;
+     *   - for sell trades, the lower the ask, the better.
+     * 2. The date submitted:
+     *   - the earlier, the better.
+     */
+    @Builder.Default
+    private Integer bidVolume = 0;
 
-    private Double bid;
+    @Builder.Default
+    private Double bid = 0.0;
 
-    private Integer askVolume;
+    @Builder.Default
+    private Integer askVolume = 0;
 
-    private Double ask;
+    @Builder.Default
+    private Double ask = 0.0;
 
     public static StockRecordView fromRecordAskBid(StockRecord record) {
-        return fromRecordAskBid(record, new Bid(), new Ask());
+        return fromRecordAskBid(record, new Trade(), new Trade());
     }
 
-    public static StockRecordView fromRecordAskBid(StockRecord record, Bid bid, Ask ask) {
+    public static StockRecordView fromRecordAskBid(StockRecord record, Trade bestBuy, Trade bestSell) {
+        if (bestBuy == null) {
+            bestBuy = new Trade();
+        }
+        if (bestSell == null) {
+            bestSell = new Trade();
+        }
         return StockRecordView.builder()
                 .symbol(record.getStock().getSymbol())
                 .lastPrice(record.getPrice())
-                .bidVolume(bid.getVolume())
-                .bid(bid.getPrice())
-                .askVolume(ask.getVolume())
-                .ask(ask.getPrice())
+                .bidVolume(bestBuy.getQuantity())
+                .bid(bestBuy.getPrice())
+                .askVolume(bestSell.getQuantity())
+                .ask(bestSell.getPrice())
                 .build();
     }
 

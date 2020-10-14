@@ -50,13 +50,14 @@ public class SgxScraper {
             Thread.sleep(800);
             // Add any stock data that has been newly mounted to the DOM.
             result.addAll(getCurrentStockRecordsFromMountedRows());
-            return List.copyOf(result);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return List.copyOf(result);
         } finally {
             driver.quit();
         }
+        return result.stream()
+                .filter(record -> record.getStock().getSymbol() != null)
+                .collect(Collectors.toList());
     }
 
     private void scrollToTable() {
@@ -83,6 +84,7 @@ public class SgxScraper {
                 presenceOfAllElementsLocatedBy(By.cssSelector("sgx-table-row")));
         return tableRows.stream()
                 .map(row -> getStock(row))
+                .filter(record -> !record.getStock().getSymbol().isBlank())
                 .collect(Collectors.toSet());
     }
 
