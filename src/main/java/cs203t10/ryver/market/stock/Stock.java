@@ -1,41 +1,33 @@
 package cs203t10.ryver.market.stock;
 
-import java.util.Date;
+import java.util.List;
 
-import javax.validation.constraints.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 
+import cs203t10.ryver.market.trade.Trade;
 import lombok.*;
 
-/**
- * A stock in the market.
- * Each stock should have a bid volume and bid price, or an ask volume
- * and ask price, representing the best trade out of all trades for a
- * given stock.
- *
- * If the prices are equal, then the bid submitted earlier takes
- * precedence.
- */
+@Entity
 @Data @Builder
+@AllArgsConstructor @NoArgsConstructor
 public class Stock {
 
-    @NotNull(message = "Symbol cannot be null")
+    @Id @NotNull(message = "Symbol cannot be null")
     private String symbol;
 
-    @NotNull(message = "Last price cannot be null")
-    @Min(value = 0, message = "Last price cannot be less than 0")
-    private Double lastPrice;
+    @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL)
+    @Getter(value = AccessLevel.NONE)
+    @Setter(value = AccessLevel.NONE)
+    private List<StockRecord> records;
 
-    private Integer totalVolume;
-
-    private Integer bidVolume;
-
-    private Double bid;
-
-    private Integer askVolume;
-
-    private Double ask;
-
-    private Date submittedDate;
+    @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL)
+    @Getter(value = AccessLevel.NONE)
+    @Setter(value = AccessLevel.NONE)
+    private List<Trade> trades;
 
 }
 
