@@ -57,7 +57,7 @@ public class PortfolioServiceImpl implements PortfolioService{
         return null;
     }
 
-    public Portfolio addNewAsset(Integer customerId, Asset asset) {
+    public Portfolio addNewStockToAssets(Integer customerId, Asset asset) {
         String code = asset.getCode();
         Portfolio portfolio = findByCustomerId(customerId);
         Asset newAsset = findAssetByCustomerIdAndCode(customerId, code);
@@ -71,33 +71,44 @@ public class PortfolioServiceImpl implements PortfolioService{
         }
     }
 
-    public Portfolio newTradeUpdateAssets(Trade trade) {
-        String action = trade.getAction();
+    public Portfolio addToAssets(Trade trade) {
         String code = trade.getSymbol();
         Integer customerId = trade.getCustomerId();
         Integer filledQuantity = trade.getFilledQuantity();
         Double tradeAvgPrice = trade.getAvgPrice();
+
         Portfolio portfolio = findByCustomerId(customerId);
         Asset asset = findAssetByCustomerIdAndCode(customerId, code);
-        if (action == "buy") {
-            if (asset == null) {
-                asset = new Asset(code, filledQuantity, tradeAvgPrice, 0.0, tradeAvgPrice * filledQuantity, 0.0);
-                return addNewAsset(customerId, asset);
-            } else {
-                Double newAveragePrice = ((tradeAvgPrice * filledQuantity) + asset.getValue())/(asset.getQuantity() + filledQuantity);
-                asset.setAveragePrice(newAveragePrice);
-                asset.setQuantity(asset.getQuantity() + filledQuantity);
-                asset.setValue(asset.getValue() + (tradeAvgPrice * filledQuantity));
-            }
-        } else if (action == "sell") {
-            Integer newQuantity = asset.getQuantity() - filledQuantity;
-            Double newValue = asset.getValue() - (filledQuantity * tradeAvgPrice);
-            Double newAveragePrice = newValue/newQuantity;
+
+        if (asset == null) {
+            asset = new Asset(code, filledQuantity, tradeAvgPrice, 0.0, tradeAvgPrice * filledQuantity, 0.0);
+            return addNewAsset(customerId, asset);
+        } else {
+            Double newAveragePrice = ((tradeAvgPrice * filledQuantity) + asset.getValue())/(asset.getQuantity() + filledQuantity);
             asset.setAveragePrice(newAveragePrice);
-            asset.setQuantity(newQuantity);
-            asset.setValue(newValue);
+            asset.setQuantity(asset.getQuantity() + filledQuantity);
+            asset.setValue(asset.getValue() + (tradeAvgPrice * filledQuantity));
         }
         return portfolios.save(portfolio);
+    }
+
+    public Portfolio deductFromAssets(Trade trade) {
+        String code = trade.getSymbol();
+        Integer customerId = trade.getCustomerId();
+        Integer filledQuantity = trade.getFilledQuantity();
+        Double tradeAvgPrice = trade.getAvgPrice();
+
+        Portfolio portfolio = findByCustomerId(customerId);
+        Asset asset = findAssetByCustomerIdAndCode(customerId, code);
+
+        Integer newQuantity = asset.getQuantity() - filledQuantity;
+        Double newValue = asset.getValue() - (filledQuantity * tradeAvgPrice);
+        Double newAveragePrice = newValue/newQuantity;
+        asset.setAveragePrice(newAveragePrice);
+        asset.setQuantity(newQuantity);
+        asset.setValue(newValue);
+
+        return portfolios.save(portfolio)
     }
 
     //update assets currentprice when lastprice on stock in assets changes
