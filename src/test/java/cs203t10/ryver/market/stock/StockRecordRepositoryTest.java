@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +70,7 @@ public class StockRecordRepositoryTest {
     }
 
     @Test
-    public void findAllBySymbolNonSuchStockTest() {
+    public void findAllBySymbolNoSuchStockTest() {
         List<StockRecord> emptyResult = stockRecordRepo.findAllBySymbol("Z26");
         assertEquals(List.of(), emptyResult);
     }
@@ -78,6 +79,18 @@ public class StockRecordRepositoryTest {
     public void findAllLatestPerStockTest() {
         List<StockRecord> latestResult = stockRecordRepo.findAllLatestPerStock();
         assertEquals(List.of(a1_1, b2_2, c3_1, c3_2), latestResult);
+    }
+
+    @Test
+    public void findLatestBySymbolTest() {
+        Optional<StockRecord> latest = stockRecordRepo.findLatestBySymbol("B2");
+        assertEquals(Optional.of(b2_2), latest);
+    }
+
+    @Test
+    public void findLatestBySymbolNoSuchStockTest() {
+        Optional<StockRecord> latest = stockRecordRepo.findLatestBySymbol("Z26");
+        assertEquals(Optional.empty(), latest);
     }
 
 }
