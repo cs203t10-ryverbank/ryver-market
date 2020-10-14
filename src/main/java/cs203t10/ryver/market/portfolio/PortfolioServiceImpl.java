@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.trade.Trade;
 
+import cs203t10.ryver.market.stock.StockRecord;
+import cs203t10.ryver.market.stock.StockRecordService;
+
 import cs203t10.ryver.market.portfolio.Portfolio;
 import cs203t10.ryver.market.portfolio.Asset;
 import cs203t10.ryver.market.portfolio.PortfolioAlreadyExistsException;
@@ -18,6 +21,9 @@ public class PortfolioServiceImpl implements PortfolioService{
     
     @Autowired
     private PortfolioRepository portfolios;
+
+    @Autowired
+    private StockRecordService stockService;
     
     /** 
      * Creates a portfolio for an existing user 
@@ -47,6 +53,9 @@ public class PortfolioServiceImpl implements PortfolioService{
         return portfolio.getAssets();
     }
 
+    /** 
+     * Find list of asset with a particular stock symbol belonging to the customer ID
+     */
     public Asset findAssetByCustomerIdAndCode(Integer customerId, String code) {
         List<Asset> assets = findAssetsByCustomerId(customerId);
         for (int i = 0; i < assets.size(); i++) {
@@ -57,6 +66,9 @@ public class PortfolioServiceImpl implements PortfolioService{
         return null;
     }
 
+    /** 
+     * Add a stock which customer does not currently own to the assets list
+     */
     public Portfolio addNewStockToAssets(Integer customerId, Asset asset) {
         String code = asset.getCode();
         Portfolio portfolio = findByCustomerId(customerId);
@@ -71,32 +83,48 @@ public class PortfolioServiceImpl implements PortfolioService{
         }
     }
 
+    /** 
+     * Process a buy trade
+     */
     public Portfolio addToAssets(Trade trade) {
-        String code = trade.getSymbol();
+        String code = trade.getStock().getSymbol();
+        StockRecord stockRecord = stockService.getLatestStockRecordBySymbol(code);
         Integer customerId = trade.getCustomerId();
         Integer filledQuantity = trade.getFilledQuantity();
-        Double tradeAvgPrice = trade.getAvgPrice();
+        Double tradeAvgPrice = trade.getPrice();
+        Double currentPrice = stockRecord.getPrice();
 
         Portfolio portfolio = findByCustomerId(customerId);
         Asset asset = findAssetByCustomerIdAndCode(customerId, code);
 
         if (asset == null) {
-            asset = new Asset(code, filledQuantity, tradeAvgPrice, 0.0, tradeAvgPrice * filledQuantity, 0.0);
-            return addNewAsset(customerId, asset);
+            Double gainLoss = (filledQuantity * tradeAvgPrice) - (filledQuantity * currentPrice);
+            asset = new Asset(code, filledQuantity, tradeAvgPrice, currentPrice, tradeAvgPrice * filledQuantity, gainLoss);
+            return addNewStockToAssets(customerId, asset);
         } else {
-            Double newAveragePrice = ((tradeAvgPrice * filledQuantity) + asset.getValue())/(asset.getQuantity() + filledQuantity);
+            Integer newQuantity = asset.getQuantity() + filledQuantity;
+            Double newValue = asset.getValue() + (tradeAvgPrice * filledQuantity);
+            Double newAveragePrice = newValue/newQuantity;
+            Double newGainLoss = newValue - (newQuantity * currentPrice);
+
             asset.setAveragePrice(newAveragePrice);
-            asset.setQuantity(asset.getQuantity() + filledQuantity);
-            asset.setValue(asset.getValue() + (tradeAvgPrice * filledQuantity));
+            asset.setQuantity(newQuantity);
+            asset.setValue(newValue);
+            asset.setGainLoss(newGainLoss);
         }
         return portfolios.save(portfolio);
     }
 
+    /** 
+     * Process a sell trade
+     */
     public Portfolio deductFromAssets(Trade trade) {
-        String code = trade.getSymbol();
+        String code = trade.getStock().getSymbol();
+        StockRecord stockRecord = stockService.getLatestStockRecordBySymbol(code);
         Integer customerId = trade.getCustomerId();
         Integer filledQuantity = trade.getFilledQuantity();
-        Double tradeAvgPrice = trade.getAvgPrice();
+        Double tradeAvgPrice = trade.getPrice();
+        Double currentPrice = stockRecord.getPrice();
 
         Portfolio portfolio = findByCustomerId(customerId);
         Asset asset = findAssetByCustomerIdAndCode(customerId, code);
@@ -104,13 +132,21 @@ public class PortfolioServiceImpl implements PortfolioService{
         Integer newQuantity = asset.getQuantity() - filledQuantity;
         Double newValue = asset.getValue() - (filledQuantity * tradeAvgPrice);
         Double newAveragePrice = newValue/newQuantity;
+        Double newGainLoss = newValue - (newQuantity * currentPrice);
+
         asset.setAveragePrice(newAveragePrice);
         asset.setQuantity(newQuantity);
         asset.setValue(newValue);
-
-        return portfolios.save(portfolio)
+        asset.setGainLoss(newGainLoss);
+        return portfolios.save(portfolio);
     }
 
-    //update assets currentprice when lastprice on stock in assets changes
+    /** 
+     * Update the current_price field in asset when a new trade is made and the last_price of a stock changes
+     */
+    public Portfolio updateCurrentPrice(StockRecord stockRecord) {
+        //update assets currentprice when lastprice on stock in assets changes
+        return null;
+    }
 
 }

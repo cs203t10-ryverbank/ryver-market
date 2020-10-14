@@ -29,22 +29,18 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
     "status":"partial-filled"
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 ### View own portolio
 GET http://localhost:8086/portfolio
 Accept: application/json
-Authorization: Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzE2ODY2NX0.SVqRFUEzwsZQs0roeIQ5JFgJHdIkpu4pfGYwQGmpkHqKRUjy1s0Y54CoWKlSmmOjkQ_mFARnlB-YHO9o2cmhQQ
-=======
-=======
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzE2ODY2NX0.SVqRFUEzwsZQs0roeIQ5JFgJHdIkpu4pfGYwQGmpkHqKRUjy1s0Y54CoWKlSmmOjkQ_mFARnlB-YHO9o2cmhQQ
+
 ### Get user trades
 GET http://localhost:8086/trades
 Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
 
->>>>>>> 1973f952b6d2818cd31d8f2c0f17101180aa6a75
 ### Get trade by id
 GET http://localhost:8086/trades/6
 Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
->>>>>>> 6825b1321bc390522312c31876037f20aad56d96
+
