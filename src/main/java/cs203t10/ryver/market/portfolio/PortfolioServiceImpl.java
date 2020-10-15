@@ -18,8 +18,8 @@ import cs203t10.ryver.market.portfolio.PortfolioAlreadyExistsException;
 import cs203t10.ryver.market.portfolio.PortfolioNotFoundException;
 
 @Service
-public class PortfolioServiceImpl implements PortfolioService{
-    
+public class PortfolioServiceImpl implements PortfolioService {
+
     @Autowired
     private PortfolioRepository portfolios;
 
@@ -41,7 +41,7 @@ public class PortfolioServiceImpl implements PortfolioService{
         }
     }
 
-    /** 
+    /**
      * Find portfolio belonging to the given customer ID
      */
     @Override

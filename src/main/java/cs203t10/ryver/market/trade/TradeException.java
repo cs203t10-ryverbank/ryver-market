@@ -19,5 +19,14 @@ public class TradeException {
 
     }
 
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Trade rejected, quantity must be multiple of 100.")
+    public static class TradeForbiddenException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        public TradeForbiddenException(Integer quantity) {
+            super(String.format("Trade with quantity: %s must be multiple of 100", quantity));
+        }
+    }
+
 }
 
