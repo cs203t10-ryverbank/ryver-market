@@ -35,17 +35,13 @@ public class TradeControllerAuthTest {
     RyverPrincipal userPrincipal = RyverPrincipal.builder()
             .uid(3L).username("marktan").build();
 
-    @BeforeEach
-    public void mockMvcSetup() {
+    @Test
+    @WithMockUser(roles = { "USER" })
+    public void getTradesAsUser() throws Exception {
         mockMvc = MockMvcBuilders
             .standaloneSetup(tradeController)
             .setCustomArgumentResolvers((RyverPrincipalInjector) () -> userPrincipal)
             .build();
-    }
-
-    @Test
-    @WithMockUser(roles = { "USER" })
-    public void getTradesAsUser() throws Exception {
         mockMvc.perform(get("/trades"))
             .andExpect(status().isOk());
     }
@@ -53,6 +49,10 @@ public class TradeControllerAuthTest {
     @Test
     @WithMockUser(roles = { "MANAGER" })
     public void getTradesAsManager() {
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(tradeController)
+            .setCustomArgumentResolvers((RyverPrincipalInjector) () -> managerPrincipal)
+            .build();
         Assertions.assertThrows(AccessDeniedException.class, () -> {
             try {
                 mockMvc.perform(get("/trades"));
