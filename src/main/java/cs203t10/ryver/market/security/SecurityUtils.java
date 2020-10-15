@@ -19,7 +19,7 @@ public class SecurityUtils {
             return null;
         }
         Object principal = auth.getPrincipal();
-        if (principal instanceof RyverPrincipal){
+        if (principal != null && principal instanceof RyverPrincipal){
             RyverPrincipal ryverPrincipal = (RyverPrincipal) principal;
             return ryverPrincipal.jwt;
         }
