@@ -2,6 +2,7 @@ package cs203t10.ryver.market.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import cs203t10.ryver.market.security.RyverPrincipal;
 
 public class SecurityUtils {
     public static boolean isManagerAuthenticated() {
@@ -11,5 +12,19 @@ public class SecurityUtils {
         }
         return auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"));
+    }
+
+    public static String getJWT() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return null;
+        }
+        Object principal = auth.getPrincipal();
+        if (principal instanceof RyverPrincipal){
+            RyverPrincipal ryverPrincipal = (RyverPrincipal) principal;
+            return ryverPrincipal.jwt;
+        }
+
+        return null;
     }
 }

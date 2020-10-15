@@ -73,7 +73,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             return null;
         }
 
-        RyverPrincipal principal = new RyverPrincipal(uid, username);
+        RyverPrincipal principal = new RyverPrincipal(uid, username, token.replace(BEARER_PREFIX, ""));
 
         // Extract the authorities from the JWT.
         final Collection<? extends GrantedAuthority> authorities =
