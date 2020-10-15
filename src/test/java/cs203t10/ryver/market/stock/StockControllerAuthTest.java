@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -25,25 +26,20 @@ import cs203t10.ryver.market.trade.TradeService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @ExtendWith(MockitoExtension.class)
 public class StockControllerAuthTest {
 
-    @Mock
+    @Autowired
     StockRecordService stockRecordService;
 
-    @Mock
+    @Autowired
     TradeService tradeService;
-
-    @InjectMocks
-    StockController stockController;
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    FilterChainProxy springSecurityFilterChain;
 
     @Test
     @WithMockUser(roles = { "USER" })
@@ -92,11 +88,6 @@ public class StockControllerAuthTest {
             .thenReturn(testBuy);
         when(tradeService.getBestBuy("TEST"))
             .thenReturn(testSell);
-
-        // Set up mockMvc
-        mockMvc = MockMvcBuilders
-            .standaloneSetup(stockController)
-            .build();
 
         mockMvc.perform(get("/stocks/TEST")).andExpect(status().isOk());
     }
