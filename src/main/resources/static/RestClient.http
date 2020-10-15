@@ -40,11 +40,11 @@ Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
 
 ### Get trade by id
-GET http://localhost:8086/trades/6
+GET http://localhost:8086/trades/63
 Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
 
 ### Delete trade by id
-DELETE  http://localhost:8086/trades/102
+DELETE  http://localhost:8086/trades/63
 Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
