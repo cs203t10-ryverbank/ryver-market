@@ -9,14 +9,15 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.NestedServletException;
 
 import cs203t10.ryver.market.trade.Trade;
@@ -26,7 +27,6 @@ import cs203t10.ryver.market.trade.Trade.Status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("stock-test")
 @ExtendWith(MockitoExtension.class)
 public class StockControllerAuthTest {
 
@@ -35,6 +35,9 @@ public class StockControllerAuthTest {
 
     @Mock
     TradeService tradeService;
+
+    @InjectMocks
+    StockController stockController;
 
     @Autowired
     private MockMvc mockMvc;
@@ -79,13 +82,18 @@ public class StockControllerAuthTest {
     @Test
     @WithMockUser(roles = { "USER" })
     public void getStockAsUser_isOk() throws Exception {
-        // // Set up services
-        // when(stockRecordService.getLatestStockRecordBySymbol("TEST"))
-        //     .thenReturn(testRecord);
-        // when(tradeService.getBestBuy("TEST"))
-        //     .thenReturn(testBuy);
-        // when(tradeService.getBestBuy("TEST"))
-        //     .thenReturn(testSell);
+        // Set up mocked services
+        when(stockRecordService.getLatestStockRecordBySymbol("TEST"))
+            .thenReturn(testRecord);
+        when(tradeService.getBestBuy("TEST"))
+            .thenReturn(testBuy);
+        when(tradeService.getBestBuy("TEST"))
+            .thenReturn(testSell);
+
+        // Set up mockMvc
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(stockController)
+            .build();
 
         try {
             mockMvc.perform(get("/stocks/TEST")).andExpect(status().isOk());
