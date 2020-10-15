@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import cs203t10.ryver.market.security.PrincipalService;
 import cs203t10.ryver.market.security.RyverPrincipal;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.trade.TradeException.TradeNotFoundException;
@@ -24,8 +24,12 @@ public class TradeController {
     @Autowired
     TradeService tradeService;
 
+    @Autowired
+    PrincipalService principalService;
+
     @GetMapping("/trades")
-    public List<TradeView> getAllUserTrades(@AuthenticationPrincipal RyverPrincipal principal) {
+    public List<TradeView> getAllUserTrades() {
+        RyverPrincipal principal = principalService.getPrincipal();
         return tradeService.getAllUserOpenTrades(principal.uid).stream()
                 .map(TradeView::fromTrade)
                 .collect(Collectors.toList());
