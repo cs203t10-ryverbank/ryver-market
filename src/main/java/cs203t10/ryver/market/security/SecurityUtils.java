@@ -4,6 +4,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SecurityUtils {
+
     public static boolean isManagerAuthenticated() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
@@ -16,14 +17,16 @@ public class SecurityUtils {
     public static String getJWT() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
-            return null;
-        }
-        Object principal = auth.getPrincipal();
-        if (principal != null && principal instanceof RyverPrincipal){
-            RyverPrincipal ryverPrincipal = (RyverPrincipal) principal;
-            return ryverPrincipal.jwt;
+            throw new GetJWTException("Current context is not authenticated.");
         }
 
-        return null;
+        Object principal = auth.getPrincipal();
+        if (principal == null || !(principal instanceof RyverPrincipal)) {
+            throw new GetJWTException("No principal in current authentication context.");
+        }
+
+        RyverPrincipal ryverPrincipal = (RyverPrincipal) principal;
+        return ryverPrincipal.jwt;
     }
+
 }
