@@ -45,7 +45,7 @@ public class FundTransferService {
 
     private HttpEntity<String> getHttpEntity() {
         HttpHeaders headers = new HttpHeaders();
-        String jwt = SecurityUtils.getJWT();
+        String jwt = SecurityUtils.getCurrentSessionJWT();
 
         //set header to AUTH: Bearer ...
         headers.set(AUTH_HEADER_KEY, BEARER_PREFIX + jwt);
