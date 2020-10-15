@@ -1,7 +1,6 @@
 package cs203t10.ryver.market.stock;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +22,14 @@ public class StockController {
     @GetMapping("/stocks")
     public List<StockRecordView> getAllLatestStockRecords() {
         List<StockRecord> latestStockRecords = stockRecordService.getAllLatestStockRecords();
-        Map<String, Trade> bestBuyTrades = tradeService.getAllBestBuyTrades();
-        Map<String, Trade> bestSellTrades = tradeService.getAllBestSellTrades();
         return latestStockRecords.stream()
                 .map(record -> {
                     String symbol = record.getStock().getSymbol();
                     return StockRecordView.fromRecordAskBid(
                             record,
-                            bestBuyTrades.get(symbol),
-                            bestSellTrades.get(symbol));
+                            tradeService.getBestBuy(symbol),
+                            tradeService.getBestSell(symbol)
+                    );
                 })
                 .collect(Collectors.toList());
     }
@@ -41,8 +39,9 @@ public class StockController {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
         return StockRecordView.fromRecordAskBid(
                 latestStockRecord,
-                tradeService.getBestBuyTradeBySymbol(symbol),
-                tradeService.getBestSellTradeBySymbol(symbol));
+                tradeService.getBestBuy(symbol),
+                tradeService.getBestSell(symbol)
+        );
     }
 
 }

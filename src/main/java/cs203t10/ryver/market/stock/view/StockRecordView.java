@@ -38,6 +38,12 @@ public class StockRecordView {
     }
 
     public static StockRecordView fromRecordAskBid(StockRecord record, Trade bestBuy, Trade bestSell) {
+        if (bestBuy == null) {
+            bestBuy = new Trade();
+        }
+        if (bestSell == null) {
+            bestSell = new Trade();
+        }
         return StockRecordView.builder()
                 .symbol(record.getStock().getSymbol())
                 .lastPrice(record.getPrice())

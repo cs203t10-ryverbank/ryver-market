@@ -7,6 +7,7 @@ import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import cs203t10.ryver.market.stock.Stock;
+import cs203t10.ryver.market.trade.TradeException.TradeForbiddenException;
 
 import lombok.*;
 
@@ -38,6 +39,13 @@ public class Trade {
     private Stock stock;
 
     private Integer quantity = 0;
+
+    public Integer getQuantity() {
+        if (quantity % 100 != 0)
+            throw new TradeForbiddenException(quantity);
+        else
+            return quantity;
+    }
 
     private Integer filledQuantity = 0;
 
