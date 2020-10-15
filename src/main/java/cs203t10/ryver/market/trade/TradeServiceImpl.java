@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.trade.Trade.Action;
-import cs203t10.ryver.market.trade.TradeException.TradeNotFoundException;
+import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
+import cs203t10.ryver.market.exception.TradeNotFoundException;
 
 @Service
 public class TradeServiceImpl implements TradeService {
@@ -21,16 +22,70 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     public Trade saveTrade(TradeView tradeView) {
-        // If placing a buy order, the user's available balance must be
-        // deducted.
+        // Check if it is market order or limit order.
         if (tradeView.getAction() == Action.BUY) {
-            registerBuyTrade(tradeView);
+            if (tradeView.getBid() == 0){
+                tradeView = registerMarketBuy(tradeView);
+            }else{
+                registerLimitBuy(tradeView);
+            }
         }
+        //save trade
         Trade trade = tradeView.toTrade();
-        return tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
+        tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
+
+        // Reconcile market status after adding trade.
+        trade = reconcileMarket(trade, tradeView.getSymbol());
+        return trade;
+    }
+
+    private Trade reconcileMarket(Trade trade, String symbol){
+        // TODO: DEDUCT + ADD ACTUAL BALANCE
+        // TODO: MATCH BY TIME 
+        if (trade.getAction() == Action.BUY) {
+            Trade bestSell = getBestSell(symbol);
+
+            if (bestSell == null){
+                trade.setStatus(Status.OPEN);
+                return trade;
+            }
+
+            Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
+            Integer buyQuantity = trade.getQuantity() - trade.getFilledQuantity();
+            if (sellQuantity > buyQuantity){
+                trade.setFilledQuantity(trade.getQuantity());
+                bestSell.setFilledQuantity(bestSell.getFilledQuantity() + buyQuantity);
+                updateTrade(bestSell);
+            } else{
+                trade.setFilledQuantity(trade.getFilledQuantity() + sellQuantity);
+                bestSell.setFilledQuantity(bestSell.getFilledQuantity() + sellQuantity);
+                updateTrade(bestSell);
+            }
+
+            updateTrade(trade);
+            return trade;
+        }
+        return trade;
+    }
+
+    private TradeView registerMarketBuy(TradeView tradeView) {
+        // Market order: set trade bid to market best ask
+        Trade bestSell = getBestSell(tradeView.getSymbol());
+        if (bestSell != null) {
+            Double bestSellPrice = bestSell.getPrice();
+            tradeView.setBid(bestSellPrice);
+        }
+        registerBuyTrade(tradeView);
+        return tradeView;
+    }
+
+    private void registerLimitBuy(TradeView tradeView) {
+        registerBuyTrade(tradeView);
     }
 
     private void registerBuyTrade(TradeView tradeView) {
+        // If placing a buy order, the user's available balance must be
+        // deducted.
         fundTransferService.deductAvailableBalance(
                 tradeView.getCustomerId(),
                 tradeView.getAccountId(),
@@ -110,6 +165,25 @@ public class TradeServiceImpl implements TradeService {
     @Override
     public List<Trade> getAllUserOpenTrades(Long customerId) {
         return tradeRepo.findAllByCustomerId(customerId);
+    }
+
+    @Override
+    public Trade updateTrade(Trade newTrade) {
+        Integer tradeId = newTrade.getId();
+        return tradeRepo.findById(tradeId).map(trade -> {
+            trade.setFilledQuantity(newTrade.getFilledQuantity());
+            System.out.println("filled: " + trade.getFilledQuantity());
+            System.out.println("total: " + trade.getQuantity());
+            // Set status
+            if (trade.getFilledQuantity() == trade.getQuantity()){
+                trade.setStatus(Status.FILLED);
+            } else if (trade.getFilledQuantity() > 0){
+                trade.setStatus(Status.PARTIAL_FILLED);
+            } else {
+                trade.setStatus(Status.OPEN);
+            }
+            return tradeRepo.save(trade);
+        }).orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
     @Override

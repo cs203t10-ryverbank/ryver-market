@@ -13,6 +13,7 @@ public interface TradeService {
     Trade getBestMarketSellBySymbol(String symbol);
     Trade getBestLimitBuyBySymbol(String symbol);
     Trade getBestLimitSellBySymbol(String symbol);
+    Trade updateTrade(Trade trade);
     List<Trade> getAllUserOpenTrades(Long customerId);
     void deleteTrade(Integer tradeId);
 }
