@@ -112,4 +112,9 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.findAllByCustomerId(customerId);
     }
 
+    @Override
+    public void deleteTrade(Integer tradeId) {
+        tradeRepo.delete(getTrade(tradeId));
+    }
+
 }

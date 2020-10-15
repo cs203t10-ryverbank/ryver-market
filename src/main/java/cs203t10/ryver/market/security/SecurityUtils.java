@@ -12,4 +12,18 @@ public class SecurityUtils {
         return auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"));
     }
+
+    public static String getJWT() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return null;
+        }
+        Object principal = auth.getPrincipal();
+        if (principal != null && principal instanceof RyverPrincipal){
+            RyverPrincipal ryverPrincipal = (RyverPrincipal) principal;
+            return ryverPrincipal.jwt;
+        }
+
+        return null;
+    }
 }

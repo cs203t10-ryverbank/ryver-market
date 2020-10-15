@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import cs203t10.ryver.market.security.RyverPrincipal;
 import cs203t10.ryver.market.trade.view.TradeView;
+import cs203t10.ryver.market.trade.TradeException.TradeNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +43,15 @@ public class TradeController {
     public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
         Trade savedTrade = tradeService.saveTrade(tradeView);
         return TradeView.fromTrade(savedTrade);
+    }
+
+    @DeleteMapping("/trades/{tradeId}")
+    @PreAuthorize("hasRole('USER')")
+    public Trade deleteTrade(@PathVariable Integer tradeId) {
+        Trade trade = tradeService.getTrade(tradeId);
+        if(trade == null) throw new TradeNotFoundException(tradeId);
+        tradeService.deleteTrade(tradeId);
+        return trade;
     }
 
 }
