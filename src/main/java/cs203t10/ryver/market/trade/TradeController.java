@@ -43,10 +43,11 @@ public class TradeController {
 
     @DeleteMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
-    public void deleteTrade(@PathVariable Integer tradeId) {
+    public Trade deleteTrade(@PathVariable Integer tradeId) {
         Trade trade = tradeService.getTrade(tradeId);
         if(trade == null) throw new TradeNotFoundException(tradeId);
         tradeService.deleteTrade(tradeId);
+        return trade;
     }
 
 }
