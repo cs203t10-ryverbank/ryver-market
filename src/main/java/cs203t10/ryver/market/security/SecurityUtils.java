@@ -14,7 +14,7 @@ public class SecurityUtils {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"));
     }
 
-    public static String getJWT() {
+    public static String getCurrentSessionJWT() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
             throw new GetJWTException("Current context is not authenticated.");
