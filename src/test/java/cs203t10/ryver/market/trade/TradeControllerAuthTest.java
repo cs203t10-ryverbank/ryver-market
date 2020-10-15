@@ -64,6 +64,9 @@ public class TradeControllerAuthTest {
 
     @Test
     public void getTradesAnonymous() {
+        mockMvc = MockMvcBuilders
+            .standaloneSetup(tradeController)
+            .build();
         Assertions.assertThrows(AuthenticationCredentialsNotFoundException.class, () -> {
             try {
                 mockMvc.perform(get("/trades"));
