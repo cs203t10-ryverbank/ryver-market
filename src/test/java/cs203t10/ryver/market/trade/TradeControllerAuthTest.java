@@ -9,19 +9,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.MethodParameter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.util.NestedServletException;
 
 import cs203t10.ryver.market.security.RyverPrincipal;
+import cs203t10.ryver.market.security.RyverPrincipalInjector;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -30,32 +26,25 @@ public class TradeControllerAuthTest {
     @Autowired
     MockMvc mockMvc;
 
-    private HandlerMethodArgumentResolver putAuthenticationPrincipal = new HandlerMethodArgumentResolver() {
-        @Override
-        public boolean supportsParameter(MethodParameter parameter) {
-            return parameter.getParameterType().isAssignableFrom(RyverPrincipal.class);
-        }
-
-        @Override
-        public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-                NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-            return RyverPrincipal.builder().uid(3L).username("marktan").build();
-        }
-    };
-
     @Autowired
     TradeController tradeController;
 
     RyverPrincipal managerPrincipal = RyverPrincipal.builder()
             .uid(1L).username("manager_1").build();
+
     RyverPrincipal userPrincipal = RyverPrincipal.builder()
             .uid(3L).username("marktan").build();
+    RyverPrincipalInjector userPrincipalInjector = new RyverPrincipalInjector() {
+        public RyverPrincipal getRyverPrincipal() {
+            return userPrincipal;
+        }
+    };
 
     @BeforeEach
     public void mockMvcSetup() {
         mockMvc = MockMvcBuilders
             .standaloneSetup(tradeController)
-            .setCustomArgumentResolvers(putAuthenticationPrincipal)
+            .setCustomArgumentResolvers(userPrincipalInjector)
             .build();
     }
 
