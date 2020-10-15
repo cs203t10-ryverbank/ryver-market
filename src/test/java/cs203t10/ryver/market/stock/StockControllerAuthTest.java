@@ -16,9 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
 
 import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.trade.TradeService;
@@ -41,6 +41,9 @@ public class StockControllerAuthTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    FilterChainProxy springSecurityFilterChain;
 
     @Test
     @WithMockUser(roles = { "USER" })
@@ -95,12 +98,19 @@ public class StockControllerAuthTest {
             .standaloneSetup(stockController)
             .build();
 
-        try {
-            mockMvc.perform(get("/stocks/TEST")).andExpect(status().isOk());
-        } catch (NestedServletException e) {
-            System.out.println(e.getRootCause().getMessage());
-            e.getRootCause().printStackTrace();
-        }
+        mockMvc.perform(get("/stocks/TEST")).andExpect(status().isOk());
     }
+
+    @Test
+    @WithMockUser(roles = { "MANAGER" })
+    public void getStockAsManager_isForbidden() throws Exception {
+        mockMvc.perform(get("/stocks/TEST")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void getStockAnonymous_isUnauthorized() throws Exception {
+        mockMvc.perform(get("/stocks/TEST")).andExpect(status().isUnauthorized());
+    }
+
 }
 
