@@ -1,6 +1,5 @@
 package cs203t10.ryver.market.fund;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,25 +36,28 @@ public class FundTransferService {
             System.out.println("no ryver-fts");
         }
 
-        return instances.get(0).getUri().toString() + "/accounts";
+        return instances.get(0).getUri().toString();
     }
 
-    private HttpEntity getHttpEntity() {
+    private String getAccountsUrl() {
+        return getFtsHostUrl() + "/accounts";
+    }
+
+    private HttpEntity<String> getHttpEntity() {
         HttpHeaders headers = new HttpHeaders();
         String jwt = SecurityUtils.getJWT();
 
         //set header to AUTH: Bearer ...
-        headers.set(AUTH_HEADER_KEY, BEARER_PREFIX  + jwt);
+        headers.set(AUTH_HEADER_KEY, BEARER_PREFIX + jwt);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity <String> entity = new HttpEntity<>(headers);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-       return entity;
+        return entity;
     }
 
     public void deductAvailableBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
-        // TODO: fix
-        String url = getFtsHostUrl();
+        String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
         ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
@@ -65,8 +67,7 @@ public class FundTransferService {
 
     public void deductBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
-        // TODO: fix
-        String url = getFtsHostUrl();
+        String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
         ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
@@ -76,9 +77,8 @@ public class FundTransferService {
 
     public void addBalance(Integer customerId, Integer accountId, Double amount)
             throws AccountNotAllowedException {
-        // TODO: fix
-        String url = getFtsHostUrl();
-        HttpEntity<String> req = null;
+        String url = getAccountsUrl();
+        HttpEntity<String> req = getHttpEntity();
         ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
         //for debugging
