@@ -59,7 +59,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
      */
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(AUTH_HEADER_KEY);
-        if (token == null) {
+        if (token == null || !token.startsWith(BEARER_PREFIX)) {
             return null;
         }
         DecodedJWT jwt = JWT.require(HMAC512(SECRET.getBytes()))
@@ -73,7 +73,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
             return null;
         }
 
-        RyverPrincipal principal = new RyverPrincipal(uid, username);
+        RyverPrincipal principal = new RyverPrincipal(uid, username, token.replace(BEARER_PREFIX, ""));
 
         // Extract the authorities from the JWT.
         final Collection<? extends GrantedAuthority> authorities =
