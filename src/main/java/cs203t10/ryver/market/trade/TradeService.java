@@ -14,4 +14,5 @@ public interface TradeService {
     Trade getBestLimitBuyBySymbol(String symbol);
     Trade getBestLimitSellBySymbol(String symbol);
     List<Trade> getAllUserOpenTrades(Long customerId);
+    void deleteTrade(Integer tradeId);
 }
