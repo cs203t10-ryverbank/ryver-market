@@ -1,15 +1,17 @@
 package cs203t10.ryver.market.trade;
 
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.web.util.NestedServletException;
 
 import cs203t10.ryver.market.security.RyverPrincipal;
 
@@ -65,15 +68,25 @@ public class TradeControllerAuthTest {
 
     @Test
     @WithMockUser(roles = { "MANAGER" })
-    public void getTradesAsManager() throws Exception {
-        mockMvc.perform(get("/trades"))
-            .andExpect(status().isForbidden());
+    public void getTradesAsManager() {
+        Assertions.assertThrows(AccessDeniedException.class, () -> {
+            try {
+                mockMvc.perform(get("/trades"));
+            } catch (NestedServletException e) {
+                throw e.getRootCause();
+            }
+        });
     }
 
     @Test
-    public void getTradesAnonymous() throws Exception {
-        mockMvc.perform(get("/trades"))
-            .andExpect(status().isUnauthorized());
+    public void getTradesAnonymous() {
+        Assertions.assertThrows(AuthenticationCredentialsNotFoundException.class, () -> {
+            try {
+                mockMvc.perform(get("/trades"));
+            } catch (NestedServletException e) {
+                throw e.getRootCause();
+            }
+        });
     }
 
 }
