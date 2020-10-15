@@ -2,7 +2,6 @@ package cs203t10.ryver.market.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import cs203t10.ryver.market.security.RyverPrincipal;
 
 public class SecurityUtils {
     public static boolean isManagerAuthenticated() {

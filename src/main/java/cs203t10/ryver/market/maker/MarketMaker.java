@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRepository;
-import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.trade.TradeRepository;
 import cs203t10.ryver.market.trade.TradeService;
 import cs203t10.ryver.market.trade.Trade.Action;

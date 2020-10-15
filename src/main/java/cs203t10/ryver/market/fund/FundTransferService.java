@@ -18,7 +18,6 @@ import cs203t10.ryver.market.fund.exception.AccountNotAllowedException;
 import cs203t10.ryver.market.fund.exception.InsufficientBalanceException;
 import cs203t10.ryver.market.security.SecurityUtils;
 import static cs203t10.ryver.market.security.SecurityConstants.AUTH_HEADER_KEY;
-import static cs203t10.ryver.market.security.SecurityConstants.BASIC_PREFIX;
 import static cs203t10.ryver.market.security.SecurityConstants.BEARER_PREFIX;
 
 @Service
@@ -58,7 +57,6 @@ public class FundTransferService {
         // TODO: fix
         String url = getFtsHostUrl();
         HttpEntity<String> req = getHttpEntity();
-
         ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
         //for debugging
@@ -80,7 +78,7 @@ public class FundTransferService {
             throws AccountNotAllowedException {
         // TODO: fix
         String url = getFtsHostUrl();
-        ResponseEntity<String> req = null;
+        HttpEntity<String> req = null;
         ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
         //for debugging
