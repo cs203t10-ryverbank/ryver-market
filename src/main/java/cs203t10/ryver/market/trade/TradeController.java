@@ -1,10 +1,12 @@
 package cs203t10.ryver.market.trade;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RolesAllowed("USER")
 public class TradeController {
 
     @Autowired
@@ -28,12 +31,13 @@ public class TradeController {
     }
 
     @GetMapping("/trades/{tradeId}")
+    @PostAuthorize("principal.uid == returnObject.getCustomerId()")
     public TradeView getTrade(@PathVariable Integer tradeId) {
         return TradeView.fromTrade(tradeService.getTrade(tradeId));
     }
 
     @PostMapping("/trades")
-    @PreAuthorize("principal.uid == #tradeView.getCustomerId() and hasRole('USER')")
+    @PreAuthorize("principal.uid == #tradeView.getCustomerId()")
     @ResponseStatus(HttpStatus.CREATED)
     public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
         Trade savedTrade = tradeService.saveTrade(tradeView);
