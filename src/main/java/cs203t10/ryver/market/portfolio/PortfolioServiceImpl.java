@@ -7,12 +7,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.trade.Trade;
-
+import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 
 import cs203t10.ryver.market.portfolio.Portfolio;
-import cs203t10.ryver.market.portfolio.Asset;
+import cs203t10.ryver.market.portfolio.asset.Asset;
+import cs203t10.ryver.market.portfolio.asset.AssetService;
 import cs203t10.ryver.market.portfolio.PortfolioAlreadyExistsException;
 import cs203t10.ryver.market.portfolio.PortfolioNotFoundException;
 
@@ -23,11 +24,14 @@ public class PortfolioServiceImpl implements PortfolioService{
     private PortfolioRepository portfolios;
 
     @Autowired
-    private StockRecordService stockService;
+    private AssetService assetService;
+
+    @Autowired StockRecordService stockRecordService;
     
     /** 
      * Creates a portfolio for an existing user 
      */
+    @Override
     public Portfolio createPortfolio(Integer customerId) {
         Portfolio portfolio = new Portfolio(customerId, null, 0.0, 0.0);
         try {
@@ -40,113 +44,50 @@ public class PortfolioServiceImpl implements PortfolioService{
     /** 
      * Find portfolio belonging to the given customer ID
      */
+    @Override
     public Portfolio findByCustomerId(Integer customerId) {
         return portfolios.findByCustomerId(customerId)
                 .orElseThrow(() -> new PortfolioNotFoundException(customerId));
     }
 
-    /** 
-     * Find list of assets belonging to the customer ID
-     */
-    public List<Asset> findAssetsByCustomerId(Integer customerId) {
-        Portfolio portfolio = findByCustomerId(customerId);
-        return portfolio.getAssets();
-    }
-
-    /** 
-     * Find list of asset with a particular stock symbol belonging to the customer ID
-     */
-    public Asset findAssetByCustomerIdAndCode(Integer customerId, String code) {
-        List<Asset> assets = findAssetsByCustomerId(customerId);
-        for (int i = 0; i < assets.size(); i++) {
-            Asset asset = assets.get(i);
-            String assetCode = asset.getCode();
-            if (assetCode == code) return asset;
+    @Override
+    public Portfolio calculateUnrealizedGainLoss(Portfolio portfolio) {
+        List<Asset> assets = portfolio.getAssets();
+        Double unrealizedGainLoss = 0.0;
+        for (Asset asset : assets) {
+            unrealizedGainLoss += asset.getGainLoss();
         }
-        return null;
-    }
-
-    /** 
-     * Add a stock which customer does not currently own to the assets list
-     */
-    public Portfolio addNewStockToAssets(Integer customerId, Asset asset) {
-        String code = asset.getCode();
-        Portfolio portfolio = findByCustomerId(customerId);
-        Asset newAsset = findAssetByCustomerIdAndCode(customerId, code);
-        if (newAsset != null) {
-            return portfolio;
-        } else {
-            List<Asset> assets = portfolio.getAssets();
-            assets.add(newAsset);
-            portfolio.setAssets(assets);
-            return portfolios.save(portfolio);
-        }
-    }
-
-    /** 
-     * Process a buy trade
-     */
-    public Portfolio addToAssets(Trade trade) {
-        String code = trade.getStock().getSymbol();
-        StockRecord stockRecord = stockService.getLatestStockRecordBySymbol(code);
-        Integer customerId = trade.getCustomerId();
-        Integer filledQuantity = trade.getFilledQuantity();
-        Double tradeAvgPrice = trade.getPrice();
-        Double currentPrice = stockRecord.getPrice();
-
-        Portfolio portfolio = findByCustomerId(customerId);
-        Asset asset = findAssetByCustomerIdAndCode(customerId, code);
-
-        if (asset == null) {
-            Double gainLoss = (filledQuantity * tradeAvgPrice) - (filledQuantity * currentPrice);
-            asset = new Asset(code, filledQuantity, tradeAvgPrice, currentPrice, tradeAvgPrice * filledQuantity, gainLoss);
-            return addNewStockToAssets(customerId, asset);
-        } else {
-            Integer newQuantity = asset.getQuantity() + filledQuantity;
-            Double newValue = asset.getValue() + (tradeAvgPrice * filledQuantity);
-            Double newAveragePrice = newValue/newQuantity;
-            Double newGainLoss = newValue - (newQuantity * currentPrice);
-
-            asset.setAveragePrice(newAveragePrice);
-            asset.setQuantity(newQuantity);
-            asset.setValue(newValue);
-            asset.setGainLoss(newGainLoss);
-        }
+        portfolio.setUnrealizedGainLoss(unrealizedGainLoss);
         return portfolios.save(portfolio);
     }
 
-    /** 
-     * Process a sell trade
-     */
-    public Portfolio deductFromAssets(Trade trade) {
-        String code = trade.getStock().getSymbol();
-        StockRecord stockRecord = stockService.getLatestStockRecordBySymbol(code);
-        Integer customerId = trade.getCustomerId();
+    @Override
+    public Portfolio updateTotalGainLoss(Portfolio portfolio, Trade trade) {
+        Stock stock = trade.getStock();
+        String code = stock.getSymbol();
+        StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
+        Double currentPrice = stockRecord.getPrice();
         Integer filledQuantity = trade.getFilledQuantity();
         Double tradeAvgPrice = trade.getPrice();
-        Double currentPrice = stockRecord.getPrice();
-
-        Portfolio portfolio = findByCustomerId(customerId);
-        Asset asset = findAssetByCustomerIdAndCode(customerId, code);
-
-        Integer newQuantity = asset.getQuantity() - filledQuantity;
-        Double newValue = asset.getValue() - (filledQuantity * tradeAvgPrice);
-        Double newAveragePrice = newValue/newQuantity;
-        Double newGainLoss = newValue - (newQuantity * currentPrice);
-
-        asset.setAveragePrice(newAveragePrice);
-        asset.setQuantity(newQuantity);
-        asset.setValue(newValue);
-        asset.setGainLoss(newGainLoss);
+        Double gainLoss = filledQuantity * (tradeAvgPrice - currentPrice);
+        portfolio.setTotalGainLoss(portfolio.getTotalGainLoss() + gainLoss);
         return portfolios.save(portfolio);
     }
 
-    /** 
-     * Update the current_price field in asset when a new trade is made and the last_price of a stock changes
-     */
-    public Portfolio updateCurrentPrice(StockRecord stockRecord) {
-        //update assets currentprice when lastprice on stock in assets changes
-        return null;
+    @Override
+    public Portfolio processBuyTrade(Trade trade) {
+        Integer customerId = trade.getCustomerId();
+        Portfolio portfolio = findByCustomerId(customerId);
+        List<Asset> asset = assetService.processBuyTrade(trade, portfolio);
+        return calculateUnrealizedGainLoss(portfolio);
     }
 
+    @Override
+    public Portfolio processSellTrade(Trade trade) {
+        List<Asset> asset = assetService.processSellTrade(trade);
+        Integer customerId = trade.getCustomerId();
+        Portfolio portfolio = findByCustomerId(customerId);
+        calculateUnrealizedGainLoss(portfolio);
+        return updateTotalGainLoss(portfolio, trade);
+    }
 }
