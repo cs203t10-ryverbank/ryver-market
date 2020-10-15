@@ -34,17 +34,12 @@ public class TradeControllerAuthTest {
 
     RyverPrincipal userPrincipal = RyverPrincipal.builder()
             .uid(3L).username("marktan").build();
-    RyverPrincipalInjector userPrincipalInjector = new RyverPrincipalInjector() {
-        public RyverPrincipal getRyverPrincipal() {
-            return userPrincipal;
-        }
-    };
 
     @BeforeEach
     public void mockMvcSetup() {
         mockMvc = MockMvcBuilders
             .standaloneSetup(tradeController)
-            .setCustomArgumentResolvers(userPrincipalInjector)
+            .setCustomArgumentResolvers((RyverPrincipalInjector) () -> userPrincipal)
             .build();
     }
 

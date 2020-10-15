@@ -6,20 +6,21 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-public abstract class RyverPrincipalInjector implements HandlerMethodArgumentResolver {
+@FunctionalInterface
+public interface RyverPrincipalInjector extends HandlerMethodArgumentResolver {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    default boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterType().isAssignableFrom(RyverPrincipal.class);
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+    default Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
             NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         return getRyverPrincipal();
     }
 
-    public abstract RyverPrincipal getRyverPrincipal();
+    RyverPrincipal getRyverPrincipal();
 
 }
 
