@@ -25,6 +25,7 @@ public class TradeController {
 
     @GetMapping("/trades")
     public List<TradeView> getAllUserTrades(@AuthenticationPrincipal RyverPrincipal principal) {
+        System.out.println("\n\n\n\n HELLO!!! " + principal.username);
         return tradeService.getAllUserOpenTrades(principal.uid).stream()
                 .map(TradeView::fromTrade)
                 .collect(Collectors.toList());

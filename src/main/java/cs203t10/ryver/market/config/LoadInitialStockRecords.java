@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import cs203t10.ryver.market.stock.scrape.ScrapingService;
 
-@Component
-@Order(1)
+// @Component
+// @Order(1)
 public class LoadInitialStockRecords implements CommandLineRunner {
 
     @Autowired
