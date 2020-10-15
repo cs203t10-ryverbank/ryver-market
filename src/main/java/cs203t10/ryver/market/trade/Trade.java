@@ -12,7 +12,7 @@ import cs203t10.ryver.market.trade.TradeException.TradeForbiddenException;
 import lombok.*;
 
 @Entity
-@Data
+@Data @Builder
 @AllArgsConstructor @NoArgsConstructor
 public class Trade {
 
