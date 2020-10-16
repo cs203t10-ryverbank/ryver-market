@@ -28,6 +28,10 @@ public class StockRecordRepositoryTest {
     Date firstDate = new Date(1602321010000L);
     Date secondDate = new Date(1602324610000L);
 
+    Stock a1 = new Stock("A1");
+    Stock b2 = new Stock("B2");
+    Stock c3 = new Stock("C3");
+
     StockRecord a1_1 = StockRecord.builder()
             .stock(new Stock("A1")).submittedDate(firstDate)
             .price(1.0).totalVolume(1000).build();
@@ -49,11 +53,7 @@ public class StockRecordRepositoryTest {
 
     @BeforeEach
     public void saveInitialRecords() {
-        stockRepo.saveAll(List.of(
-                new Stock("A1"),
-                new Stock("B2"),
-                new Stock("C3")
-        ));
+        stockRepo.saveAll(List.of(a1, b2, c3));
         stockRecordRepo.saveAll(List.of(a1_1, b2_1, b2_2, c3_1, c3_2));
     }
 
@@ -70,7 +70,7 @@ public class StockRecordRepositoryTest {
     }
 
     @Test
-    public void findAllBySymbolNoSuchStockTest() {
+    public void findAllBySymbolTest_noSuchStock() {
         List<StockRecord> emptyResult = stockRecordRepo.findAllBySymbol("Z26");
         assertEquals(List.of(), emptyResult);
     }
@@ -88,7 +88,7 @@ public class StockRecordRepositoryTest {
     }
 
     @Test
-    public void findLatestBySymbolNoSuchStockTest() {
+    public void findLatestBySymbolTest_noSuchStock() {
         Optional<StockRecord> latest = stockRecordRepo.findLatestBySymbol("Z26");
         assertEquals(Optional.empty(), latest);
     }
