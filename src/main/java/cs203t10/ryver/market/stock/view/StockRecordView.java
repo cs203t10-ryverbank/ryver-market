@@ -34,10 +34,13 @@ public class StockRecordView {
     private Double ask = 0.0;
 
     public static StockRecordView fromRecordAskBid(StockRecord record) {
-        return fromRecordAskBid(record, new Trade(), new Trade());
+        return fromRecordAskBid(record, null, null);
     }
 
     public static StockRecordView fromRecordAskBid(StockRecord record, Trade bestBuy, Trade bestSell) {
+        if (record == null) {
+            throw new RuntimeException("Cannot build stock record view from null record");
+        }
         if (bestBuy == null) {
             bestBuy = new Trade();
         }
