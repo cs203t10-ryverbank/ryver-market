@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,7 @@ public class TradeRepositoryTest {
     Stock a1 = new Stock("A1");
     Stock b2 = new Stock("B2");
     Stock c3 = new Stock("C3");
+    Stock d4 = new Stock("D4");
     final String FAKE_STOCK_SYMBOL = "Z26";
 
     Trade tradeA1_1 = Trade.builder()
@@ -58,7 +60,7 @@ public class TradeRepositoryTest {
 
     @BeforeEach
     public void saveInitialStocks() {
-        stockRepo.saveAll(List.of(a1, b2, c3));
+        stockRepo.saveAll(List.of(a1, b2, c3, d4));
     }
 
     @AfterEach
@@ -299,6 +301,81 @@ public class TradeRepositoryTest {
                 = tradeRepo.findBestLimitSellBySymbol(FAKE_STOCK_SYMBOL);
 
         assertEquals(Optional.empty(), bestLimitSellFromRepo);
+    }
+
+    Trade tradeA1_1_Buy = Trade.builder()
+            .stock(a1).action(Action.BUY).quantity(1000).filledQuantity(0)
+            .customerId(1).accountId(1).submittedDate(secondDate)
+            .status(Status.OPEN).price(1.5).build();
+
+    Trade tradeD4_1_Buy = Trade.builder()
+            .stock(d4).action(Action.BUY).quantity(2000).filledQuantity(0)
+            .customerId(1).accountId(1).submittedDate(secondDate)
+            .status(Status.OPEN).price(1.5).build();
+
+    Trade tradeD4_2_Buy = Trade.builder()
+            .stock(d4).action(Action.BUY).quantity(4000).filledQuantity(0)
+            .customerId(1).accountId(1).submittedDate(secondDate)
+            .status(Status.OPEN).price(1.5).build();
+
+    Trade tradeA1_1_Sell = Trade.builder()
+            .stock(a1).action(Action.SELL).quantity(8000).filledQuantity(0)
+            .customerId(1).accountId(1).submittedDate(secondDate)
+            .status(Status.OPEN).price(1.5).build();
+
+    Trade tradeD4_1_Sell = Trade.builder()
+            .stock(d4).action(Action.SELL).quantity(16000).filledQuantity(0)
+            .customerId(1).accountId(1).submittedDate(secondDate)
+            .status(Status.OPEN).price(1.5).build();
+
+    Trade tradeD4_2_Sell = Trade.builder()
+            .stock(d4).action(Action.SELL).quantity(32000).filledQuantity(0)
+            .customerId(1).accountId(1).submittedDate(secondDate)
+            .status(Status.OPEN).price(1.5).build();
+
+
+    @Test
+    public void getBuyQuantityBySymbolTest() {
+        tradeRepo.saveAll(List.of(
+                tradeA1_1_Buy,
+                tradeA1_1_Sell,
+                tradeD4_1_Buy,
+                tradeD4_2_Buy,
+                tradeD4_1_Sell,
+                tradeD4_2_Sell
+        ));
+
+        String symbol = tradeD4_1_Buy.getStock().getSymbol();
+        Long quantityFromRepo = tradeRepo.getBuyQuantityBySymbol(symbol);
+
+        Long expected = Stream.of(tradeD4_1_Buy, tradeD4_2_Buy)
+            .map(Trade::getQuantity)
+            .mapToLong(i -> (long) i)
+            .sum();
+
+        assertEquals(expected, quantityFromRepo);
+    }
+
+    @Test
+    public void getSellQuantityBySymbolTest() {
+        tradeRepo.saveAll(List.of(
+                tradeA1_1_Buy,
+                tradeA1_1_Sell,
+                tradeD4_1_Buy,
+                tradeD4_2_Buy,
+                tradeD4_1_Sell,
+                tradeD4_2_Sell
+        ));
+
+        String symbol = tradeD4_1_Buy.getStock().getSymbol();
+        Long quantityFromRepo = tradeRepo.getSellQuantityBySymbol(symbol);
+
+        Long expected = Stream.of(tradeD4_1_Sell, tradeD4_2_Sell)
+            .map(Trade::getQuantity)
+            .mapToLong(i -> (long) i)
+            .sum();
+
+        assertEquals(expected, quantityFromRepo);
     }
 
 }
