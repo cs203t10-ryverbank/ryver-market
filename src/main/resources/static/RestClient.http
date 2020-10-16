@@ -20,7 +20,7 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Basic bryan password
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
 
 {
     "action":"buy",
@@ -31,8 +31,10 @@ Authorization: Basic bryan password
     "avg_price":3.2,
     "date":1602535210000,
     "account_id":13,
-    "customer_id": 4
+    "customer_id": 7
 }
+
+### Create new trade with non-existent stock
 
 ### View own portolio
 GET http://localhost:8086/portfolio
