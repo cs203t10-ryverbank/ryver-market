@@ -57,6 +57,7 @@ public class TradeServiceImpl implements TradeService {
                     .orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
+    // TODO: Fix logic for best buy and sell.
     @Override
     public Trade getBestBuy(String symbol) {
         Trade bestMarket = getBestMarketBuyBySymbol(symbol);
