@@ -39,7 +39,7 @@ public class TradeRepositoryTest {
     Stock b2 = new Stock("B2");
     Stock c3 = new Stock("C3");
 
-    Trade tradeA1 = Trade.builder()
+    Trade tradeA1_1 = Trade.builder()
             .stock(a1).action(Action.BUY)
             .quantity(10000).filledQuantity(0)
             .customerId(1).accountId(1)
@@ -73,7 +73,7 @@ public class TradeRepositoryTest {
     @Test
     public void saveWithSymbolTest() {
         // Set up trade to save.
-        Trade tradeA1WithoutStock = tradeA1.toBuilder().stock(null).build();
+        Trade tradeA1WithoutStock = tradeA1_1.toBuilder().stock(null).build();
 
         // Save the trade, which should populate the id and stock fields.
         Trade savedTrade = tradeRepo.saveWithSymbol(tradeA1WithoutStock, a1.getSymbol());
@@ -81,13 +81,13 @@ public class TradeRepositoryTest {
         // Remove the Id from the saved trade for comparison's sake.
         Trade savedTradeWithoutId = savedTrade.toBuilder().id(null).build();
 
-        assertEquals(tradeA1, savedTradeWithoutId);
+        assertEquals(tradeA1_1, savedTradeWithoutId);
     }
 
     @Test
     public void saveWithSymbolTest_noSuchStock() {
         // Set up trade to save.
-        Trade tradeA1WithoutStock = tradeA1.toBuilder().stock(null).build();
+        Trade tradeA1WithoutStock = tradeA1_1.toBuilder().stock(null).build();
 
         // Save the trade with a non-existent stock symbol.
         assertThrows(NoSuchStockException.class, () -> {
@@ -127,6 +127,26 @@ public class TradeRepositoryTest {
         Optional<Trade> latestNonExistentTrade = tradeRepo.findLatestBySymbol("Z26");
 
         assertEquals(Optional.empty(), latestNonExistentTrade);
+    }
+
+    @Test
+    public void findAllByCustomerIdTest() {
+        // A1_1 and B2_1 are by customerId 1, B2_2 are by customerId 2.
+        tradeRepo.saveAll(List.of(tradeA1_1, tradeB2_1, tradeB2_2));
+
+        var customer1Trades = tradeRepo.findAllByCustomerId(1L);
+
+        assertEquals(List.of(tradeA1_1, tradeB2_1), customer1Trades);
+    }
+
+    @Test
+    public void findAllByCustomerIdTest_noCustomerById() {
+        // A1_1 and B2_1 are by customerId 1, B2_2 are by customerId 2.
+        tradeRepo.saveAll(List.of(tradeA1_1, tradeB2_1, tradeB2_2));
+
+        var customer3Trades = tradeRepo.findAllByCustomerId(3L);
+
+        assertEquals(List.of(), customer3Trades);
     }
 
 }
