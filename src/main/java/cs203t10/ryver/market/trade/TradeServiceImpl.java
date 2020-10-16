@@ -122,6 +122,7 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     public List<Trade> getAllUserOpenTrades(Long customerId) {
+        // TODO: This returns all trades, not just open trades.
         return tradeRepo.findAllByCustomerId(customerId);
     }
 
