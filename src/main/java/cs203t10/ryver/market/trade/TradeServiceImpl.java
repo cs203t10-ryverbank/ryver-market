@@ -40,8 +40,7 @@ public class TradeServiceImpl implements TradeService {
 
     private void reconcileMarket(String symbol){
         // TODO: DEDUCT + ADD ACTUAL BALANCE
-        // CHECK IF RECONCILIATION DOES 1 EXTRA TIME LOOK AT TRADE ID 101
-        // CHECK TIMING
+        // TODO: MAKE STOCK RECORDS
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 
