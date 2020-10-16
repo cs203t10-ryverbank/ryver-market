@@ -1,14 +1,10 @@
 package cs203t10.ryver.market.trade;
 
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -68,23 +64,6 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         return query
             .setParameter("customer_id", customerId)
             .getResultList();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<Trade> findAllLatestPerStock() {
-        final String sql = String.join(" ",
-            "SELECT * FROM TRADE t",
-            "JOIN (",
-                "SELECT MAX(submitted_date) AS latest_date, stock_id",
-                "FROM TRADE",
-                "GROUP BY stock_id",
-            ") t2",
-            "ON t.stock_id = t2.stock_id",
-            "AND t.submitted_date = t2.latest_date"
-        );
-        Query query = entityManager.createNativeQuery(sql, Trade.class);
-        return query.getResultList();
     }
 
     @Override
