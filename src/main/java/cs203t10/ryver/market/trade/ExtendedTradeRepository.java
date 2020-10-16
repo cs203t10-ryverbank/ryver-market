@@ -11,7 +11,6 @@ public interface ExtendedTradeRepository {
     Optional<Trade> findBestMarketSellBySymbol(String symbol);
     Optional<Trade> findBestLimitBuyBySymbol(String symbol);
     Optional<Trade> findBestLimitSellBySymbol(String symbol);
-    Long getTotalQuantityBySymbol(String symbol);
     Long getBuyQuantityBySymbol(String symbol);
     Long getSellQuantityBySymbol(String symbol);
 }

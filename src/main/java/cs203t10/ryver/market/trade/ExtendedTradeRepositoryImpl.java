@@ -136,17 +136,6 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public Long getTotalQuantityBySymbol(String symbol) {
-        final String sql = String.join(" ",
-            "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
-            "WHERE stock_id = :stock_id"
-        );
-        Query query = entityManager.createNativeQuery(sql);
-        BigInteger result = (BigInteger) query.setParameter("stock_id", symbol).getSingleResult();
-        return result.longValue();
-    }
-
-    @Override
     public Long getBuyQuantityBySymbol(String symbol) {
         return getQuantityBySymbol(symbol, Action.BUY);
     }
