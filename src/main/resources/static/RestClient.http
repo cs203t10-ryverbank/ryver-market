@@ -17,8 +17,8 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsI
 
 {
     "action":"buy",
-    "symbol":"J37",
-    "quantity": 50000,
+    "symbol":"M44U",
+    "quantity": 1000,
     "bid":0,
     "ask":0,
     "avg_price":3.2,

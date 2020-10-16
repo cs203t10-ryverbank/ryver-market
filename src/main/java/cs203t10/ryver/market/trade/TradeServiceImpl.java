@@ -24,63 +24,52 @@ public class TradeServiceImpl implements TradeService {
     public Trade saveTrade(TradeView tradeView) {
         // Check if it is market order or limit order.
         if (tradeView.getAction() == Action.BUY) {
-            if (tradeView.getBid() == 0){
-                tradeView = registerMarketBuy(tradeView);
-            }else{
-                registerLimitBuy(tradeView);
-            }
+            registerBuyTrade(tradeView);
         }
-        //save trade
+        // By default, trade will be set to OPEN status.
+        tradeView.setStatus(Status.OPEN);
+
+        // Save trade.
         Trade trade = tradeView.toTrade();
         tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
 
         // Reconcile market status after adding trade.
-        trade = reconcileMarket(trade, tradeView.getSymbol());
-        return trade;
+        reconcileMarket(tradeView.getSymbol());
+        return getTrade(trade.getId());
     }
 
-    private Trade reconcileMarket(Trade trade, String symbol){
+    private void reconcileMarket(String symbol){
         // TODO: DEDUCT + ADD ACTUAL BALANCE
-        // TODO: MATCH BY TIME 
-        if (trade.getAction() == Action.BUY) {
-            Trade bestSell = getBestSell(symbol);
+        // CHECK IF RECONCILIATION DOES 1 EXTRA TIME LOOK AT TRADE ID 101
+        // CHECK TIMING
+        Trade bestSell = getBestSell(symbol);
+        Trade bestBuy = getBestBuy(symbol);
 
-            if (bestSell == null){
-                trade.setStatus(Status.OPEN);
-                return trade;
+        while (bestSell != null && bestBuy != null) {
+            if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0){
+                //TODO: GET LAST PRICE IF THERE ARE NO PRICES AVAILABLE
+            } else if (bestSell.getPrice() == 0){
+                bestSell.setPrice(bestBuy.getPrice());
+            } else {
+                bestBuy.setPrice(bestSell.getPrice());
             }
 
             Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
-            Integer buyQuantity = trade.getQuantity() - trade.getFilledQuantity();
+            Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
             if (sellQuantity > buyQuantity){
-                trade.setFilledQuantity(trade.getQuantity());
+                bestBuy.setFilledQuantity(bestBuy.getQuantity());
                 bestSell.setFilledQuantity(bestSell.getFilledQuantity() + buyQuantity);
-                updateTrade(bestSell);
             } else{
-                trade.setFilledQuantity(trade.getFilledQuantity() + sellQuantity);
+                bestBuy.setFilledQuantity(bestBuy.getFilledQuantity() + sellQuantity);
                 bestSell.setFilledQuantity(bestSell.getFilledQuantity() + sellQuantity);
-                updateTrade(bestSell);
             }
+            updateTrade(bestSell);
+            updateTrade(bestBuy);
 
-            updateTrade(trade);
-            return trade;
+            bestSell = getBestSell(symbol);
+            bestBuy = getBestBuy(symbol);
         }
-        return trade;
-    }
 
-    private TradeView registerMarketBuy(TradeView tradeView) {
-        // Market order: set trade bid to market best ask
-        Trade bestSell = getBestSell(tradeView.getSymbol());
-        if (bestSell != null) {
-            Double bestSellPrice = bestSell.getPrice();
-            tradeView.setBid(bestSellPrice);
-        }
-        registerBuyTrade(tradeView);
-        return tradeView;
-    }
-
-    private void registerLimitBuy(TradeView tradeView) {
-        registerBuyTrade(tradeView);
     }
 
     /**
@@ -182,11 +171,9 @@ public class TradeServiceImpl implements TradeService {
     public Trade updateTrade(Trade newTrade) {
         Integer tradeId = newTrade.getId();
         return tradeRepo.findById(tradeId).map(trade -> {
-            trade.setFilledQuantity(newTrade.getFilledQuantity());
-            System.out.println("filled: " + trade.getFilledQuantity());
-            System.out.println("total: " + trade.getQuantity());
-            // Set status
-            if (trade.getFilledQuantity() == trade.getQuantity()){
+            trade.setPrice(newTrade.getPrice());
+            trade.setFilledQuantity(newTrade.getFilledQuantity());            // Set status
+            if (trade.getFilledQuantity().equals(trade.getQuantity())){
                 trade.setStatus(Status.FILLED);
             } else if (trade.getFilledQuantity() > 0){
                 trade.setStatus(Status.PARTIAL_FILLED);

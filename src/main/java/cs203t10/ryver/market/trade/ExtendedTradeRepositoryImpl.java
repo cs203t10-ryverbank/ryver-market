@@ -98,11 +98,13 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     private Optional<Trade> findBestMarketBySymbol(String symbol, Action action) {
+        //TODO: edit status to use query manager
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
             "AND action = :action",
             "AND price = 0",
+            "AND status != 'FILLED'",
             "ORDER BY submitted_date"
         );
         Query query = entityManager
@@ -129,6 +131,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
 
     private Optional<Trade> findBestLimitBySymbol(String symbol, Action action) {
         String bestFunction = action.equals(Action.BUY) ? "MAX" : "MIN";
+        //TODO: edit status to use query manager
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
@@ -139,6 +142,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 "AND action = :action",
                 "AND price <> 0",
             ")",
+            "AND status != 'FILLED'",
             "ORDER BY submitted_date"
         );
         Query query = entityManager
