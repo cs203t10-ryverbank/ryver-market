@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,19 @@ public class TradeRepositoryTest {
             .customerId(1).accountId(1)
             .submittedDate(firstDate)
             .status(Status.OPEN).price(1.18).build();
+    // Same dates.
+    Trade tradeB2_1 = Trade.builder()
+            .stock(b2).action(Action.BUY)
+            .quantity(10000).filledQuantity(0)
+            .customerId(1).accountId(1)
+            .submittedDate(secondDate)
+            .status(Status.OPEN).price(1.18).build();
+    Trade tradeB2_2 = Trade.builder()
+            .stock(b2).action(Action.BUY)
+            .quantity(10000).filledQuantity(0)
+            .customerId(2).accountId(2)
+            .submittedDate(secondDate)
+            .status(Status.OPEN).price(1.17).build();
 
     @BeforeEach
     public void saveInitialStocks() {
@@ -80,6 +94,39 @@ public class TradeRepositoryTest {
             tradeRepo.saveWithSymbol(tradeA1WithoutStock, "Z26");
         });
         entityManager.clear();
+    }
+
+    @Test
+    public void findLatestBySymbolTest() {
+        // Set up trades to retrieve.
+        String symbol = tradeB2_1.getStock().getSymbol();
+        tradeRepo.saveWithSymbol(tradeB2_1, symbol);
+
+        // Get the latest trade from database.
+        Trade latestB2Trade = tradeRepo.findLatestBySymbol(symbol).get();
+
+        assertEquals(tradeB2_1, latestB2Trade);
+    }
+
+    @Test
+    public void findLatestBySymbolTest_multipleLatest() {
+        // Set up trades to retrieve.
+        String symbol = tradeB2_1.getStock().getSymbol();
+        tradeRepo.saveWithSymbol(tradeB2_1, symbol);
+        tradeRepo.saveWithSymbol(tradeB2_2, symbol);
+
+        // Get the latest trade from database.
+        Trade latestB2Trade = tradeRepo.findLatestBySymbol(symbol).get();
+
+        assertEquals(tradeB2_1, latestB2Trade);
+    }
+
+    @Test
+    public void findLatestBySymbolTest_noSuchStock() {
+        // Get the latest trade from database.
+        Optional<Trade> latestNonExistentTrade = tradeRepo.findLatestBySymbol("Z26");
+
+        assertEquals(Optional.empty(), latestNonExistentTrade);
     }
 
 }

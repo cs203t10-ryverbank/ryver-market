@@ -46,19 +46,19 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
             "AND submitted_date = (",
-                "SELECT MAX(submitted_date) FROM STOCK_RECORD",
+                "SELECT MAX(submitted_date) FROM TRADE",
                 "WHERE stock_id = :stock_id",
             ")"
         );
         Query query = entityManager
                 .createNativeQuery(sql, Trade.class)
                 .setParameter("stock_id", symbol);
-        try {
-            Trade result = (Trade) query.getSingleResult();
-            return Optional.of(result);
-        } catch (NoResultException | NonUniqueResultException e) {
+        @SuppressWarnings("unchecked")
+        List<Trade> results = (List<Trade>) query.getResultList();
+        if (results.size() == 0) {
             return Optional.empty();
         }
+        return Optional.of(results.get(0));
     }
 
     @Override
