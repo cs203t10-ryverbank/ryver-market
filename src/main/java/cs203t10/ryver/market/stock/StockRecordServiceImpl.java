@@ -14,9 +14,6 @@ import static cs203t10.ryver.market.stock.StockException.NoSuchStockException;
 public class StockRecordServiceImpl implements StockRecordService {
 
     @Autowired
-    StockRepository stockRepo;
-
-    @Autowired
     StockRecordRepository stockRecordRepo;
 
     @Override
