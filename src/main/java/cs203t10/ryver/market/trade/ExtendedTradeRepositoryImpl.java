@@ -76,6 +76,9 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         return findBestMarketBySymbol(symbol, Action.SELL);
     }
 
+    /**
+     * The best market trade is determined by submitted date.
+     */
     private Optional<Trade> findBestMarketBySymbol(String symbol, Action action) {
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
