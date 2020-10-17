@@ -15,5 +15,6 @@ public interface TradeService {
     Trade getBestLimitSellBySymbol(String symbol);
     Trade updateTrade(Trade trade);
     List<Trade> getAllUserOpenTrades(Long customerId);
-    void deleteTrade(Integer tradeId);
+    Trade cancelTrade(Integer tradeId);
+    Trade expiredTrade(Integer tradeId);
 }

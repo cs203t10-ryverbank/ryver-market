@@ -1,11 +1,16 @@
 package cs203t10.ryver.market.trade;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.fund.FundTransferService;
+import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
@@ -16,6 +21,9 @@ public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private FundTransferService fundTransferService;
+
+    @Autowired
+    private StockRecordService stockRecordService;
 
     @Autowired
     private TradeRepository tradeRepo;
@@ -35,18 +43,20 @@ public class TradeServiceImpl implements TradeService {
 
         // Reconcile market status after adding trade.
         reconcileMarket(tradeView.getSymbol());
+        if (tradeView.getAction() == Action.BUY) {
+            trade = expiredTrade(trade.getId());
+        }
         return getTrade(trade.getId());
     }
 
     private void reconcileMarket(String symbol){
-        // TODO: DEDUCT + ADD ACTUAL BALANCE
-        // TODO: MAKE STOCK RECORDS
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 
+        // TODO: UPDATE AVG TRADE PRICE
         while (bestSell != null && bestBuy != null) {
             if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0){
-                //TODO: GET LAST PRICE IF THERE ARE NO PRICES AVAILABLE
+            //TODO: GET LAST PRICE IF THERE ARE NO PRICES AVAILABLE
             } else if (bestSell.getPrice() == 0){
                 bestSell.setPrice(bestBuy.getPrice());
             } else {
@@ -65,8 +75,17 @@ public class TradeServiceImpl implements TradeService {
             updateTrade(bestSell);
             updateTrade(bestBuy);
 
+            // TODO: DEDUCT + ADD ACTUAL BALANCE
+            fundTransferService.addBalance(bestSell.getCustomerId(), bestSell.getAccountId(), bestSell.getTotalPrice());
+            fundTransferService.deductBalance(bestBuy.getCustomerId(), bestBuy.getAccountId(), bestBuy.getTotalPrice());
+
             bestSell = getBestSell(symbol);
             bestBuy = getBestBuy(symbol);
+
+            // TODO: MAKE STOCK RECORDS
+            stockRecordService.createStockRecord(bestSell.getId());
+            stockRecordService.createStockRecord(bestBuy.getId());
+
         }
 
     }
@@ -166,6 +185,19 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.findAllByCustomerId(customerId);
     }
 
+    // public Double getAvgTradePrice(Trade trade){
+    //     Double totalPrice = 0.0;
+    //     Integer totalQuantity = 0;
+    //     List<Trade> tradeList = tradeRepo.findAll();
+    //     for (Trade t : tradeList) {
+    //         if (trade.getStock().equals(t.getStock())){
+    //             totalPrice += t.getPrice() * t.getQuantity();
+    //             totalQuantity += t.getQuantity();
+    //         }
+    //     }
+    //     return (Double) totalPrice/totalQuantity;
+    // }
+
     @Override
     public Trade updateTrade(Trade newTrade) {
         Integer tradeId = newTrade.getId();
@@ -184,8 +216,37 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public void deleteTrade(Integer tradeId) {
-        tradeRepo.delete(getTrade(tradeId));
+    public Trade cancelTrade(Integer tradeId) {
+        Trade trade = getTrade(tradeId);
+        if(trade == null) throw new TradeNotFoundException(tradeId);
+        trade.setStatus(Status.CANCELLED);
+        return tradeRepo.save(trade);
+    }
+
+    public Trade expiredTrade(Integer tradeId) {
+        Trade trade = getTrade(tradeId);
+        if(trade == null) throw new TradeNotFoundException(tradeId);
+        Date currentDate = trade.getSubmittedDate();
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY,17);
+        cal.set(Calendar.MINUTE,0);
+        Date fivePM = cal.getTime();
+        DateFormat formatter = new SimpleDateFormat("HH:mm");
+        String strCurrentTime = formatter.format(currentDate);
+        String strFivePM = formatter.format(fivePM);
+        String[] partsCurrentTime = strCurrentTime.split(":");
+        String[] partsFivePM = strFivePM.split(":");
+
+        if (Integer.parseInt(partsCurrentTime[0]) > Integer.parseInt(partsFivePM[0])) {
+            trade.setStatus(Status.EXPIRED);
+        } else if (Integer.parseInt(partsCurrentTime[0]) == Integer.parseInt(partsFivePM[0])) {
+            if (Integer.parseInt(partsCurrentTime[1]) > Integer.parseInt(partsFivePM[1])) {
+                trade.setStatus(Status.EXPIRED);
+            }
+        } else {
+            trade.setStatus(Status.OPEN);
+        }
+        return tradeRepo.save(trade);
     }
 
 }

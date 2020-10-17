@@ -41,13 +41,10 @@ public class TradeController {
         return TradeView.fromTrade(savedTrade);
     }
 
-    @DeleteMapping("/trades/{tradeId}")
+    @PutMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
-    public Trade deleteTrade(@PathVariable Integer tradeId) {
-        Trade trade = tradeService.getTrade(tradeId);
-        if(trade == null) throw new TradeNotFoundException(tradeId);
-        tradeService.deleteTrade(tradeId);
-        return trade;
+    public TradeView cancelTrade(@PathVariable Integer tradeId) {
+        return TradeView.fromTrade(tradeService.cancelTrade(tradeId));
     }
 
 }

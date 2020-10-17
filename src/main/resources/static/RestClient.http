@@ -13,42 +13,42 @@ GET http://localhost:8086/stocks/A17V
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzY0MDg2Mn0.YyijPJWoA3fupSF496t_Hb-GedzLGjbqjbaAwNpI2K8XWwExDHMauTu-YaqVZhoyWQ3EXeRioY8TwIYO-MGMww
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTMxMDV9.OJr1NWCcX-2L1SdXVuVP9LCfTs6D-Ee8qns-jwLA9hxC0HRBP2fMk_zDN3R4O7EIq-QbGaLgB1K1WrRzH6BFCg
 
 {
     "action":"buy",
     "symbol":"M44U",
-    "quantity": 1000,
-    "bid":0,
-    "ask":0,
-    "avg_price":3.2,
-    "date":1602535210000,
-    "account_id":17,
-    "customer_id": 4
+    "quantity": 100,
+    "bid":1,
+    "ask":1,
+    "avg_price":0,
+    "date":1602949348,
+    "account_id":19,
+    "customer_id": 19
 }
 
-### View own portolio
+### View own portfolio
 GET http://localhost:8086/portfolio
 Accept: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTMxMDV9.OJr1NWCcX-2L1SdXVuVP9LCfTs6D-Ee8qns-jwLA9hxC0HRBP2fMk_zDN3R4O7EIq-QbGaLgB1K1WrRzH6BFCg
 
 ### Get user trades
 GET http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTMxMDV9.OJr1NWCcX-2L1SdXVuVP9LCfTs6D-Ee8qns-jwLA9hxC0HRBP2fMk_zDN3R4O7EIq-QbGaLgB1K1WrRzH6BFCg
 
 ### Get trade by id
-GET http://localhost:8086/trades/63
+GET http://localhost:8086/trades/12
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTMxMDV9.OJr1NWCcX-2L1SdXVuVP9LCfTs6D-Ee8qns-jwLA9hxC0HRBP2fMk_zDN3R4O7EIq-QbGaLgB1K1WrRzH6BFCg
 
 ### View own accounts as user
 GET http://localhost:8080/accounts
 Accept: application/json
-Authorization: Basic bryan password
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTMxMDV9.OJr1NWCcX-2L1SdXVuVP9LCfTs6D-Ee8qns-jwLA9hxC0HRBP2fMk_zDN3R4O7EIq-QbGaLgB1K1WrRzH6BFCg
 
-### Delete trade by id
-DELETE  http://localhost:8086/trades/63
+### Cancel trade by id
+PUT  http://localhost:8086/trades/104
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTMxMDV9.OJr1NWCcX-2L1SdXVuVP9LCfTs6D-Ee8qns-jwLA9hxC0HRBP2fMk_zDN3R4O7EIq-QbGaLgB1K1WrRzH6BFCg
 
