@@ -8,7 +8,7 @@ public class AccountNotAllowedException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-    public AccountNotAllowedException(Long customerId, Long accountId) {
+    public AccountNotAllowedException(Integer customerId, Integer accountId) {
         super(String.format("Account with id: %s not owned by customer with id: %s", accountId, customerId));
     }
 

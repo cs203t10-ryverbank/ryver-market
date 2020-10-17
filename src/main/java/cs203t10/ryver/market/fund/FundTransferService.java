@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -59,7 +61,20 @@ public class FundTransferService {
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        ResponseEntity<String> response = null;
+        
+        try {
+            response = restTemplate.exchange(url + "/{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        } catch (HttpClientErrorException ex) {
+            HttpStatus status = ex.getStatusCode();
+            if (status.equals(HttpStatus.FORBIDDEN)) {
+                throw new AccountNotAllowedException(customerId, accountId);
+            } else if (status.equals(HttpStatus.BAD_REQUEST)) {
+                //TODO: retrieve account balance from FTS
+                throw new InsufficientBalanceException(accountId, amount, 0.0);
+            }
+        }
+        
 
         //for debugging
         System.out.println("Deduct Available Balance: " + response.getBody());
@@ -69,7 +84,20 @@ public class FundTransferService {
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+
+        ResponseEntity<String> response = null;
+
+        try {
+            response = restTemplate.exchange(url + "/{accountId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        } catch (HttpClientErrorException ex) {
+            HttpStatus status = ex.getStatusCode();
+            if (status.equals(HttpStatus.FORBIDDEN)) {
+                throw new AccountNotAllowedException(customerId, accountId);
+            } else if (status.equals(HttpStatus.BAD_REQUEST)) {
+                //TODO: retrieve account balance from FTS
+                throw new InsufficientBalanceException(accountId, amount, 0.0);
+            }
+        }
 
         //for debugging
         System.out.println("Deduct Balance: " + response.getBody());
@@ -79,8 +107,19 @@ public class FundTransferService {
             throws AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
-
+        ResponseEntity<String> response = null;
+        
+        try {
+            response = restTemplate.exchange(url + "/{accountId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        } catch (HttpClientErrorException ex) {
+            HttpStatus status = ex.getStatusCode();
+            if (status.equals(HttpStatus.FORBIDDEN)) {
+                throw new AccountNotAllowedException(customerId, accountId);
+            } else if (status.equals(HttpStatus.BAD_REQUEST)) {
+                //TODO: retrieve account balance from FTS
+                throw new InsufficientBalanceException(accountId, amount, 0.0);
+            }
+        }
         //for debugging
         System.out.println("Add Balance: " + response.getBody());
     }

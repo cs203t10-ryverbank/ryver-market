@@ -20,18 +20,18 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTMsImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM3OTY1Nzh9.MAwb7w30td8oAGPvQUIMKgMjt6ofipuFgZCQCFnZnZAq-IxSRw1I37wt9cwM6XWCSSRUXMD2AxSnLwqDWlVcIQ
 
 {
     "action":"buy",
     "symbol":"A17U",
-    "quantity":100,
+    "quantity":1000000,
     "bid":5,
     "ask":0,
     "avg_price":3.2,
     "date":1602535210000,
-    "account_id":13,
-    "customer_id": 7
+    "account_id":3,
+    "customer_id": 13
 }
 
 ### Create new trade with non-existent stock
