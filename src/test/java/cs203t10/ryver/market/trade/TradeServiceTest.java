@@ -18,7 +18,7 @@ import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
-import cs203t10.ryver.market.trade.TradeException.TradeNotFoundException;
+import cs203t10.ryver.market.trade.exception.*;
 import cs203t10.ryver.market.trade.view.TradeView;
 
 @ExtendWith(MockitoExtension.class)
