@@ -36,15 +36,26 @@ public class TradeController {
     }
 
     @GetMapping("/trades/{tradeId}")
-    @PostAuthorize("principal.uid == returnObject.getCustomerId()")
     public TradeView getTrade(@PathVariable Integer tradeId) {
-        return TradeView.fromTrade(tradeService.getTrade(tradeId));
+        RyverPrincipal principal = principalService.getPrincipal();
+        TradeView retrievedTradeView =  TradeView.fromTrade(tradeService.getTrade(tradeId));
+
+        if (principal.uid.intValue() != retrievedTradeView.getCustomerId()) {
+            throw new TradeNotAllowedException(tradeId, principal.uid.intValue());
+        }
+        
+        return retrievedTradeView;
     }
 
     @PostMapping("/trades")
-    @PreAuthorize("principal.uid == #tradeView.getCustomerId()")
     @ResponseStatus(HttpStatus.CREATED)
     public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
+        RyverPrincipal principal = principalService.getPrincipal();
+
+        if (principal.uid.intValue() != tradeView.getCustomerId()) {
+            throw new TradeNotAllowedException(tradeView.getCustomerId());
+        }
+        
         Trade savedTrade = tradeService.saveTrade(tradeView);
         return TradeView.fromTrade(savedTrade);
     }
