@@ -36,18 +36,22 @@ public class TradeController {
     }
 
     @GetMapping("/trades/{tradeId}")
+    @PreAuthorize("hasRole('USER')")
     public TradeView getTrade(@PathVariable Integer tradeId) {
         RyverPrincipal principal = principalService.getPrincipal();
-        TradeView retrievedTradeView =  TradeView.fromTrade(tradeService.getTrade(tradeId));
-
+        Trade retrievedTrade = tradeService.getTrade(tradeId);
+        System.out.println("test: " + retrievedTrade == null);
+        TradeView retrievedTradeView =  TradeView.fromTrade(retrievedTrade);
+        
         if (principal.uid.intValue() != retrievedTradeView.getCustomerId()) {
             throw new TradeNotAllowedException(tradeId, principal.uid.intValue());
         }
-        
+
         return retrievedTradeView;
     }
 
     @PostMapping("/trades")
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.CREATED)
     public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
         RyverPrincipal principal = principalService.getPrincipal();
@@ -63,8 +67,15 @@ public class TradeController {
     @DeleteMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
     public Trade deleteTrade(@PathVariable Integer tradeId) {
+        RyverPrincipal principal = principalService.getPrincipal();
+        
         Trade trade = tradeService.getTrade(tradeId);
         if(trade == null) throw new TradeNotFoundException(tradeId);
+
+        if (principal.uid.intValue() != trade.getCustomerId()) {
+            throw new TradeNotAllowedException(tradeId, trade.getCustomerId());
+        }
+        
         tradeService.deleteTrade(tradeId);
         return trade;
     }
