@@ -43,9 +43,11 @@ public class TradeServiceImpl implements TradeService {
 
         // Reconcile market status after adding trade.
         reconcileMarket(tradeView.getSymbol());
-        if (tradeView.getAction() == Action.BUY) {
+
+        if (tradeView.getAction() == Action.BUY && tradeView.getBid() != 0.0 && tradeView.getAsk() != 0.0) {
             trade = expiredTrade(trade.getId());
         }
+
         return getTrade(trade.getId());
     }
 
