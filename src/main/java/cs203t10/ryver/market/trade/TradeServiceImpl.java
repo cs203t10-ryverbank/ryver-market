@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -36,26 +37,14 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     public Trade saveTrade(TradeView tradeView) {
-        // TODO: Market should open from 9am to 5pm on weekdays only. Check if market is open
-        // SHERYLL SOS
-        if (openMarket()) {
-            // Date tradeDate = tradeView.getSubmittedDate();
-            ZoneId defaultZoneId = ZoneId.systemDefault();
+        Date todayDate = getCurrentDate();
+        tradeView.setSubmittedDate(todayDate);
 
-            //creating the instance of LocalDate using the day, month, year info
-            LocalDateTime localDate = LocalDateTime.now();
-
-            //local date + atStartOfDay() + default time zone + toInstant() = Date
-            Date todayDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
-
-            tradeView.setSubmittedDate(todayDate);
-
-            if (checkInvalidSubmittedDate(tradeView)){
-
-                DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-                String strCurrentTime = formatter.format(todayDate);
-                throw new TradeInvalidDateException(strCurrentTime);
-            }
+        // Checks for valid date.
+        if (checkInvalidSubmittedDate(tradeView)){
+            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+            String strCurrentTime = formatter.format(todayDate);
+            throw new TradeInvalidDateException(strCurrentTime);
         }
 
         // If buy trade, deduct available balance.
@@ -126,7 +115,6 @@ public class TradeServiceImpl implements TradeService {
             bestSell = getBestSell(symbol);
             bestBuy = getBestBuy(symbol);
         }
-
     }
 
     /**
@@ -273,22 +261,19 @@ public class TradeServiceImpl implements TradeService {
     }
 
     public boolean checkInvalidSubmittedDate(TradeView tradeView) {
-        // TODO: HOW TO GET LOCAL TIMING?
-        // SHERYLL SOS
-        //default time zone
-        ZoneId defaultZoneId = ZoneId.systemDefault();
-
-        //creating the instance of LocalDate using the day, month, year info
-        LocalDateTime localDate = LocalDateTime.now();
-
-        //local date + atStartOfDay() + default time zone + toInstant() = Date
-        Date todayDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
-        // String todayDateStr = new SimpleDateFormat("yyyyMMdd HHmmss").format(todayDate);
-
-        //Displaying LocalDate and Date
-        System.out.println("LocalDate is: " + localDate);
-        System.out.println("Date is: " + todayDate);
+        // Returns true if date is invalid
+        // Check if the post is made on a weekday, between 9am and 5pm.
+        Date todayDate = getCurrentDate();
         Date tradeDate = tradeView.getSubmittedDate();
+
+        // Trade is made between 9am and 5pm.
+        DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+        String strCurrentTime = formatter.format(tradeDate);
+        LocalTime target = LocalTime.parse(strCurrentTime);
+
+        if (target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("17:00:00")) ){
+            return true;
+        }
 
         // Trade is invalid if not made on the current date.
         if (!isSameDay(todayDate,tradeDate)){
@@ -300,6 +285,8 @@ public class TradeServiceImpl implements TradeService {
             return true;
         }
 
+        // SOS SHERYLL TODO: CHECK IF IT IS A WEEKDAY.
+
         return false;
     }
 
@@ -308,22 +295,25 @@ public class TradeServiceImpl implements TradeService {
         return fmt.format(date1).equals(fmt.format(date2));
     }
 
+    private Date getCurrentDate() {
+        ZoneId defaultZoneId = ZoneId.systemDefault();
+        // Creating the instance of LocalDateTime using the day, month, year info
+        LocalDateTime localDate = LocalDateTime.now();
+        //local date + atStartOfDay() + default time zone + toInstant() = Date
+        Date todayDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+        return todayDate;
+    }
 
-    @Scheduled(cron = "26 1 * * 1-5 ?")
+
+    @Scheduled(cron = "26 2 * * * ?", zone = "SGT")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
+        // SOS SHERYLL
+        System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
         List<Trade> tradeList = tradeRepo.findAll();
         for (Trade trade : tradeList) {
             trade.setStatus(Status.EXPIRED);
             tradeRepo.save(trade);
         }
     }
-
-    @Scheduled(cron = "0 9-17 * * 1-5 ?")
-    public boolean openMarket() {
-        // Cron expression: <minute> <hour> <day-of-month> <month> <day-of-week> <year>
-        // Cron expression: open market at 9am - 5pm from Monday to Friday.
-        return true;
-    }
-
 }
