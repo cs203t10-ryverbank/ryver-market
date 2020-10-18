@@ -30,10 +30,23 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
     }
 
+    /**
+     * Register a buy trade on the fund transfer service by deducting the
+     * available balance of the appropriate user.
+     *
+     * The market maker does not need to register trades.
+     *
+     * The market maker has customerId = 0 and accountId = 0.
+     */
     private void registerBuyTrade(TradeView tradeView) {
+        Integer customerId = tradeView.getCustomerId();
+        Integer accountId = tradeView.getAccountId();
+        if (customerId == 0 && accountId == 0) {
+            return;
+        }
+
         fundTransferService.deductAvailableBalance(
-                tradeView.getCustomerId(),
-                tradeView.getAccountId(),
+                customerId, accountId,
                 tradeView.getBid() * tradeView.getQuantity()
         );
     }
