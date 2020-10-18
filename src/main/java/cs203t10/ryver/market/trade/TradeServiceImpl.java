@@ -5,16 +5,22 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import cs203t10.ryver.market.fund.FundTransferService;
+import cs203t10.ryver.market.stock.Stock;
+import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
+import cs203t10.ryver.market.exception.TradeInvalidDateException;
 
 @Service
 public class TradeServiceImpl implements TradeService {
@@ -30,10 +36,20 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     public Trade saveTrade(TradeView tradeView) {
-        // Check if it is market order or limit order.
+        // TODO: Market should open from 9am to 5pm on weekdays only. Check if market is open
+        // SHERYLL SOS
+        // if (checkInvalidSubmittedDate(tradeView)){
+        //     Date tradeDate = tradeView.getSubmittedDate();
+        //     DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        //     String strCurrentTime = formatter.format(tradeDate);
+        //     throw new TradeInvalidDateException(strCurrentTime);
+        // }
+
+        // If buy trade, deduct available balance.
         if (tradeView.getAction() == Action.BUY) {
             registerBuyTrade(tradeView);
         }
+
         // By default, trade will be set to OPEN status.
         tradeView.setStatus(Status.OPEN);
 
@@ -44,9 +60,11 @@ public class TradeServiceImpl implements TradeService {
         // Reconcile market status after adding trade.
         reconcileMarket(tradeView.getSymbol());
 
-        if (tradeView.getAction() == Action.BUY && tradeView.getBid() != 0.0 && tradeView.getAsk() != 0.0) {
-            trade = expiredTrade(trade.getId());
-        }
+        // EDIT: See closeMarket() method. Uses @Scheduled to close market every time it is 5pm.
+        // If limit order, expire the trade by 5PM.
+        // if (tradeView.getBid() != 0.0 && tradeView.getAsk() != 0.0) {
+        //     trade = expiredTrade(trade.getId());
+        // }
 
         return getTrade(trade.getId());
     }
@@ -55,39 +73,48 @@ public class TradeServiceImpl implements TradeService {
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 
-        // TODO: UPDATE AVG TRADE PRICE
         while (bestSell != null && bestBuy != null) {
+            Double transactedPrice = 0.0;
             if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0){
-            //TODO: GET LAST PRICE IF THERE ARE NO PRICES AVAILABLE
+                // Get last price if there are no prices available.
+                StockRecord latestStock = stockRecordService.getLatestStockRecordBySymbol(symbol);
+                transactedPrice = latestStock.getPrice();
             } else if (bestSell.getPrice() == 0){
-                bestSell.setPrice(bestBuy.getPrice());
+                transactedPrice = bestBuy.getPrice();
             } else {
-                bestBuy.setPrice(bestSell.getPrice());
+                transactedPrice = bestSell.getPrice();
             }
 
             Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
             Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
-            if (sellQuantity > buyQuantity){
-                bestBuy.setFilledQuantity(bestBuy.getQuantity());
-                bestSell.setFilledQuantity(bestSell.getFilledQuantity() + buyQuantity);
-            } else{
-                bestBuy.setFilledQuantity(bestBuy.getFilledQuantity() + sellQuantity);
-                bestSell.setFilledQuantity(bestSell.getFilledQuantity() + sellQuantity);
+            Integer transactedQuantity = buyQuantity;
+            System.out.println( "sell: " + sellQuantity + " buy: "+ buyQuantity);
+            if (sellQuantity < buyQuantity){
+                transactedQuantity = sellQuantity;
             }
+            Double totalPrice = transactedQuantity * transactedPrice;
+            bestBuy.setFilledQuantity(bestBuy.getFilledQuantity() + transactedQuantity);
+            bestSell.setFilledQuantity(bestSell.getFilledQuantity() + transactedQuantity);
+
+            // Average price is given by setting total price.
+            // Note: avg_price = total price / filled quantity.
+            bestBuy.setTotalPrice(totalPrice);
+            bestSell.setTotalPrice(totalPrice);
+
             updateTrade(bestSell);
             updateTrade(bestBuy);
 
-            // TODO: DEDUCT + ADD ACTUAL BALANCE
-            fundTransferService.addBalance(bestSell.getCustomerId(), bestSell.getAccountId(), bestSell.getTotalPrice());
-            fundTransferService.deductBalance(bestBuy.getCustomerId(), bestBuy.getAccountId(), bestBuy.getTotalPrice());
+            // Deduct and add actual balance accordingly.
+            completeSellTrade(bestSell, totalPrice);
+            completeBuyTrade(bestBuy, totalPrice);
 
+            // Make stock records.
+            Stock stock = bestBuy.getStock();
+            stockRecordService.createStockRecord(stock, transactedPrice, transactedQuantity);
+
+            // Get new bestSell and bestBuy.
             bestSell = getBestSell(symbol);
             bestBuy = getBestBuy(symbol);
-
-            // TODO: MAKE STOCK RECORDS
-            stockRecordService.createStockRecord(bestSell.getId());
-            stockRecordService.createStockRecord(bestBuy.getId());
-
         }
 
     }
@@ -111,6 +138,27 @@ public class TradeServiceImpl implements TradeService {
                 customerId, accountId,
                 tradeView.getBid() * tradeView.getQuantity()
         );
+    }
+
+    private void completeBuyTrade(Trade trade, Double totalPrice) {
+        Integer customerId = trade.getCustomerId();
+        Integer accountId = trade.getAccountId();
+
+        if (customerId == 0 && accountId == 0) {
+            return;
+        }
+        fundTransferService.deductBalance( customerId, accountId, totalPrice);
+        //TODO: reset availableBalance
+    }
+
+    private void completeSellTrade(Trade trade, Double totalPrice) {
+        Integer customerId = trade.getCustomerId();
+        Integer accountId = trade.getAccountId();
+
+        if (customerId == 0 && accountId == 0) {
+            return;
+        }
+        fundTransferService.addBalance( customerId, accountId, totalPrice);
     }
 
     @Override
@@ -205,7 +253,9 @@ public class TradeServiceImpl implements TradeService {
         Integer tradeId = newTrade.getId();
         return tradeRepo.findById(tradeId).map(trade -> {
             trade.setPrice(newTrade.getPrice());
-            trade.setFilledQuantity(newTrade.getFilledQuantity());            // Set status
+            trade.setFilledQuantity(newTrade.getFilledQuantity());
+
+            // Set status
             if (trade.getFilledQuantity().equals(trade.getQuantity())){
                 trade.setStatus(Status.FILLED);
             } else if (trade.getFilledQuantity() > 0){
@@ -251,4 +301,49 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.save(trade);
     }
 
+    public boolean checkInvalidSubmittedDate(TradeView tradeView) {
+        // TODO: HOW TO GET LOCAL TIMING?
+        // SHERYLL SOS
+        //default time zone
+        ZoneId defaultZoneId = ZoneId.systemDefault();
+
+        //creating the instance of LocalDate using the day, month, year info
+        LocalDate localDate = LocalDate.now();
+
+        //local date + atStartOfDay() + default time zone + toInstant() = Date
+        Date todayDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
+
+        //Displaying LocalDate and Date
+        System.out.println("LocalDate is: " + localDate);
+        System.out.println("Date is: " + todayDate);
+        Date tradeDate = tradeView.getSubmittedDate();
+
+        // Trade is invalid if not made on the current date.
+        if (!isSameDay(todayDate,tradeDate)){
+            return true;
+        }
+
+        // Trade is invalid if it is made before current time.
+        if (tradeDate.before(todayDate)){
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isSameDay(Date date1, Date date2) {
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+        return fmt.format(date1).equals(fmt.format(date2));
+    }
+
+
+    @Scheduled(cron = "0 17 * * 1-5 ?")
+    public void closeMarket() {
+        // Cron expression: close market at 5pm from Monday to Friday.
+        List<Trade> tradeList = tradeRepo.findAll();
+        for (Trade trade : tradeList) {
+            trade.setStatus(Status.EXPIRED);
+            tradeRepo.save(trade);
+        }
+    }
 }

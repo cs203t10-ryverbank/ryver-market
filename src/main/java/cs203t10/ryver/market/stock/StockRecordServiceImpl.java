@@ -5,8 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cs203t10.ryver.market.trade.*;
-
 import static cs203t10.ryver.market.stock.StockException.NoSuchStockException;
 
 /**
@@ -14,9 +12,6 @@ import static cs203t10.ryver.market.stock.StockException.NoSuchStockException;
  */
 @Service
 public class StockRecordServiceImpl implements StockRecordService {
-
-    @Autowired
-    TradeService tradeService;
 
     @Autowired
     StockRepository stockRepo;
@@ -36,13 +31,11 @@ public class StockRecordServiceImpl implements StockRecordService {
                 .orElseThrow(() -> new NoSuchStockException(symbol));
     }
 
-    public StockRecord createStockRecord(Integer tradeId) {
-        Trade trade = tradeService.getTrade(tradeId);
-
+    public StockRecord createStockRecord(Stock stock, Double price, Integer quantity) {
         StockRecord stockRecord = new StockRecord();
-        stockRecord.setStock(trade.getStock());
-        stockRecord.setPrice(trade.getPrice());
-        stockRecord.setTotalVolume(trade.getQuantity());
+        stockRecord.setStock(stock);
+        stockRecord.setPrice(price);
+        stockRecord.setTotalVolume(quantity);
 
         return stockRecordRepo.save(stockRecord);
     }
