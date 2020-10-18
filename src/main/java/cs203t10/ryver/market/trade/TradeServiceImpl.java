@@ -305,7 +305,7 @@ public class TradeServiceImpl implements TradeService {
     }
 
 
-    @Scheduled(cron = "26 2 * * * ?", zone = "SGT")
+    @Scheduled(cron = "27 2 * * * ?", zone = "GMT+8:00")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
         // SOS SHERYLL
