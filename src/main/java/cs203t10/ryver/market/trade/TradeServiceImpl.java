@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +38,25 @@ public class TradeServiceImpl implements TradeService {
     public Trade saveTrade(TradeView tradeView) {
         // TODO: Market should open from 9am to 5pm on weekdays only. Check if market is open
         // SHERYLL SOS
-        // if (checkInvalidSubmittedDate(tradeView)){
-        //     Date tradeDate = tradeView.getSubmittedDate();
-        //     DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-        //     String strCurrentTime = formatter.format(tradeDate);
-        //     throw new TradeInvalidDateException(strCurrentTime);
-        // }
+        if (openMarket()) {
+            // Date tradeDate = tradeView.getSubmittedDate();
+            ZoneId defaultZoneId = ZoneId.systemDefault();
+
+            //creating the instance of LocalDate using the day, month, year info
+            LocalDateTime localDate = LocalDateTime.now();
+
+            //local date + atStartOfDay() + default time zone + toInstant() = Date
+            Date todayDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+
+            tradeView.setSubmittedDate(todayDate);
+
+            if (checkInvalidSubmittedDate(tradeView)){
+
+                DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+                String strCurrentTime = formatter.format(todayDate);
+                throw new TradeInvalidDateException(strCurrentTime);
+            }
+        }
 
         // If buy trade, deduct available balance.
         if (tradeView.getAction() == Action.BUY) {
@@ -62,9 +75,6 @@ public class TradeServiceImpl implements TradeService {
 
         // EDIT: See closeMarket() method. Uses @Scheduled to close market every time it is 5pm.
         // If limit order, expire the trade by 5PM.
-        // if (tradeView.getBid() != 0.0 && tradeView.getAsk() != 0.0) {
-        //     trade = expiredTrade(trade.getId());
-        // }
 
         return getTrade(trade.getId());
     }
@@ -147,7 +157,7 @@ public class TradeServiceImpl implements TradeService {
         if (customerId == 0 && accountId == 0) {
             return;
         }
-        fundTransferService.deductBalance( customerId, accountId, totalPrice);
+        fundTransferService.deductBalance(customerId, accountId, totalPrice);
         //TODO: reset availableBalance
     }
 
@@ -235,19 +245,6 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.findAllByCustomerId(customerId);
     }
 
-    // public Double getAvgTradePrice(Trade trade){
-    //     Double totalPrice = 0.0;
-    //     Integer totalQuantity = 0;
-    //     List<Trade> tradeList = tradeRepo.findAll();
-    //     for (Trade t : tradeList) {
-    //         if (trade.getStock().equals(t.getStock())){
-    //             totalPrice += t.getPrice() * t.getQuantity();
-    //             totalQuantity += t.getQuantity();
-    //         }
-    //     }
-    //     return (Double) totalPrice/totalQuantity;
-    // }
-
     @Override
     public Trade updateTrade(Trade newTrade) {
         Integer tradeId = newTrade.getId();
@@ -275,32 +272,6 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.save(trade);
     }
 
-    public Trade expiredTrade(Integer tradeId) {
-        Trade trade = getTrade(tradeId);
-        if(trade == null) throw new TradeNotFoundException(tradeId);
-        Date currentDate = trade.getSubmittedDate();
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY,17);
-        cal.set(Calendar.MINUTE,0);
-        Date fivePM = cal.getTime();
-        DateFormat formatter = new SimpleDateFormat("HH:mm");
-        String strCurrentTime = formatter.format(currentDate);
-        String strFivePM = formatter.format(fivePM);
-        String[] partsCurrentTime = strCurrentTime.split(":");
-        String[] partsFivePM = strFivePM.split(":");
-
-        if (Integer.parseInt(partsCurrentTime[0]) > Integer.parseInt(partsFivePM[0])) {
-            trade.setStatus(Status.EXPIRED);
-        } else if (Integer.parseInt(partsCurrentTime[0]) == Integer.parseInt(partsFivePM[0])) {
-            if (Integer.parseInt(partsCurrentTime[1]) > Integer.parseInt(partsFivePM[1])) {
-                trade.setStatus(Status.EXPIRED);
-            }
-        } else {
-            trade.setStatus(Status.OPEN);
-        }
-        return tradeRepo.save(trade);
-    }
-
     public boolean checkInvalidSubmittedDate(TradeView tradeView) {
         // TODO: HOW TO GET LOCAL TIMING?
         // SHERYLL SOS
@@ -308,10 +279,11 @@ public class TradeServiceImpl implements TradeService {
         ZoneId defaultZoneId = ZoneId.systemDefault();
 
         //creating the instance of LocalDate using the day, month, year info
-        LocalDate localDate = LocalDate.now();
+        LocalDateTime localDate = LocalDateTime.now();
 
         //local date + atStartOfDay() + default time zone + toInstant() = Date
-        Date todayDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
+        Date todayDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+        // String todayDateStr = new SimpleDateFormat("yyyyMMdd HHmmss").format(todayDate);
 
         //Displaying LocalDate and Date
         System.out.println("LocalDate is: " + localDate);
@@ -337,7 +309,7 @@ public class TradeServiceImpl implements TradeService {
     }
 
 
-    @Scheduled(cron = "0 17 * * 1-5 ?")
+    @Scheduled(cron = "26 1 * * 1-5 ?")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
         List<Trade> tradeList = tradeRepo.findAll();
@@ -346,4 +318,12 @@ public class TradeServiceImpl implements TradeService {
             tradeRepo.save(trade);
         }
     }
+
+    @Scheduled(cron = "0 9-17 * * 1-5 ?")
+    public boolean openMarket() {
+        // Cron expression: <minute> <hour> <day-of-month> <month> <day-of-week> <year>
+        // Cron expression: open market at 9am - 5pm from Monday to Friday.
+        return true;
+    }
+
 }

@@ -13,7 +13,7 @@ GET http://localhost:8086/stocks/A17V
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTU5NjR9.HCc6CXvmpn4MU_U3W0bh8ditbf6qAuxGuPfBpuWHIc7G-LcWOZCd4sAYe400sU0S0Z1cR0cIAi30ibR435fIdw
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM5MDI3MzN9.hCS-76w4AC0n5t1SFXeIO9b8IwcK7WZ3oTnc_M1XE9ALn_CkWIJl4C_Wjo0O4mXPLvwWPLlxjHVgnpeHcD3OQQ
 
 {
     "action":"buy",
@@ -22,33 +22,32 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsI
     "bid":1,
     "ask":1,
     "avg_price":0,
-    "date":1602928530000,
-    "account_id":11,
+    "account_id":13,
     "customer_id": 19
 }
 
 ### View own portfolio
 GET http://localhost:8086/portfolio
 Accept: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTU5NjR9.HCc6CXvmpn4MU_U3W0bh8ditbf6qAuxGuPfBpuWHIc7G-LcWOZCd4sAYe400sU0S0Z1cR0cIAi30ibR435fIdw
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM5MDI3MzN9.hCS-76w4AC0n5t1SFXeIO9b8IwcK7WZ3oTnc_M1XE9ALn_CkWIJl4C_Wjo0O4mXPLvwWPLlxjHVgnpeHcD3OQQ
 
 ### Get user trades
 GET http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTU5NjR9.HCc6CXvmpn4MU_U3W0bh8ditbf6qAuxGuPfBpuWHIc7G-LcWOZCd4sAYe400sU0S0Z1cR0cIAi30ibR435fIdw
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM5MDI3MzN9.hCS-76w4AC0n5t1SFXeIO9b8IwcK7WZ3oTnc_M1XE9ALn_CkWIJl4C_Wjo0O4mXPLvwWPLlxjHVgnpeHcD3OQQ
 
 ### Get trade by id
 GET http://localhost:8086/trades/12
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTU5NjR9.HCc6CXvmpn4MU_U3W0bh8ditbf6qAuxGuPfBpuWHIc7G-LcWOZCd4sAYe400sU0S0Z1cR0cIAi30ibR435fIdw
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM5MDI3MzN9.hCS-76w4AC0n5t1SFXeIO9b8IwcK7WZ3oTnc_M1XE9ALn_CkWIJl4C_Wjo0O4mXPLvwWPLlxjHVgnpeHcD3OQQ
 
 ### View own accounts as user
 GET http://localhost:8080/accounts
 Accept: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTU5NjR9.HCc6CXvmpn4MU_U3W0bh8ditbf6qAuxGuPfBpuWHIc7G-LcWOZCd4sAYe400sU0S0Z1cR0cIAi30ibR435fIdw
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM5MDI3MzN9.hCS-76w4AC0n5t1SFXeIO9b8IwcK7WZ3oTnc_M1XE9ALn_CkWIJl4C_Wjo0O4mXPLvwWPLlxjHVgnpeHcD3OQQ
 
 ### Cancel trade by id
 PUT  http://localhost:8086/trades/104
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM4MTU5NjR9.HCc6CXvmpn4MU_U3W0bh8ditbf6qAuxGuPfBpuWHIc7G-LcWOZCd4sAYe400sU0S0Z1cR0cIAi30ibR435fIdw
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6MTksImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MDM5MDI3MzN9.hCS-76w4AC0n5t1SFXeIO9b8IwcK7WZ3oTnc_M1XE9ALn_CkWIJl4C_Wjo0O4mXPLvwWPLlxjHVgnpeHcD3OQQ
 
