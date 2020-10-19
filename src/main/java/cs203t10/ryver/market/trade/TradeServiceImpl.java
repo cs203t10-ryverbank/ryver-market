@@ -52,6 +52,11 @@ public class TradeServiceImpl implements TradeService {
             registerBuyTrade(tradeView);
         }
 
+        // If sell trade, add to stock records and check if stocks available.
+        if (tradeView.getAction() == Action.SELL) {
+            registerSellTrade(tradeView);
+        }
+
         // By default, trade will be set to OPEN status.
         tradeView.setStatus(Status.OPEN);
 
@@ -108,8 +113,9 @@ public class TradeServiceImpl implements TradeService {
             completeBuyTrade(bestBuy, totalPrice);
 
             // Make stock records.
-            Stock stock = bestBuy.getStock();
-            stockRecordService.createStockRecord(stock, transactedPrice, transactedQuantity);
+            // Transacted quantity is recorded as negative, as these stocks are leaving the market.
+            // Total volume of stocks in stock records will decrease.
+            stockRecordService.updateStockRecordRemoveFromMarket(symbol, transactedPrice, transactedQuantity);
 
             // Get new bestSell and bestBuy.
             bestSell = getBestSell(symbol);
@@ -136,6 +142,20 @@ public class TradeServiceImpl implements TradeService {
                 customerId, accountId,
                 tradeView.getBid() * tradeView.getQuantity()
         );
+    }
+
+    private void registerSellTrade(TradeView tradeView) {
+        Integer customerId = tradeView.getCustomerId();
+        Integer accountId = tradeView.getAccountId();
+        String symbol = tradeView.getSymbol();
+        Integer quantity = tradeView.getQuantity();
+        if (customerId == 0 && accountId == 0) {
+            return;
+        }
+        // TODO: Check if account has enough stocks.
+
+        // Add to stock records
+        stockRecordService.updateStockRecordAddToMarket(symbol, quantity);
     }
 
     private void completeBuyTrade(Trade trade, Double totalPrice) {
@@ -271,9 +291,10 @@ public class TradeServiceImpl implements TradeService {
         String strCurrentTime = formatter.format(tradeDate);
         LocalTime target = LocalTime.parse(strCurrentTime);
 
-        if (target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("17:00:00")) ){
-            return true;
-        }
+        // NOTE: Commented segment off to test. Please uncomment before deploying.
+        // if (target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("17:00:00")) ){
+        //     return true;
+        // }
 
         // Trade is invalid if not made on the current date.
         if (!isSameDay(todayDate,tradeDate)){
@@ -305,7 +326,7 @@ public class TradeServiceImpl implements TradeService {
     }
 
 
-    @Scheduled(cron = "27 2 * * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 17 * * * ?", zone = "GMT+8:00")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
         // SOS SHERYLL

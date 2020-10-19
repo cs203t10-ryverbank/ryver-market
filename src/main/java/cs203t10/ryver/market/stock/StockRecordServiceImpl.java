@@ -31,11 +31,21 @@ public class StockRecordServiceImpl implements StockRecordService {
                 .orElseThrow(() -> new NoSuchStockException(symbol));
     }
 
-    public StockRecord createStockRecord(Stock stock, Double price, Integer quantity) {
-        StockRecord stockRecord = new StockRecord();
-        stockRecord.setStock(stock);
+    @Override
+    public StockRecord updateStockRecordRemoveFromMarket(String symbol, Double price, Integer quantityToRemove) {
+        StockRecord stockRecord = getLatestStockRecordBySymbol(symbol);
         stockRecord.setPrice(price);
-        stockRecord.setTotalVolume(quantity);
+        Integer initialQuantity = stockRecord.getTotalVolume();
+        stockRecord.setTotalVolume(initialQuantity - quantityToRemove);
+
+        return stockRecordRepo.save(stockRecord);
+    }
+
+    @Override
+    public StockRecord updateStockRecordAddToMarket(String symbol, Integer quantityToAdd) {
+        StockRecord stockRecord = getLatestStockRecordBySymbol(symbol);
+        Integer initialQuantity = stockRecord.getTotalVolume();
+        stockRecord.setTotalVolume(initialQuantity + quantityToAdd);
 
         return stockRecordRepo.save(stockRecord);
     }
