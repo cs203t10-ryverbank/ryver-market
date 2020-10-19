@@ -152,7 +152,7 @@ public class TradeServiceImpl implements TradeService {
         if (customerId == 0 && accountId == 0) {
             return;
         }
-        // TODO: Check if account has enough stocks.
+        // JUSTINA TODO: Check if account has enough stocks from portfolio.
 
         // Add to stock records
         stockRecordService.updateStockRecordAddToMarket(symbol, quantity);
@@ -161,6 +161,8 @@ public class TradeServiceImpl implements TradeService {
     private void completeBuyTrade(Trade trade, Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
+
+        // JUSTINA TODO: Add stocks to buyer portfolio.
 
         if (customerId == 0 && accountId == 0) {
             return;
@@ -172,6 +174,8 @@ public class TradeServiceImpl implements TradeService {
     private void completeSellTrade(Trade trade, Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
+
+        // JUSTINA TODO: Deduct stocks from seller portfolio.
 
         if (customerId == 0 && accountId == 0) {
             return;
