@@ -5,6 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -168,7 +171,6 @@ public class TradeServiceImpl implements TradeService {
             return;
         }
         fundTransferService.deductBalance(customerId, accountId, totalPrice);
-        //TODO: reset availableBalance
     }
 
     private void completeSellTrade(Trade trade, Double totalPrice) {
@@ -181,6 +183,7 @@ public class TradeServiceImpl implements TradeService {
             return;
         }
         fundTransferService.addBalance( customerId, accountId, totalPrice);
+        fundTransferService.addAvailableBalance( customerId, accountId, totalPrice);
     }
 
     @Override
@@ -330,15 +333,42 @@ public class TradeServiceImpl implements TradeService {
     }
 
 
-    @Scheduled(cron = "0 17 * * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "* * * * * ?", zone = "GMT+8:00")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
-        // SOS SHERYLL
+        // SOS SHERYLL TODO: Schedule closing market
         System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
         List<Trade> tradeList = tradeRepo.findAll();
+        Set<String> customerAccountSet = new HashSet<>();
+        List<Integer[]> customerAccountList = new ArrayList<>();
         for (Trade trade : tradeList) {
+            Integer customerId = trade.getCustomerId();
+            Integer accountId = trade.getAccountId();
+            String uniqueCustomerAccount = Integer.toString(customerId) + Integer.toString(accountId);
+            if (trade.getStatus().equals(Status.EXPIRED)){
+                continue;
+            }
+            if (customerId == 0 && accountId == 0) {
+                continue;
+            }
             trade.setStatus(Status.EXPIRED);
+
+            // Checks if customer-account pair has already been added to the list.
+            if (!customerAccountSet.contains(uniqueCustomerAccount)){
+                customerAccountSet.add(uniqueCustomerAccount);
+                Integer[] customerAccountPair = {customerId, accountId};
+                customerAccountList.add(customerAccountPair);
+            }
+
             tradeRepo.save(trade);
+        }
+
+        // For each account-customer pair, reset available balance.
+        for (Integer[] pair : customerAccountList){
+            Integer customerId = pair[0];
+            Integer accountId = pair[1];
+            System.out.println( customerId + ":" + accountId);
+            // reset balance using FTS
         }
     }
 }
