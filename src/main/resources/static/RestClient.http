@@ -31,7 +31,7 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsI
     "avg_price":3.2,
     "date":1602535210000,
     "account_id":3,
-    "customer_id": 14
+    "customer_id": 1
 }
 
 ### Create new trade with non-existent stock

@@ -1,6 +1,8 @@
 package cs203t10.ryver.market.trade;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -12,9 +14,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import cs203t10.ryver.market.fund.FundTransferService;
+import cs203t10.ryver.market.fund.exception.*;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
@@ -68,5 +72,66 @@ public class TradeServiceTest {
         });
     }
 
-}
+    @Test
+    public void saveTrade_AccountDoesNotBelongToCustomer_noRegister() {
+        TradeView testBuy = TradeView.builder()
+            .action(Action.BUY).symbol(a1.getSymbol())
+            .quantity(10000).filledQuantity(0)
+            .customerId(1).accountId(50)
+            .submittedDate(firstDate).status(Status.OPEN)
+            .bid(2.0).avgPrice(0.0).build();
+      
+        Mockito.doThrow(new AccountNotAllowedException(1, 50))
+                .when(fundTransferService)
+                .deductAvailableBalance(any(Integer.class), any(Integer.class), any(Double.class));
+        
+        assertThrows(AccountNotAllowedException.class, () -> {
+            tradeService.saveTrade(testBuy);
+        });
+        verifyNoInteractions(tradeRepo);
+    }
 
+    @Test 
+    public void saveTrade_InsufficientBalance_noRegister() {
+        TradeView testBuy = TradeView.builder()
+            .action(Action.BUY).symbol(a1.getSymbol())
+            .quantity(10000).filledQuantity(0)
+            .customerId(1).accountId(1)
+            .submittedDate(firstDate).status(Status.OPEN)
+            .bid(2.0).avgPrice(0.0).build();
+      
+        Mockito.doThrow(new InsufficientBalanceException(1, 20000.0, 0.0))
+                .when(fundTransferService)
+                .deductAvailableBalance(any(Integer.class), any(Integer.class), any(Double.class));
+        
+        assertThrows(InsufficientBalanceException.class, () -> {
+            tradeService.saveTrade(testBuy);
+        });
+        verifyNoInteractions(tradeRepo);
+    }
+
+    @Test
+    public void saveTrade_ValidTrade_Register() {
+        TradeView testBuy = TradeView.builder()
+            .action(Action.BUY).symbol(a1.getSymbol())
+            .quantity(10000).filledQuantity(0)
+            .customerId(1).accountId(1)
+            .submittedDate(firstDate).status(Status.OPEN)
+            .bid(2.0).avgPrice(0.0).build();
+        
+        Mockito.doNothing()
+            .when(fundTransferService)
+            .deductAvailableBalance(any(Integer.class), any(Integer.class), any(Double.class));
+
+        when(tradeRepo.saveWithSymbol(testBuy.toTrade(), testBuy.getSymbol()))
+            .thenReturn(testBuy.toTrade());
+
+        Trade testTrade = tradeService.saveTrade(testBuy);
+        assertEquals(testBuy.toTrade(), testTrade);
+
+        verify(fundTransferService).deductAvailableBalance(1, 1, 20000.0);
+
+        verify(tradeRepo).saveWithSymbol(testBuy.toTrade(), testBuy.getSymbol());
+    }
+
+}
