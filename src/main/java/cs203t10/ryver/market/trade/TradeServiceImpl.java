@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.stock.Stock;
@@ -30,6 +31,7 @@ import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
 import cs203t10.ryver.market.exception.TradeInvalidDateException;
 
+@Component
 @Service
 public class TradeServiceImpl implements TradeService {
 
@@ -342,24 +344,17 @@ public class TradeServiceImpl implements TradeService {
         LocalDateTime localDate = LocalDateTime.now();
         //local date + atStartOfDay() + default time zone + toInstant() = Date
         Date todayDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
-
-        closeMarket();
-
         return todayDate;
     }
 
 
-    @Scheduled(cron = "0 0 17 * 1-5 ?", zone = "Asia/Singapore")
-    public void closeMarket() {
+    @Scheduled(cron = "0 0 17 * * MON-FRI", zone = "Asia/Singapore")
+    void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
         // SOS SHERYLL TODO: Schedule closing market
         logger.info("Cron Task :: Execution Time - {}", dateTimeFormatter.format(LocalDateTime.now())); // TO CHECK CRON
         System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
 
-        LocalDateTime localTime = LocalDateTime.now();
-        LocalDateTime todayAt1700 = LocalDate.now().atTime(17,00);
-
-        if (localTime.isAfter(todayAt1700)) {
             List<Trade> tradeList = tradeRepo.findAll();
             Set<String> customerAccountSet = new HashSet<>();
             List<Integer[]> customerAccountList = new ArrayList<>();
@@ -392,6 +387,6 @@ public class TradeServiceImpl implements TradeService {
                 System.out.println( customerId + ":" + accountId);
                 // reset balance using FTS
             }
-        }
+
     }
 }
