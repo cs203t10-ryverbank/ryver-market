@@ -329,11 +329,10 @@ public class TradeServiceImpl implements TradeService {
         return todayDate;
     }
 
-
-    @Scheduled(cron = "* * * * * ?", zone = "GMT+8:00")
+    // TODO: Debug scheduled cron
+    //@Scheduled(cron = "* * * * * ?", zone = "GMT+8:00")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
-        // SOS SHERYLL TODO: Schedule closing market
         System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
         List<Trade> tradeList = tradeRepo.findAll();
         Set<String> customerAccountSet = new HashSet<>();

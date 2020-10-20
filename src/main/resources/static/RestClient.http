@@ -20,7 +20,7 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzY0MDg2Mn0.YyijPJWoA3fupSF496t_Hb-GedzLGjbqjbaAwNpI2K8XWwExDHMauTu-YaqVZhoyWQ3EXeRioY8TwIYO-MGMww
 
 {
     "action":"buy",
@@ -29,8 +29,8 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
     "bid":1,
     "ask":1,
     "avg_price":0,
-    "account_id":13,
-    "customer_id": 7
+    "account_id":17,
+    "customer_id": 4
 }
 
 ### Create new trade with non-existent stock
