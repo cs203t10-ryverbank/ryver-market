@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -26,6 +27,7 @@ import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
 import cs203t10.ryver.market.exception.TradeInvalidDateException;
 
+@Component
 @Service
 public class TradeServiceImpl implements TradeService {
 
@@ -330,10 +332,12 @@ public class TradeServiceImpl implements TradeService {
     }
 
     // TODO: Debug scheduled cron
-    //@Scheduled(cron = "* * * * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 00 17 * * MON-FRI", zone = "Asia/Singapore")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
+        logger.info("Cron Task :: Execution Time - {}", dateTimeFormatter.format(LocalDateTime.now())); // TO CHECK CRON
         System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
+
         List<Trade> tradeList = tradeRepo.findAll();
         Set<String> customerAccountSet = new HashSet<>();
         List<Integer[]> customerAccountList = new ArrayList<>();
