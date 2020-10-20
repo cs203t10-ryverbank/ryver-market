@@ -65,6 +65,16 @@ public class FundTransferService {
         System.out.println("Deduct Available Balance: " + response.getBody());
     }
 
+    public void addAvailableBalance(Integer customerId, Integer accountId, Double amount)
+            throws InsufficientBalanceException, AccountNotAllowedException {
+        String url = getAccountsUrl();
+        HttpEntity<String> req = getHttpEntity();
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/addAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+
+        //for debugging
+        System.out.println("Deduct Available Balance: " + response.getBody());
+    }
+
     public void deductBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();

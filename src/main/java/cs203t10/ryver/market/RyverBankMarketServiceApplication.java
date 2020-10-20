@@ -5,12 +5,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import io.swagger.annotations.ApiOperation;
 
 @SpringBootApplication
 @EnableDiscoveryClient
 @RestController
+@EnableScheduling
 public class RyverBankMarketServiceApplication {
 
 	public static void main(String[] args) {
