@@ -49,7 +49,7 @@ public class TradeServiceImpl implements TradeService {
         if (checkInvalidSubmittedDate(tradeView)){
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
             String strCurrentTime = formatter.format(todayDate);
-            throw new TradeInvalidDateException(strCurrentTime);
+            //throw new TradeInvalidDateException(strCurrentTime);
         }
 
         // If buy trade, deduct available balance.
@@ -82,6 +82,13 @@ public class TradeServiceImpl implements TradeService {
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 
+        // Ensures that trades made by marketmaker do not get matched to each other.
+        if (bestSell.getAccountId() == 0 && bestBuy.getAccountId() == 0){
+            return;
+        }
+
+        // POSSIBLE BUG: if bestSell == 0 and bestBuy == 0,
+        // but in reality there is a bestBuy > 1 ?
         while (bestSell != null && bestBuy != null) {
             Double transactedPrice = 0.0;
             if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0){
@@ -97,7 +104,6 @@ public class TradeServiceImpl implements TradeService {
             Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
             Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
             Integer transactedQuantity = buyQuantity;
-            System.out.println( "sell: " + sellQuantity + " buy: "+ buyQuantity);
             if (sellQuantity < buyQuantity){
                 transactedQuantity = sellQuantity;
             }
@@ -172,7 +178,7 @@ public class TradeServiceImpl implements TradeService {
         if (customerId == 0 && accountId == 0) {
             return;
         }
-        fundTransferService.deductBalance(customerId, accountId, totalPrice);
+        fundTransferService.deductBalance( customerId, accountId, totalPrice);
     }
 
     private void completeSellTrade(Trade trade, Double totalPrice) {
@@ -337,7 +343,7 @@ public class TradeServiceImpl implements TradeService {
     }
 
     // TODO: Debug scheduled cron
-    @Scheduled(cron = "0 0 17 * * MON-FRI", zone = "Asia/Singapore")
+    @Scheduled(cron = "0 55 2 * * MON-FRI", zone = "Asia/Singapore")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
         System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
@@ -372,6 +378,7 @@ public class TradeServiceImpl implements TradeService {
             Integer accountId = pair[1];
             System.out.println( customerId + ":" + accountId);
             // reset balance using FTS
+            fundTransferService.resetAvailableBalance(customerId, accountId);
         }
     }
 }

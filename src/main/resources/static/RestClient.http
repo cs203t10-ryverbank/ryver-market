@@ -23,14 +23,14 @@ Content-Type: application/json
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzY0MDg2Mn0.YyijPJWoA3fupSF496t_Hb-GedzLGjbqjbaAwNpI2K8XWwExDHMauTu-YaqVZhoyWQ3EXeRioY8TwIYO-MGMww
 
 {
-    "action":"buy",
+    "action":"sell",
     "symbol":"M44U",
     "quantity": 100,
     "bid":1,
-    "ask":1,
+    "ask":0,
     "avg_price":0,
-    "account_id":17,
-    "customer_id": 4
+    "account_id":6,
+    "customer_id": 1
 }
 
 ### Create new trade with non-existent stock
