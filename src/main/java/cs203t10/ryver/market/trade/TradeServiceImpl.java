@@ -313,6 +313,11 @@ public class TradeServiceImpl implements TradeService {
         }
 
         // SOS SHERYLL TODO: CHECK IF IT IS A WEEKDAY.
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(tradeDate);
+        if ((cal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+            return true;
+        }
 
         return false;
     }
@@ -332,12 +337,10 @@ public class TradeServiceImpl implements TradeService {
     }
 
     // TODO: Debug scheduled cron
-    @Scheduled(cron = "0 00 17 * * MON-FRI", zone = "Asia/Singapore")
+    @Scheduled(cron = "0 0 17 * * MON-FRI", zone = "Asia/Singapore")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
-        logger.info("Cron Task :: Execution Time - {}", dateTimeFormatter.format(LocalDateTime.now())); // TO CHECK CRON
         System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
-
         List<Trade> tradeList = tradeRepo.findAll();
         Set<String> customerAccountSet = new HashSet<>();
         List<Integer[]> customerAccountList = new ArrayList<>();
