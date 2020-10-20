@@ -8,11 +8,15 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -37,6 +41,10 @@ public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private TradeRepository tradeRepo;
+
+    // Checking CRON
+    private static final Logger logger = LoggerFactory.getLogger(TradeServiceImpl.class);
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     @Override
     public Trade saveTrade(TradeView tradeView) {
@@ -299,9 +307,9 @@ public class TradeServiceImpl implements TradeService {
         LocalTime target = LocalTime.parse(strCurrentTime);
 
         // NOTE: Commented segment off to test. Please uncomment before deploying.
-        // if (target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("17:00:00")) ){
-        //     return true;
-        // }
+        if (target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("17:00:00")) ){
+            return true;
+        }
 
         // Trade is invalid if not made on the current date.
         if (!isSameDay(todayDate,tradeDate)){
@@ -314,6 +322,12 @@ public class TradeServiceImpl implements TradeService {
         }
 
         // SOS SHERYLL TODO: CHECK IF IT IS A WEEKDAY.
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(tradeDate);
+        if ((cal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+            return true;
+        }
+
 
         return false;
     }
@@ -324,51 +338,60 @@ public class TradeServiceImpl implements TradeService {
     }
 
     private Date getCurrentDate() {
-        ZoneId defaultZoneId = ZoneId.systemDefault();
         // Creating the instance of LocalDateTime using the day, month, year info
         LocalDateTime localDate = LocalDateTime.now();
         //local date + atStartOfDay() + default time zone + toInstant() = Date
         Date todayDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+
+        closeMarket();
+
         return todayDate;
     }
 
 
-    @Scheduled(cron = "* * * * * ?", zone = "GMT+8:00")
+    @Scheduled(cron = "0 0 17 * 1-5 ?", zone = "Asia/Singapore")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
         // SOS SHERYLL TODO: Schedule closing market
+        logger.info("Cron Task :: Execution Time - {}", dateTimeFormatter.format(LocalDateTime.now())); // TO CHECK CRON
         System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
-        List<Trade> tradeList = tradeRepo.findAll();
-        Set<String> customerAccountSet = new HashSet<>();
-        List<Integer[]> customerAccountList = new ArrayList<>();
-        for (Trade trade : tradeList) {
-            Integer customerId = trade.getCustomerId();
-            Integer accountId = trade.getAccountId();
-            String uniqueCustomerAccount = Integer.toString(customerId) + Integer.toString(accountId);
-            if (trade.getStatus().equals(Status.EXPIRED)){
-                continue;
-            }
-            if (customerId == 0 && accountId == 0) {
-                continue;
-            }
-            trade.setStatus(Status.EXPIRED);
 
-            // Checks if customer-account pair has already been added to the list.
-            if (!customerAccountSet.contains(uniqueCustomerAccount)){
-                customerAccountSet.add(uniqueCustomerAccount);
-                Integer[] customerAccountPair = {customerId, accountId};
-                customerAccountList.add(customerAccountPair);
+        LocalDateTime localTime = LocalDateTime.now();
+        LocalDateTime todayAt1700 = LocalDate.now().atTime(17,00);
+
+        if (localTime.isAfter(todayAt1700)) {
+            List<Trade> tradeList = tradeRepo.findAll();
+            Set<String> customerAccountSet = new HashSet<>();
+            List<Integer[]> customerAccountList = new ArrayList<>();
+            for (Trade trade : tradeList) {
+                Integer customerId = trade.getCustomerId();
+                Integer accountId = trade.getAccountId();
+                String uniqueCustomerAccount = Integer.toString(customerId) + Integer.toString(accountId);
+                if (trade.getStatus().equals(Status.EXPIRED)){
+                    continue;
+                }
+                if (customerId == 0 && accountId == 0) {
+                    continue;
+                }
+                trade.setStatus(Status.EXPIRED);
+
+                // Checks if customer-account pair has already been added to the list.
+                if (!customerAccountSet.contains(uniqueCustomerAccount)){
+                    customerAccountSet.add(uniqueCustomerAccount);
+                    Integer[] customerAccountPair = {customerId, accountId};
+                    customerAccountList.add(customerAccountPair);
+                }
+
+                tradeRepo.save(trade);
             }
 
-            tradeRepo.save(trade);
-        }
-
-        // For each account-customer pair, reset available balance.
-        for (Integer[] pair : customerAccountList){
-            Integer customerId = pair[0];
-            Integer accountId = pair[1];
-            System.out.println( customerId + ":" + accountId);
-            // reset balance using FTS
+            // For each account-customer pair, reset available balance.
+            for (Integer[] pair : customerAccountList){
+                Integer customerId = pair[0];
+                Integer accountId = pair[1];
+                System.out.println( customerId + ":" + accountId);
+                // reset balance using FTS
+            }
         }
     }
 }
