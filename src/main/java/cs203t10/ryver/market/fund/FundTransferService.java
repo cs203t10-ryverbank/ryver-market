@@ -55,11 +55,24 @@ public class FundTransferService {
         return entity;
     }
 
+    private HttpEntity<String> getUserHttpEntity() {
+        HttpHeaders headers = new HttpHeaders();
+        String jwt = SecurityUtils.getCurrentSessionJWT();
+
+        //set header to AUTH: Bearer ...
+        headers.set(AUTH_HEADER_KEY, BEARER_PREFIX + jwt);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        return entity;
+    }
+
+
     public void deductAvailableBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
-        HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        HttpEntity<String> req = getUserHttpEntity();
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
         //for debugging
         System.out.println("Deduct Available Balance: " + response.getBody());

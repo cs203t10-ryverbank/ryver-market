@@ -164,6 +164,10 @@ public class TradeServiceImpl implements TradeService {
         if (customerId == 0 && accountId == 0) {
             return;
         }
+        // TODO: HOTFIX write proper method to check if account belongs customerId?
+        // Deducts $0 from the account available balance to check if account belongs to customer.
+        fundTransferService.deductAvailableBalance( customerId, accountId, 0.0);
+
         // JUSTINA TODO: Check if account has enough stocks from portfolio.
 
         // Add to stock records
