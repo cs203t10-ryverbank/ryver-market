@@ -1,14 +1,10 @@
 package cs203t10.ryver.market.trade;
 
 import java.math.BigInteger;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -46,19 +42,19 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
             "AND submitted_date = (",
-                "SELECT MAX(submitted_date) FROM STOCK_RECORD",
+                "SELECT MAX(submitted_date) FROM TRADE",
                 "WHERE stock_id = :stock_id",
             ")"
         );
         Query query = entityManager
                 .createNativeQuery(sql, Trade.class)
                 .setParameter("stock_id", symbol);
-        try {
-            Trade result = (Trade) query.getSingleResult();
-            return Optional.of(result);
-        } catch (NoResultException | NonUniqueResultException e) {
+        @SuppressWarnings("unchecked")
+        List<Trade> results = (List<Trade>) query.getResultList();
+        if (results.size() == 0) {
             return Optional.empty();
         }
+        return Optional.of(results.get(0));
     }
 
     @Override
@@ -71,23 +67,6 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<Trade> findAllLatestPerStock() {
-        final String sql = String.join(" ",
-            "SELECT * FROM TRADE t",
-            "JOIN (",
-                "SELECT MAX(submitted_date) AS latest_date, stock_id",
-                "FROM TRADE",
-                "GROUP BY stock_id",
-            ") t2",
-            "ON t.stock_id = t2.stock_id",
-            "AND t.submitted_date = t2.latest_date"
-        );
-        Query query = entityManager.createNativeQuery(sql, Trade.class);
-        return query.getResultList();
-    }
-
-    @Override
     public Optional<Trade> findBestMarketBuyBySymbol(String symbol) {
         return findBestMarketBySymbol(symbol, Action.BUY);
     }
@@ -97,12 +76,17 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         return findBestMarketBySymbol(symbol, Action.SELL);
     }
 
+    /**
+     * The best market trade is determined by submitted date.
+     */
     private Optional<Trade> findBestMarketBySymbol(String symbol, Action action) {
+        //TODO: edit status to use query manager
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
             "AND action = :action",
             "AND price = 0",
+            "AND status != 'FILLED'",
             "ORDER BY submitted_date"
         );
         Query query = entityManager
@@ -129,6 +113,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
 
     private Optional<Trade> findBestLimitBySymbol(String symbol, Action action) {
         String bestFunction = action.equals(Action.BUY) ? "MAX" : "MIN";
+        //TODO: edit status to use query manager
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
@@ -139,6 +124,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 "AND action = :action",
                 "AND price <> 0",
             ")",
+            "AND status != 'FILLED'",
             "ORDER BY submitted_date"
         );
         Query query = entityManager
@@ -151,17 +137,6 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
             return Optional.empty();
         }
         return Optional.of(result.get(0));
-    }
-
-    @Override
-    public Long getTotalQuantityBySymbol(String symbol) {
-        final String sql = String.join(" ",
-            "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
-            "WHERE stock_id = :stock_id"
-        );
-        Query query = entityManager.createNativeQuery(sql);
-        BigInteger result = (BigInteger) query.setParameter("stock_id", symbol).getSingleResult();
-        return result.longValue();
     }
 
     @Override

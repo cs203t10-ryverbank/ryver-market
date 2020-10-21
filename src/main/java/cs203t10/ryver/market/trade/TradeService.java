@@ -9,10 +9,7 @@ public interface TradeService {
     Trade getTrade(Integer tradeId);
     Trade getBestBuy(String symbol);
     Trade getBestSell(String symbol);
-    Trade getBestMarketBuyBySymbol(String symbol);
-    Trade getBestMarketSellBySymbol(String symbol);
-    Trade getBestLimitBuyBySymbol(String symbol);
-    Trade getBestLimitSellBySymbol(String symbol);
+    Trade updateTrade(Trade trade);
     List<Trade> getAllUserOpenTrades(Long customerId);
-    void deleteTrade(Integer tradeId);
+    Trade cancelTrade(Integer tradeId);
 }

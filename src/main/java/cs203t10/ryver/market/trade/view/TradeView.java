@@ -53,6 +53,9 @@ public class TradeView {
     private Double avgPrice = 0.0;
 
     public static TradeView fromTrade(Trade trade) {
+        if (trade == null) {
+            throw new RuntimeException("Cannot build trade view from null trade");
+        }
         TradeView view = new TradeView();
         BeanUtils.copyProperties(trade, view);
         // Set the symbol for the trade view
@@ -70,6 +73,9 @@ public class TradeView {
         return view;
     }
 
+    /**
+     * Converts a view into a Trade, without the Stock entity foreign key.
+     */
     public Trade toTrade() {
         Trade trade = new Trade();
         BeanUtils.copyProperties(this, trade);

@@ -18,6 +18,7 @@ import cs203t10.ryver.market.fund.exception.InsufficientBalanceException;
 import cs203t10.ryver.market.security.SecurityUtils;
 import static cs203t10.ryver.market.security.SecurityConstants.AUTH_HEADER_KEY;
 import static cs203t10.ryver.market.security.SecurityConstants.BEARER_PREFIX;
+import static cs203t10.ryver.market.security.SecurityConstants.MARKET_JWT;
 
 @Service
 public class FundTransferService {
@@ -45,10 +46,9 @@ public class FundTransferService {
 
     private HttpEntity<String> getHttpEntity() {
         HttpHeaders headers = new HttpHeaders();
-        String jwt = SecurityUtils.getCurrentSessionJWT();
 
         //set header to AUTH: Bearer ...
-        headers.set(AUTH_HEADER_KEY, BEARER_PREFIX + jwt);
+        headers.set(AUTH_HEADER_KEY, BEARER_PREFIX + MARKET_JWT);
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
@@ -59,7 +59,17 @@ public class FundTransferService {
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/deductAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+
+        //for debugging
+        System.out.println("Deduct Available Balance: " + response.getBody());
+    }
+
+    public void addAvailableBalance(Integer customerId, Integer accountId, Double amount)
+            throws InsufficientBalanceException, AccountNotAllowedException {
+        String url = getAccountsUrl();
+        HttpEntity<String> req = getHttpEntity();
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/addAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
         //for debugging
         System.out.println("Deduct Available Balance: " + response.getBody());
@@ -69,7 +79,7 @@ public class FundTransferService {
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
 
         //for debugging
         System.out.println("Deduct Balance: " + response.getBody());
@@ -79,7 +89,17 @@ public class FundTransferService {
             throws AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+
+        //for debugging
+        System.out.println("Add Balance: " + response.getBody());
+    }
+
+    public void resetAvailableBalance(Integer customerId, Integer accountId)
+    throws AccountNotAllowedException {
+        String url = getAccountsUrl();
+        HttpEntity<String> req = getHttpEntity();
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/resetAvailableBalance", HttpMethod.PUT, req, String.class, accountId);
 
         //for debugging
         System.out.println("Add Balance: " + response.getBody());

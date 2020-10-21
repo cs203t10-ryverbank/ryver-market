@@ -2,7 +2,7 @@ package cs203t10.ryver.market.security;
 
 import lombok.*;
 
-@AllArgsConstructor
+@AllArgsConstructor @Builder
 public class RyverPrincipal {
 
     public Long uid;

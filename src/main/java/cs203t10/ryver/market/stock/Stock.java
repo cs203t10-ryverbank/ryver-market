@@ -16,6 +16,10 @@ import lombok.*;
 @AllArgsConstructor @NoArgsConstructor
 public class Stock {
 
+    public Stock(String symbol) {
+        this.symbol = symbol;
+    }
+
     @Id @NotNull(message = "Symbol cannot be null")
     private String symbol;
 

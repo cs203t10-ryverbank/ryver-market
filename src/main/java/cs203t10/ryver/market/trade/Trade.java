@@ -12,7 +12,7 @@ import cs203t10.ryver.market.trade.TradeException.TradeForbiddenException;
 import lombok.*;
 
 @Entity
-@Data
+@Data @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
 public class Trade {
 
@@ -38,6 +38,7 @@ public class Trade {
     @ManyToOne @JoinColumn(name = "stock_id")
     private Stock stock;
 
+    @Builder.Default
     private Integer quantity = 0;
 
     public Integer getQuantity() {
@@ -47,6 +48,7 @@ public class Trade {
             return quantity;
     }
 
+    @Builder.Default
     private Integer filledQuantity = 0;
 
     private Integer customerId;
@@ -70,8 +72,10 @@ public class Trade {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Builder.Default
     private Double totalPrice = 0.0;
 
+    @Builder.Default
     private Double price = 0.0;
 }
 

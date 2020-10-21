@@ -7,12 +7,10 @@ public interface ExtendedTradeRepository {
     Trade saveWithSymbol(Trade trade, String symbol);
     Optional<Trade> findLatestBySymbol(String symbol);
     List<Trade> findAllByCustomerId(Long customerId);
-    List<Trade> findAllLatestPerStock();
     Optional<Trade> findBestMarketBuyBySymbol(String symbol);
     Optional<Trade> findBestMarketSellBySymbol(String symbol);
     Optional<Trade> findBestLimitBuyBySymbol(String symbol);
     Optional<Trade> findBestLimitSellBySymbol(String symbol);
-    Long getTotalQuantityBySymbol(String symbol);
     Long getBuyQuantityBySymbol(String symbol);
     Long getSellQuantityBySymbol(String symbol);
 }

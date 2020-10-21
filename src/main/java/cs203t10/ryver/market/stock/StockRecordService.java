@@ -5,4 +5,6 @@ import java.util.List;
 public interface StockRecordService {
     List<StockRecord> getAllLatestStockRecords();
     StockRecord getLatestStockRecordBySymbol(String symbol);
+    StockRecord updateStockRecordRemoveFromMarket(String symbol, Double price, Integer Quantity);
+    StockRecord updateStockRecordAddToMarket(String symbol, Integer Quantity);
 }
