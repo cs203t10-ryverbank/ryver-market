@@ -12,7 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import cs203t10.ryver.market.security.PrincipalService;
 import cs203t10.ryver.market.security.RyverPrincipal;
 import cs203t10.ryver.market.trade.view.TradeView;
-import cs203t10.ryver.market.trade.TradeException.TradeNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -82,10 +82,11 @@ public class TradeServiceImpl implements TradeService {
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 
-        // Ensures that trades made by marketmaker do not get matched to each other.
-        if (bestSell.getAccountId() == 0 && bestBuy.getAccountId() == 0){
-            return;
-        }
+        // DEBUG: Ensures that trades made by marketmaker do not get matched to each other.
+        // NOTE: By logic of marketmaker, they should not match anyways.
+        // if (bestSell.getAccountId() == 0 && bestBuy.getAccountId() == 0){
+        //     return;
+        // }
 
         // POSSIBLE BUG: if bestSell == 0 and bestBuy == 0,
         // but in reality there is a bestBuy > 1 ?
