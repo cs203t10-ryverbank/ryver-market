@@ -343,7 +343,7 @@ public class TradeServiceImpl implements TradeService {
     }
 
     // TODO: Debug scheduled cron
-    @Scheduled(cron = "0 55 2 * * MON-FRI", zone = "Asia/Singapore")
+    @Scheduled(cron = "0 0 17 * * MON-FRI", zone = "Asia/Singapore")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
         System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
