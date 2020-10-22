@@ -12,6 +12,5 @@ import cs203t10.ryver.market.portfolio.asset.Asset;
 public interface AssetRepository extends JpaRepository<Asset, Integer> {
   public List<Asset> findByPortfolioCustomerId(Integer customerId);
   public List<Asset> findByCode(String code);
-  public Asset findByPortfolioCustomerIdAndCode(Integer customerId, String code);
-  public Asset deleteByPortfolioCustomerIdAndCode(Integer customerId, String code);
+  public Optional<Asset> findByPortfolioCustomerIdAndCode(Integer customerId, String code);
 }

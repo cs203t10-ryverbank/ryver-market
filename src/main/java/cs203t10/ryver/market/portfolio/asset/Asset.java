@@ -15,15 +15,15 @@ import lombok.*;
 @EqualsAndHashCode @ToString
 public class Asset {
 
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-  @ManyToOne(targetEntity = Portfolio.class)
-  @JoinColumn(name = "portfolio", nullable = false)
-  private Portfolio portfolio;
+    @ManyToOne(targetEntity = Portfolio.class)
+    @JoinColumn(name = "portfolio", nullable = false)
+    private Portfolio portfolio;
 
-  @NotNull(message = "Code cannot be null")
-  private String code; 
+    @NotNull(message = "Code cannot be null")
+    private String code; 
 
     @NotNull(message = "Quantity cannot be null")
     private Integer quantity;

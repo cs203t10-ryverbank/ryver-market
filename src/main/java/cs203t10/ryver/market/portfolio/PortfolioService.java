@@ -4,12 +4,12 @@ import java.util.List;
 
 import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.portfolio.asset.Asset;
+import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
 
 public interface PortfolioService {
     public Portfolio createPortfolio(Integer customerId);
-    public Portfolio findByCustomerId(Integer customerId);
-    public Portfolio calculateUnrealizedGainLoss(Portfolio portfolio);
-    public Portfolio updateTotalGainLoss(Portfolio portfolio, Trade trade);
+    public PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId);
+    public Double calculateUnrealizedGainLoss(Portfolio portfolio);
     public Portfolio processBuyTrade(Trade trade);
     public Portfolio processSellTrade(Trade trade);
 }
