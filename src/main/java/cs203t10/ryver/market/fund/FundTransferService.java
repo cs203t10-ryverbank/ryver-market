@@ -82,7 +82,7 @@ public class FundTransferService {
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/addAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/addAvailableBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, customerId, amount);
 
         //for debugging
         System.out.println("Deduct Available Balance: " + response.getBody());
@@ -92,7 +92,7 @@ public class FundTransferService {
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/deductBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, customerId, amount);
 
         //for debugging
         System.out.println("Deduct Balance: " + response.getBody());
@@ -102,7 +102,7 @@ public class FundTransferService {
             throws AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, amount);
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/addBalance?amount={amount}", HttpMethod.PUT, req, String.class, accountId, customerId, amount);
 
         //for debugging
         System.out.println("Add Balance: " + response.getBody());
@@ -112,7 +112,7 @@ public class FundTransferService {
     throws AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/resetAvailableBalance", HttpMethod.PUT, req, String.class, accountId);
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{accountId}/{customerId}/resetAvailableBalance", HttpMethod.PUT, req, String.class, accountId, customerId);
 
         //for debugging
         System.out.println("Add Balance: " + response.getBody());
