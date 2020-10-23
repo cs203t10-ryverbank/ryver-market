@@ -194,12 +194,13 @@ public class TradeServiceImpl implements TradeService {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
-        //Add stocks to buyer portfolio
-        Portfolio portfolio = portfolioService.processBuyTrade(trade);
-
         if (customerId == 0 && accountId == 0) {
             return;
         }
+
+        //Add stocks to buyer portfolio
+        Portfolio portfolio = portfolioService.processBuyTrade(trade);
+
         fundTransferService.deductBalance( customerId, accountId, totalPrice);
     }
 
@@ -207,12 +208,12 @@ public class TradeServiceImpl implements TradeService {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
-        //Deduct stocks from seller portfolio.
-        Portfolio portfolio = portfolioService.processSellTrade(trade);
-
         if (customerId == 0 && accountId == 0) {
             return;
         }
+        //Deduct stocks from seller portfolio.
+        Portfolio portfolio = portfolioService.processSellTrade(trade);
+
         fundTransferService.addBalance( customerId, accountId, totalPrice);
         fundTransferService.addAvailableBalance( customerId, accountId, totalPrice);
     }

@@ -30,9 +30,9 @@ public class PortfolioServiceImpl implements PortfolioService {
     private AssetService assetService;
 
     @Autowired StockRecordService stockRecordService;
-    
-    /** 
-     * Creates a portfolio for an existing user 
+
+    /**
+     * Creates a portfolio for an existing user
      */
     @Override
     public Portfolio createPortfolio(Integer customerId) {

@@ -1,7 +1,3 @@
-### Check root route
-GET http://localhost:8080/login
-Authorization: Basic good_user_1 01_user_01
-
 ### Get default stocks as customer
 GET http://localhost:8086/stocks
 Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuIiwidWlkIjo3LCJhdXRoIjoiUk9MRV9VU0VSIiwiZXhwIjoxNjAzMTg2MDgyfQ.dQVlJDKEJ25ZhWm7LMzLlg9UlPTavC3xwThBELo-dBXPk0fKWmrwDZghIn_boDEY2wDGIYjcJWvZoTPBf7yPBg
@@ -21,13 +17,13 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDMxNTk5M30._vSMLH7BrLWWfwnOs6hb8KZMC_OmwUXp-xp4oFextF9xQQ5v4sB5ddHQHnSlIZtg7Ee7ySb_jJx22AhQkTbXvg
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDMyNjkwM30.nFIjA1Vs_euzygcxKSaQD52MKH1hOF8AjY3rrstbav-BPHsb-EQE78w-NSJZU7GxGQZDrh6fycT9BbECLEueAA
 
 {
     "action":"buy",
     "symbol":"M44U",
     "quantity": 100,
-    "bid":0,
+    "bid":100,
     "ask":0,
     "avg_price":0,
     "account_id":1,
