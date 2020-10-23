@@ -12,4 +12,5 @@ public interface AssetService {
     public List<Asset> processBuyTrade(Trade trade, Portfolio portfolio);
     public List<Asset> processSellTrade(Trade trade);
     public List<Asset> updateAssets(Portfolio portfolio);
+    public Integer getQuantityOfAsset(Asset asset);
 }

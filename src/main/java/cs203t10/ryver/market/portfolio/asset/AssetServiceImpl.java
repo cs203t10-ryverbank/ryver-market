@@ -118,4 +118,10 @@ public class AssetServiceImpl implements AssetService{
         }
         return findByPortfolioCustomerId(customerId);
     }
+
+    @Override
+    public Integer getQuantityOfAsset(Asset asset) {
+        Integer quantityOwned = asset.getQuantity();
+        return quantityOwned;
+    }
 }

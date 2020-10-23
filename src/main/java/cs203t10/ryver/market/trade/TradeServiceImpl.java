@@ -18,6 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import cs203t10.ryver.market.fund.FundTransferService;
+import cs203t10.ryver.market.portfolio.Portfolio;
+import cs203t10.ryver.market.portfolio.PortfolioService;
+import cs203t10.ryver.market.portfolio.asset.Asset;
+import cs203t10.ryver.market.portfolio.asset.AssetService;
+import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
@@ -36,6 +41,12 @@ public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private StockRecordService stockRecordService;
+
+    @Autowired
+    private AssetService assetService;
+
+    @Autowired
+    private PortfolioService portfolioService;
 
     @Autowired
     private TradeRepository tradeRepo;
@@ -163,7 +174,11 @@ public class TradeServiceImpl implements TradeService {
         if (customerId == 0 && accountId == 0) {
             return;
         }
-        // JUSTINA TODO: Check if account has enough stocks from portfolio.
+        Asset asset = assetService.findByPortfolioCustomerIdAndCode(customerId, symbol);
+        Integer quantityOwned = assetService.getQuantityOfAsset(asset);
+        if (quantityOwned < quantity) {
+            throw new InsufficientStockQuantityException(customerId, symbol);
+        }
 
         // Add to stock records
         stockRecordService.updateStockRecordAddToMarket(symbol, quantity);
@@ -173,7 +188,8 @@ public class TradeServiceImpl implements TradeService {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
-        // JUSTINA TODO: Add stocks to buyer portfolio.
+        //Add stocks to buyer portfolio
+        Portfolio portfolio = portfolioService.processBuyTrade(trade);
 
         if (customerId == 0 && accountId == 0) {
             return;
@@ -185,7 +201,8 @@ public class TradeServiceImpl implements TradeService {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
-        // JUSTINA TODO: Deduct stocks from seller portfolio.
+        //Deduct stocks from seller portfolio.
+        Portfolio portfolio = portfolioService.processSellTrade(trade);
 
         if (customerId == 0 && accountId == 0) {
             return;

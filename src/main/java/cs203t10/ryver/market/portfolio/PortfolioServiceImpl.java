@@ -61,14 +61,16 @@ public class PortfolioServiceImpl implements PortfolioService {
         }
         List<Asset> assets = assetService.findByPortfolioCustomerId(customerId);
         List<AssetInfoViewableByCustomer> assetInfoList = new ArrayList<>();
-        for (Asset asset : assets) {
-            AssetInfoViewableByCustomer assetInfo = new AssetInfoViewableByCustomer(asset.getCode(),
-                                                                                    asset.getQuantity(),
-                                                                                    asset.getAveragePrice(),
-                                                                                    asset.getCurrentPrice(),
-                                                                                    asset.getValue(),
-                                                                                    asset.getGainLoss());
-            assetInfoList.add(assetInfo);
+        if (assets != null) {
+            for (Asset asset : assets) {
+                AssetInfoViewableByCustomer assetInfo = new AssetInfoViewableByCustomer(asset.getCode(),
+                                                                                        asset.getQuantity(),
+                                                                                        asset.getAveragePrice(),
+                                                                                        asset.getCurrentPrice(),
+                                                                                        asset.getValue(),
+                                                                                        asset.getGainLoss());
+                assetInfoList.add(assetInfo);
+            }
         }
         PortfolioInfoViewableByCustomer portfolioInfo = new PortfolioInfoViewableByCustomer(portfolio.getCustomerId(),
                                                                         assetInfoList,
