@@ -18,14 +18,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import cs203t10.ryver.market.fund.FundTransferService;
-import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
-import cs203t10.ryver.market.exception.TradeInvalidDateException;
 
 @Component
 @Service
@@ -82,12 +80,7 @@ public class TradeServiceImpl implements TradeService {
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 
-<<<<<<< Updated upstream
-        // DEBUG: Ensures that trades made by marketmaker do not get matched to each other.
-        // NOTE: By logic of marketmaker, they should not match anyways.
-=======
         // Ensures that trades made by marketmaker do not get matched to each other.
->>>>>>> Stashed changes
         // if (bestSell.getAccountId() == 0 && bestBuy.getAccountId() == 0){
         //     return;
         // }

@@ -26,13 +26,13 @@ public class SgxScrapingService implements ScrapingService {
     StockRecordRepository stockRecordRepo;
 
     public SgxScrapingService() {
-        // System.setProperty("webdriver.chrome.driver", "lib/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "lib/chromedriver");
     }
 
     public List<StockRecord> loadStockRecords() {
-        // SgxScraper scraper = new SgxScraper();
-        // List<StockRecord> newRecords = scraper.getAllStockRecords();
-        List<StockRecord> newRecords = new ScraperFake().buildFakeRecords();
+        SgxScraper scraper = new SgxScraper();
+        List<StockRecord> newRecords = scraper.getAllStockRecords();
+        
         // Store all newly discovered stocks.
         newRecords.stream()
             .map(StockRecord::getStock)

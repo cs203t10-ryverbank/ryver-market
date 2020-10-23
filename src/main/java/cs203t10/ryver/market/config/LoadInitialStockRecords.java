@@ -5,18 +5,20 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import cs203t10.ryver.market.stock.scrape.ScraperFake;
 import cs203t10.ryver.market.stock.scrape.ScrapingService;
 
 @Component
 @Order(1)
 public class LoadInitialStockRecords implements CommandLineRunner {
 
-    @Autowired
-    ScrapingService scrapingService;
+    // @Autowired
+    // ScrapingService scrapingService;
 
     @Override
     public void run(String... args) throws Exception {
-        scrapingService.loadStockRecords();
+        new ScraperFake().buildFakeRecords();
+        // scrapingService.loadStockRecords();
         System.out.println("STI records loaded from SGX");
     }
 }
