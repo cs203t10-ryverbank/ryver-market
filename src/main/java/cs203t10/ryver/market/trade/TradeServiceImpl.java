@@ -95,8 +95,10 @@ public class TradeServiceImpl implements TradeService {
                 transactedPrice = latestStock.getPrice();
             } else if (bestSell.getPrice() == 0){
                 transactedPrice = bestBuy.getPrice();
-            } else {
+            } else if (bestBuy.getPrice() == 0 || bestBuy.getPrice() > bestSell.getPrice()){
                 transactedPrice = bestSell.getPrice();
+            } else if (bestBuy.getPrice() < bestSell.getPrice()){
+                return;
             }
 
             Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();

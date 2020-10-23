@@ -1,5 +1,6 @@
 ### Check root route
-GET http://localhost:8086/
+GET http://localhost:8080/login
+Authorization: Basic good_user_1 01_user_01
 
 ### Get default stocks as customer
 GET http://localhost:8086/stocks
@@ -20,13 +21,13 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtYXJrdGFuI
 ### Create new trade
 POST http://localhost:8086/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwMzY0MDg2Mn0.YyijPJWoA3fupSF496t_Hb-GedzLGjbqjbaAwNpI2K8XWwExDHMauTu-YaqVZhoyWQ3EXeRioY8TwIYO-MGMww
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDMxNTk5M30._vSMLH7BrLWWfwnOs6hb8KZMC_OmwUXp-xp4oFextF9xQQ5v4sB5ddHQHnSlIZtg7Ee7ySb_jJx22AhQkTbXvg
 
 {
-    "action":"sell",
+    "action":"buy",
     "symbol":"M44U",
     "quantity": 100,
-    "bid":1,
+    "bid":0,
     "ask":0,
     "avg_price":0,
     "account_id":1,
