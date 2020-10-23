@@ -1,10 +1,14 @@
 package cs203t10.ryver.market.stock.scrape;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordRepository;
 import cs203t10.ryver.market.stock.StockRepository;
@@ -22,12 +26,13 @@ public class SgxScrapingService implements ScrapingService {
     StockRecordRepository stockRecordRepo;
 
     public SgxScrapingService() {
-        System.setProperty("webdriver.chrome.driver", "lib/chromedriver");
+        // System.setProperty("webdriver.chrome.driver", "lib/chromedriver");
     }
 
     public List<StockRecord> loadStockRecords() {
-        SgxScraper scraper = new SgxScraper();
-        List<StockRecord> newRecords = scraper.getAllStockRecords();
+        // SgxScraper scraper = new SgxScraper();
+        // List<StockRecord> newRecords = scraper.getAllStockRecords();
+        List<StockRecord> newRecords = new ScraperFake().buildFakeRecords();
         // Store all newly discovered stocks.
         newRecords.stream()
             .map(StockRecord::getStock)
