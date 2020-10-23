@@ -10,8 +10,8 @@ import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 
 
-public class ScraperFake{
-    
+public class FakeScraper{
+
     private List<String> getRecordFromLine(String line) {
         List<String> values = new ArrayList<String>();
         try (Scanner rowScanner = new Scanner(line)) {
