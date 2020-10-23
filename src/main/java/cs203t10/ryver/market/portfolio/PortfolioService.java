@@ -3,14 +3,13 @@ package cs203t10.ryver.market.portfolio;
 import java.util.List;
 
 import cs203t10.ryver.market.trade.Trade;
+import cs203t10.ryver.market.portfolio.asset.Asset;
+import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
 
 public interface PortfolioService {
-    Portfolio createPortfolio(Integer customerId);
-    Portfolio findByCustomerId(Integer customerId);
-    List<Asset> findAssetsByCustomerId(Integer customerId);
-    Asset findAssetByCustomerIdAndCode(Integer customerId, String code);
-    Portfolio addNewStockToAssets(Integer customerId, Asset asset);
-    Portfolio addToAssets(Trade trade);
-    Portfolio deductFromAssets(Trade trade);
+    public Portfolio createPortfolio(Integer customerId);
+    public PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId);
+    public Double calculateUnrealizedGainLoss(Portfolio portfolio);
+    public Portfolio processBuyTrade(Trade trade);
+    public Portfolio processSellTrade(Trade trade);
 }
-
