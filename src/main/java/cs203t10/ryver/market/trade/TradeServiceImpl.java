@@ -101,17 +101,24 @@ public class TradeServiceImpl implements TradeService {
         // but in reality there is a bestBuy > 1 ?
         while (bestSell != null && bestBuy != null) {
             Double transactedPrice = 0.0;
+            System.out.println("best buy: " + bestBuy.getPrice());
+            System.out.println("best sell: " + bestSell.getPrice());
             if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0){
+                System.out.println("1. sell 0 : buy 0 ");
                 // Get last price if there are no prices available.
                 StockRecord latestStock = stockRecordService.getLatestStockRecordBySymbol(symbol);
                 transactedPrice = latestStock.getPrice();
             } else if (bestSell.getPrice() == 0){
                 transactedPrice = bestBuy.getPrice();
+                System.out.println("2. sell 0 : buy " + transactedPrice);
             } else if (bestBuy.getPrice() == 0 || bestBuy.getPrice() > bestSell.getPrice()){
                 transactedPrice = bestSell.getPrice();
+                System.out.println("3. sell " + transactedPrice + " : buy 0 ");
             } else if (bestBuy.getPrice() < bestSell.getPrice()){
                 return;
             }
+
+            System.out.println(" transacted price " + transactedPrice);
 
             Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
             Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
@@ -227,6 +234,7 @@ public class TradeServiceImpl implements TradeService {
     // TODO: Fix logic for best buy and sell.
     @Override
     public Trade getBestBuy(String symbol) {
+        Trade bestSell =getBestLimitSellBySymbol(symbol);
         Trade bestMarket = getBestMarketBuyBySymbol(symbol);
         Trade bestLimit = getBestLimitBuyBySymbol(symbol);
         if (bestMarket == null && bestLimit == null) return null;
@@ -234,20 +242,16 @@ public class TradeServiceImpl implements TradeService {
         if (bestMarket == null) return bestLimit;
         // The buy with a higher price is better, as it gives the
         // matcher (seller) more per stock traded.
-        if (bestLimit.getPrice() > bestMarket.getPrice()) {
+        if ( bestLimit.getPrice() > bestSell.getPrice()) {
             return bestLimit;
-        } else if (bestLimit.getPrice() < bestMarket.getPrice()) {
+        } else {
             return bestMarket;
         }
-        // If price is the same, then the earlier buy is returned.
-        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
-            return bestLimit;
-        }
-        return bestMarket;
     }
 
     @Override
     public Trade getBestSell(String symbol) {
+        Trade bestBuy =getBestLimitBuyBySymbol(symbol);
         Trade bestMarket = getBestMarketSellBySymbol(symbol);
         Trade bestLimit = getBestLimitSellBySymbol(symbol);
         if (bestMarket == null && bestLimit == null) return null;
@@ -255,16 +259,11 @@ public class TradeServiceImpl implements TradeService {
         if (bestMarket == null) return bestLimit;
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.
-        if (bestLimit.getPrice() < bestMarket.getPrice()) {
+        if ( bestLimit.getPrice() < bestBuy.getPrice()) {
             return bestLimit;
-        } else if (bestLimit.getPrice() > bestMarket.getPrice()) {
+        } else {
             return bestMarket;
         }
-        // If price is the same, then the earlier sell is returned.
-        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
-            return bestLimit;
-        }
-        return bestMarket;
     }
 
     private Trade getBestMarketBuyBySymbol(String symbol) {
