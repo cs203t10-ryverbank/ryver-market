@@ -30,6 +30,7 @@ import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
+import cs203t10.ryver.market.maker.MarketMaker;
 
 @Component
 @Service
@@ -49,6 +50,9 @@ public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private TradeRepository tradeRepo;
+
+    @Autowired
+    private MarketMaker marketMaker;
 
     @Override
     public Trade saveTrade(TradeView tradeView) {
@@ -240,6 +244,15 @@ public class TradeServiceImpl implements TradeService {
         if (bestMarket == null && bestLimit == null) return null;
         if (bestLimit == null) return bestMarket;
         if (bestMarket == null) return bestLimit;
+
+         // Market maker injects liquidity
+         if ( bestSell == null) {
+            StockRecord latestStock = stockRecordService.getLatestStockRecordBySymbol(symbol);
+            Double lastPrice = latestStock.getPrice();
+            marketMaker.makeNewSellTradesAtPrice(symbol, lastPrice);
+            return null;
+        }
+
         // The buy with a higher price is better, as it gives the
         // matcher (seller) more per stock traded.
         if ( bestLimit.getPrice() > bestSell.getPrice()) {
@@ -257,6 +270,15 @@ public class TradeServiceImpl implements TradeService {
         if (bestMarket == null && bestLimit == null) return null;
         if (bestLimit == null) return bestMarket;
         if (bestMarket == null) return bestLimit;
+
+         // Market maker injects liquidity
+         if ( bestBuy == null) {
+            StockRecord latestStock = stockRecordService.getLatestStockRecordBySymbol(symbol);
+            Double lastPrice = latestStock.getPrice();
+            marketMaker.makeNewBuyTradesAtPrice(symbol, lastPrice);
+            return null;
+        }
+
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.
         if ( bestLimit.getPrice() < bestBuy.getPrice()) {

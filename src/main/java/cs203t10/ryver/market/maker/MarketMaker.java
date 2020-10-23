@@ -43,7 +43,7 @@ public class MarketMaker {
         }
     }
 
-    private void makeNewBuyTradesAtPrice(String symbol, Double price) {
+    public void makeNewBuyTradesAtPrice(String symbol, Double price) {
         Long totalQuantity = tradeRepo.getBuyQuantityBySymbol(symbol);
         // If liquidity is low, then make new trades
         if (totalQuantity < MIN_QUANTITY) {
@@ -60,7 +60,7 @@ public class MarketMaker {
         }
     }
 
-    private void makeNewSellTradesAtPrice(String symbol, Double price) {
+    public void makeNewSellTradesAtPrice(String symbol, Double price) {
         Long totalQuantity = tradeRepo.getSellQuantityBySymbol(symbol);
         // If liquidity is low, then make new trades
         if (totalQuantity < MIN_QUANTITY) {
