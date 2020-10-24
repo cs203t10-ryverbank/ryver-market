@@ -50,9 +50,9 @@ public class StockRecordView {
         return StockRecordView.builder()
                 .symbol(record.getStock().getSymbol())
                 .lastPrice(record.getPrice())
-                .bidVolume(bestBuy.getQuantity())
+                .bidVolume(bestBuy.getQuantity()-bestBuy.getFilledQuantity())
                 .bid(bestBuy.getPrice())
-                .askVolume(bestSell.getQuantity())
+                .askVolume(bestSell.getQuantity()-bestSell.getFilledQuantity())
                 .ask(bestSell.getPrice())
                 .build();
     }
