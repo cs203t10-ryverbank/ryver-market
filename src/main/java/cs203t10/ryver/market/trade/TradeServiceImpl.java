@@ -268,10 +268,10 @@ public class TradeServiceImpl implements TradeService {
 
         // Market maker injects liquidity for sells
         if ( bestSell == null) {
-            System.out.println("Injecting liquidity...");
-            StockRecord latestStock = stockRecordService.getLatestStockRecordBySymbol(symbol);
-            Double lastPrice = latestStock.getPrice();
-            marketMaker.makeNewSellTradesAtPrice(symbol, lastPrice);
+            // System.out.println("Injecting liquidity...");
+            // StockRecord latestStock = stockRecordService.getLatestStockRecordBySymbol(symbol);
+            // Double lastPrice = latestStock.getPrice();
+            // marketMaker.makeNewSellTradesAtPrice(symbol, lastPrice);
             return null;
         }
         System.out.println("BestSell: found ");
