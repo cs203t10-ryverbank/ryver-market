@@ -1,5 +1,6 @@
 package cs203t10.ryver.market.portfolio.asset;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class AssetServiceImpl implements AssetService{
     }
 
     @Override
-    public List<Asset> processBuyTrade(Trade trade, Portfolio portfolio) {
+    public Asset processBuyTrade(Trade trade, Portfolio portfolio) {
         String code = trade.getStock().getSymbol();
         Integer customerId = trade.getCustomerId();
         Asset asset = assets.findByPortfolioCustomerIdAndCode(customerId, code).orElse(null);
@@ -61,7 +62,13 @@ public class AssetServiceImpl implements AssetService{
             Integer newQuantity = asset.getQuantity() + filledQuantity;
             Double newValue = asset.getValue() + (tradeAvgPrice * filledQuantity);
             Double newAveragePrice = newValue/newQuantity;
+            newAveragePrice *= 100;
+            newAveragePrice = (double) Math.round(newAveragePrice);
+            newAveragePrice /= 100;
             Double newGainLoss = newValue - (newQuantity * currentPrice);
+            newGainLoss *= 100;
+            newGainLoss = (double) Math.round(newGainLoss);
+            newGainLoss /= 100;
 
             asset.setAveragePrice(newAveragePrice);
             asset.setQuantity(newQuantity);
@@ -70,15 +77,14 @@ public class AssetServiceImpl implements AssetService{
             asset.setCurrentPrice(currentPrice);
         }
         assets.save(asset);
-        return findByPortfolioCustomerId(customerId);
+        return asset;
     }
 
     @Override
-    public List<Asset> processSellTrade(Trade trade) {
+    public Asset processSellTrade(Trade trade) {
         String code = trade.getStock().getSymbol();
         Integer customerId = trade.getCustomerId();
         Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
-        Integer assetId = asset.getId();
         
         Integer filledQuantity = trade.getFilledQuantity();
         Double tradeAvgPrice = trade.getPrice();
@@ -90,17 +96,25 @@ public class AssetServiceImpl implements AssetService{
 
         if (newQuantity == 0) {
             assets.delete(asset);
+            return null;
         } else {
             Double newValue = asset.getValue() - (filledQuantity * tradeAvgPrice);
             Double newAveragePrice = newValue/newQuantity;
+            newAveragePrice *= 100;
+            newAveragePrice = (double) Math.round(newAveragePrice);
+            newAveragePrice /= 100;
             Double newGainLoss = newValue - (newQuantity * currentPrice); 
+            newGainLoss *= 100;
+            newGainLoss = (double) Math.round(newGainLoss);
+            newGainLoss /= 100;
             asset.setAveragePrice(newAveragePrice);
+            asset.setCurrentPrice(currentPrice);
             asset.setQuantity(newQuantity);
             asset.setValue(newValue);
             asset.setGainLoss(newGainLoss);
             assets.save(asset);
+            return asset;
         }
-        return findByPortfolioCustomerId(customerId);
     }
 
     @Override
@@ -110,18 +124,22 @@ public class AssetServiceImpl implements AssetService{
         for (Asset asset : assetList) {
             String code = asset.getCode();
             StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
-            Double currentPrice = stockRecord.getPrice();
-            Double gainLoss = asset.getAveragePrice() - currentPrice;
-            asset.setCurrentPrice(currentPrice);
-            asset.setGainLoss(gainLoss);
-            assets.save(asset);
+            if (!stockRecord.getPrice().equals(asset.getCurrentPrice())) {
+                Double currentPrice = stockRecord.getPrice();
+                Double newGainLoss = (asset.getAveragePrice() - currentPrice) * asset.getQuantity();
+                newGainLoss *= 100;
+                newGainLoss = (double) Math.round(newGainLoss);
+                newGainLoss /= 100;
+
+                asset.setCurrentPrice(currentPrice);
+                asset.setGainLoss(newGainLoss);
+            }
         }
-        return findByPortfolioCustomerId(customerId);
+        return portfolio.getAssets();
     }
 
     @Override
     public Integer getQuantityOfAsset(Asset asset) {
-        Integer quantityOwned = asset.getQuantity();
-        return quantityOwned;
+        return asset.getQuantity();
     }
 }

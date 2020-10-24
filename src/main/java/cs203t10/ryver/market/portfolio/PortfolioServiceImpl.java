@@ -54,7 +54,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         if (portfolio == null) {
             portfolio = createPortfolio(customerId);
         } else {
-            List<Asset> assets = assetService.updateAssets(portfolio);
+            assetService.updateAssets(portfolio);
             Double unrealizedGainLoss = calculateUnrealizedGainLoss(portfolio);
             portfolio.setUnrealizedGainLoss(unrealizedGainLoss);
             portfolio = portfolios.save(portfolio);
@@ -96,7 +96,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         if (portfolio == null) {
             portfolio = createPortfolio(customerId);
         }
-        List<Asset> asset = assetService.processBuyTrade(trade, portfolio);
+        assetService.processBuyTrade(trade, portfolio);
         Double unrealizedGainLoss = calculateUnrealizedGainLoss(portfolio);
         portfolio.setUnrealizedGainLoss(unrealizedGainLoss);
         return portfolios.save(portfolio);
@@ -113,7 +113,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Asset asset = assetService.findByPortfolioCustomerIdAndCode(customerId, code);
         Double assetAvgPriceBeforeTrade = asset.getAveragePrice();
 
-        List<Asset> assets = assetService.processSellTrade(trade);
+        assetService.processSellTrade(trade);
 
         Double unrealizedGainLoss = calculateUnrealizedGainLoss(portfolio);
 
