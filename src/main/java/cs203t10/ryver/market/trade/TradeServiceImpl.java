@@ -91,6 +91,24 @@ public class TradeServiceImpl implements TradeService {
 
         return getTrade(trade.getId());
     }
+    @Override
+    public Trade saveMarketMakerTrade(TradeView tradeView) {
+        // By default, trade will be set to OPEN status.
+        tradeView.setStatus(Status.OPEN);
+
+        // Save trade.
+        Trade trade = tradeView.toTrade();
+        tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
+
+        // Reconcile market status after adding trade.
+        reconcileMarket(tradeView.getSymbol());
+
+        // EDIT: See closeMarket() method. Uses @Scheduled to close market every time it is 5pm.
+        // If limit order, expire the trade by 5PM.
+
+        return getTrade(trade.getId());
+    }
+
 
     private void reconcileMarket(String symbol){
         Trade bestSell = getBestSell(symbol);
@@ -136,8 +154,8 @@ public class TradeServiceImpl implements TradeService {
 
             // Average price is given by setting total price.
             // Note: avg_price = total price / filled quantity.
-            bestBuy.setTotalPrice(totalPrice);
-            bestSell.setTotalPrice(totalPrice);
+            bestBuy.setTotalPrice(bestBuy.getTotalPrice() + totalPrice);
+            bestSell.setTotalPrice(bestSell.getTotalPrice() + totalPrice);
 
             updateTrade(bestSell);
             updateTrade(bestBuy);
@@ -238,26 +256,33 @@ public class TradeServiceImpl implements TradeService {
     // TODO: Fix logic for best buy and sell.
     @Override
     public Trade getBestBuy(String symbol) {
+        System.out.println("Entering best buy for stock " + symbol);
         Trade bestSell =getBestLimitSellBySymbol(symbol);
         Trade bestMarket = getBestMarketBuyBySymbol(symbol);
         Trade bestLimit = getBestLimitBuyBySymbol(symbol);
         if (bestMarket == null && bestLimit == null) return null;
         if (bestLimit == null) return bestMarket;
         if (bestMarket == null) return bestLimit;
+        System.out.println("BestMarket: found;  BestLimit: found ");
 
-         // Market maker injects liquidity
-         if ( bestSell == null) {
+
+        // Market maker injects liquidity for sells
+        if ( bestSell == null) {
+            System.out.println("Injecting liquidity...");
             StockRecord latestStock = stockRecordService.getLatestStockRecordBySymbol(symbol);
             Double lastPrice = latestStock.getPrice();
             marketMaker.makeNewSellTradesAtPrice(symbol, lastPrice);
             return null;
         }
+        System.out.println("BestSell: found ");
 
         // The buy with a higher price is better, as it gives the
         // matcher (seller) more per stock traded.
         if ( bestLimit.getPrice() > bestSell.getPrice()) {
+            System.out.println("Returning bestLimit for stock " + symbol);
             return bestLimit;
         } else {
+            System.out.println("Returning bestMarket for stock " + symbol);
             return bestMarket;
         }
     }
@@ -270,14 +295,6 @@ public class TradeServiceImpl implements TradeService {
         if (bestMarket == null && bestLimit == null) return null;
         if (bestLimit == null) return bestMarket;
         if (bestMarket == null) return bestLimit;
-
-         // Market maker injects liquidity
-         if ( bestBuy == null) {
-            StockRecord latestStock = stockRecordService.getLatestStockRecordBySymbol(symbol);
-            Double lastPrice = latestStock.getPrice();
-            marketMaker.makeNewBuyTradesAtPrice(symbol, lastPrice);
-            return null;
-        }
 
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.

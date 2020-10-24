@@ -80,13 +80,14 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
      * The best market trade is determined by submitted date.
      */
     private Optional<Trade> findBestMarketBySymbol(String symbol, Action action) {
-        //TODO: edit status to use query manager
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
             "AND action = :action",
             "AND price = 0",
             "AND status != 'FILLED'",
+            "AND status != 'CANCELLED'",
+            "AND status != 'EXPIRED'",
             "ORDER BY submitted_date"
         );
         Query query = entityManager
@@ -145,8 +146,18 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
+    public Long getBuyFilledQuantityBySymbol(String symbol) {
+        return getFilledQuantityBySymbol(symbol, Action.BUY);
+    }
+
+    @Override
     public Long getSellQuantityBySymbol(String symbol) {
         return getQuantityBySymbol(symbol, Action.SELL);
+    }
+
+    @Override
+    public Long getSellFilledQuantityBySymbol(String symbol) {
+        return getFilledQuantityBySymbol(symbol, Action.BUY);
     }
 
     private Long getQuantityBySymbol(String symbol, Action action) {
@@ -154,6 +165,23 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
             "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
             "WHERE stock_id = :stock_id",
             "AND action = :action"
+        );
+        Query query = entityManager.createNativeQuery(sql);
+        BigInteger result = (BigInteger) query
+                .setParameter("stock_id", symbol)
+                .setParameter("action", action.toString().toUpperCase())
+                .getSingleResult();
+        return result.longValue();
+    }
+
+    private Long getFilledQuantityBySymbol(String symbol, Action action) {
+        final String sql = String.join(" ",
+            "SELECT IFNULL(SUM(filled_quantity), 0) FROM TRADE",
+            "WHERE stock_id = :stock_id",
+            "AND action = :action",
+            "AND status != 'FILLED'",
+            "AND status != 'CANCELLED'",
+            "AND status != 'EXPIRED'"
         );
         Query query = entityManager.createNativeQuery(sql);
         BigInteger result = (BigInteger) query

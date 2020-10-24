@@ -44,10 +44,11 @@ public class MarketMaker {
     }
 
     public void makeNewBuyTradesAtPrice(String symbol, Double price) {
-        Long totalQuantity = tradeRepo.getBuyQuantityBySymbol(symbol);
+        // The liquid quantity = Total Quantity - Filled Quantity
+        Long totalQuantity = tradeRepo.getBuyQuantityBySymbol(symbol) - tradeRepo.getBuyFilledQuantityBySymbol(symbol)  ;
         // If liquidity is low, then make new trades
         if (totalQuantity < MIN_QUANTITY) {
-            tradeService.saveTrade(TradeView.builder()
+            tradeService.saveMarketMakerTrade(TradeView.builder()
                     .action(Action.BUY)
                     .symbol(symbol)
                     .quantity((int) (MIN_QUANTITY - totalQuantity))
@@ -61,10 +62,11 @@ public class MarketMaker {
     }
 
     public void makeNewSellTradesAtPrice(String symbol, Double price) {
-        Long totalQuantity = tradeRepo.getSellQuantityBySymbol(symbol);
+        // The liquid quantity = Total Quantity - Filled Quantity
+        Long totalQuantity = tradeRepo.getSellQuantityBySymbol(symbol)  - tradeRepo.getSellFilledQuantityBySymbol(symbol);
         // If liquidity is low, then make new trades
         if (totalQuantity < MIN_QUANTITY) {
-            tradeService.saveTrade(TradeView.builder()
+            tradeService.saveMarketMakerTrade(TradeView.builder()
                     .action(Action.SELL)
                     .symbol(symbol)
                     .quantity((int) (MIN_QUANTITY - totalQuantity))

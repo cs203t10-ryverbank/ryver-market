@@ -83,8 +83,10 @@ public class PortfolioServiceImpl implements PortfolioService {
     public Double calculateUnrealizedGainLoss(Portfolio portfolio) {
         List<Asset> assets = portfolio.getAssets();
         Double unrealizedGainLoss = 0.0;
-        for (Asset asset : assets) {
-            unrealizedGainLoss += asset.getGainLoss();
+        if (assets != null ){
+            for (Asset asset : assets) {
+                unrealizedGainLoss += asset.getGainLoss();
+            }
         }
         return unrealizedGainLoss;
     }
