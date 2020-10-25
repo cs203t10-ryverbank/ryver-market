@@ -12,11 +12,11 @@ import cs203t10.ryver.market.stock.scrape.ScrapingService;
 public class LoadInitialStockRecords implements CommandLineRunner {
 
     @Autowired
-    ScrapingService scrapingService;
+    ScrapingService fakeScrapingService;
 
     @Override
     public void run(String... args) throws Exception {
-        scrapingService.loadStockRecords();
+        fakeScrapingService.loadStockRecords();
         System.out.println("STI records loaded from SGX");
     }
 }

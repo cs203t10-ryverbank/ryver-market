@@ -17,7 +17,7 @@ import cs203t10.ryver.market.stock.StockRepository;
  * Scrape SGX for updated Straits Time Index data.
  */
 @Service
-public class SgxScrapingService implements ScrapingService {
+public class FakeScrapingService implements ScrapingService {
 
     @Autowired
     StockRepository stockRepo;
@@ -25,14 +25,10 @@ public class SgxScrapingService implements ScrapingService {
     @Autowired
     StockRecordRepository stockRecordRepo;
 
-    public SgxScrapingService() {
-        System.setProperty("webdriver.chrome.driver", "lib/chromedriver");
-    }
-
     public List<StockRecord> loadStockRecords() {
-        SgxScraper scraper = new SgxScraper();
-        List<StockRecord> newRecords = scraper.getAllStockRecords();
-        
+        FakeScraper scraper = new FakeScraper();
+        List<StockRecord> newRecords = scraper.buildFakeRecords();
+
         // Store all newly discovered stocks.
         newRecords.stream()
             .map(StockRecord::getStock)

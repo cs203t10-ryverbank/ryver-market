@@ -30,9 +30,9 @@ public class PortfolioServiceImpl implements PortfolioService {
     private AssetService assetService;
 
     @Autowired StockRecordService stockRecordService;
-    
-    /** 
-     * Creates a portfolio for an existing user 
+
+    /**
+     * Creates a portfolio for an existing user
      */
     @Override
     public Portfolio createPortfolio(Integer customerId) {
@@ -83,8 +83,10 @@ public class PortfolioServiceImpl implements PortfolioService {
     public Double calculateUnrealizedGainLoss(Portfolio portfolio) {
         List<Asset> assets = portfolio.getAssets();
         Double unrealizedGainLoss = 0.0;
-        for (Asset asset : assets) {
-            unrealizedGainLoss += asset.getGainLoss();
+        if (assets != null ){
+            for (Asset asset : assets) {
+                unrealizedGainLoss += asset.getGainLoss();
+            }
         }
         return unrealizedGainLoss;
     }

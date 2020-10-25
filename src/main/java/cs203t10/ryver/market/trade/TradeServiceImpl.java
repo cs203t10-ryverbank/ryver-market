@@ -28,9 +28,10 @@ import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
+import cs203t10.ryver.market.trade.exception.*;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
-import cs203t10.ryver.market.exception.TradeInvalidDateException;
+import cs203t10.ryver.market.maker.MarketMaker;
 
 @Component
 @Service
@@ -50,6 +51,9 @@ public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private TradeRepository tradeRepo;
+
+    @Autowired
+    private MarketMaker marketMaker;
 
     @Override
     public Trade saveTrade(TradeView tradeView) {
@@ -89,18 +93,22 @@ public class TradeServiceImpl implements TradeService {
         return getTrade(trade.getId());
     }
 
+    /**
+     * Reconcile market
+     * Register a buy trade on the fund transfer service by deducting the
+     * available balance of the appropriate user.
+     *
+     * The market maker does not need to register trades.
+     *
+     * The market maker has customerId = 0 and accountId = 0.
+     */
     private void reconcileMarket(String symbol){
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 
-        // Ensures that trades made by marketmaker do not get matched to each other.
-        if (bestSell.getAccountId() == 0 && bestBuy.getAccountId() == 0){
-            return;
-        }
-
-        // POSSIBLE BUG: if bestSell == 0 and bestBuy == 0,
-        // but in reality there is a bestBuy > 1 ?
+        // The market undergoes reconciliation as long as there is a bestSell and bestBuy.
         while (bestSell != null && bestBuy != null) {
+            // Determine transactedPrice.
             Double transactedPrice = 0.0;
             if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0){
                 // Get last price if there are no prices available.
@@ -108,25 +116,28 @@ public class TradeServiceImpl implements TradeService {
                 transactedPrice = latestStock.getPrice();
             } else if (bestSell.getPrice() == 0){
                 transactedPrice = bestBuy.getPrice();
-            } else {
+            } else if (bestBuy.getPrice() == 0 || bestBuy.getPrice() > bestSell.getPrice()){
                 transactedPrice = bestSell.getPrice();
+            } else if (bestBuy.getPrice() < bestSell.getPrice()){
+                return;
             }
 
+            // Determine transactedQuantity.
             Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
             Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
             Integer transactedQuantity = buyQuantity;
             if (sellQuantity < buyQuantity){
                 transactedQuantity = sellQuantity;
             }
+
+            // Update filledQuantity and totalPrice for trades.
             Double totalPrice = transactedQuantity * transactedPrice;
             bestBuy.setFilledQuantity(bestBuy.getFilledQuantity() + transactedQuantity);
             bestSell.setFilledQuantity(bestSell.getFilledQuantity() + transactedQuantity);
+            bestBuy.setTotalPrice(bestBuy.getTotalPrice() + totalPrice);
+            bestSell.setTotalPrice(bestSell.getTotalPrice() + totalPrice);
 
-            // Average price is given by setting total price.
-            // Note: avg_price = total price / filled quantity.
-            bestBuy.setTotalPrice(totalPrice);
-            bestSell.setTotalPrice(totalPrice);
-
+            // Update trade.
             updateTrade(bestSell);
             updateTrade(bestBuy);
 
@@ -166,6 +177,14 @@ public class TradeServiceImpl implements TradeService {
         );
     }
 
+    /**
+     * Register a sell trade on the fund transfer service by deducting the
+     * appropriate stocks from the user's portfolio.
+     *
+     * The market maker does not need to register trades.
+     *
+     * The market maker has customerId = 0 and accountId = 0.
+     */
     private void registerSellTrade(TradeView tradeView) {
         Integer customerId = tradeView.getCustomerId();
         Integer accountId = tradeView.getAccountId();
@@ -174,6 +193,12 @@ public class TradeServiceImpl implements TradeService {
         if (customerId == 0 && accountId == 0) {
             return;
         }
+
+        // TODO: HOTFIX write proper method to check if account belongs customerId?
+        // Deducts $0 from the account available balance to check if account belongs to customer.
+        fundTransferService.deductAvailableBalance(customerId, accountId, 0.0);
+
+        // Check if account has enough stocks from portfolio.
         Asset asset = assetService.findByPortfolioCustomerIdAndCode(customerId, symbol);
         Integer quantityOwned = assetService.getQuantityOfAsset(asset);
         if (quantityOwned < quantity) {
@@ -188,27 +213,31 @@ public class TradeServiceImpl implements TradeService {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
-        //Add stocks to buyer portfolio
-        Portfolio portfolio = portfolioService.processBuyTrade(trade);
-
+        // Ignore trades made by market maker.
         if (customerId == 0 && accountId == 0) {
             return;
         }
-        fundTransferService.deductBalance( customerId, accountId, totalPrice);
+
+        // Add stocks to buyer portfolio
+        Portfolio portfolio = portfolioService.processBuyTrade(trade);
+
+        // Deduct balance from buyer's account.
+        fundTransferService.deductBalance(customerId, accountId, totalPrice);
     }
 
     private void completeSellTrade(Trade trade, Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
-        //Deduct stocks from seller portfolio.
-        Portfolio portfolio = portfolioService.processSellTrade(trade);
-
         if (customerId == 0 && accountId == 0) {
             return;
         }
-        fundTransferService.addBalance( customerId, accountId, totalPrice);
-        fundTransferService.addAvailableBalance( customerId, accountId, totalPrice);
+        // Deduct stocks from seller portfolio.
+        Portfolio portfolio = portfolioService.processSellTrade(trade);
+
+        // Add balance to seller's account.
+        fundTransferService.addBalance(customerId, accountId, totalPrice);
+        fundTransferService.addAvailableBalance(customerId, accountId, totalPrice);
     }
 
     @Override
@@ -217,47 +246,44 @@ public class TradeServiceImpl implements TradeService {
                     .orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
-    // TODO: Fix logic for best buy and sell.
     @Override
     public Trade getBestBuy(String symbol) {
+        Trade bestSell =getBestLimitSellBySymbol(symbol);
         Trade bestMarket = getBestMarketBuyBySymbol(symbol);
         Trade bestLimit = getBestLimitBuyBySymbol(symbol);
         if (bestMarket == null && bestLimit == null) return null;
         if (bestLimit == null) return bestMarket;
         if (bestMarket == null) return bestLimit;
+
+        if (bestSell == null) {
+            return null;
+        }
+
         // The buy with a higher price is better, as it gives the
         // matcher (seller) more per stock traded.
-        if (bestLimit.getPrice() > bestMarket.getPrice()) {
+        if (bestLimit.getPrice() > bestSell.getPrice()) {
             return bestLimit;
-        } else if (bestLimit.getPrice() < bestMarket.getPrice()) {
+        } else {
             return bestMarket;
         }
-        // If price is the same, then the earlier buy is returned.
-        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
-            return bestLimit;
-        }
-        return bestMarket;
     }
 
     @Override
     public Trade getBestSell(String symbol) {
+        Trade bestBuy =getBestLimitBuyBySymbol(symbol);
         Trade bestMarket = getBestMarketSellBySymbol(symbol);
         Trade bestLimit = getBestLimitSellBySymbol(symbol);
         if (bestMarket == null && bestLimit == null) return null;
         if (bestLimit == null) return bestMarket;
         if (bestMarket == null) return bestLimit;
+
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.
-        if (bestLimit.getPrice() < bestMarket.getPrice()) {
+        if (bestLimit.getPrice() < bestBuy.getPrice()) {
             return bestLimit;
-        } else if (bestLimit.getPrice() > bestMarket.getPrice()) {
+        } else {
             return bestMarket;
         }
-        // If price is the same, then the earlier sell is returned.
-        if (bestLimit.getSubmittedDate().before(bestMarket.getSubmittedDate())) {
-            return bestLimit;
-        }
-        return bestMarket;
     }
 
     private Trade getBestMarketBuyBySymbol(String symbol) {
@@ -278,7 +304,6 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     public List<Trade> getAllUserOpenTrades(Long customerId) {
-        // TODO: This returns all trades, not just open trades.
         return tradeRepo.findAllByCustomerId(customerId);
     }
 
@@ -335,13 +360,12 @@ public class TradeServiceImpl implements TradeService {
             return true;
         }
 
-        // SOS SHERYLL TODO: CHECK IF IT IS A WEEKDAY.
+        // Checks if it is a weekday
         Calendar cal = Calendar.getInstance();
         cal.setTime(tradeDate);
         if ((cal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
             return true;
         }
-
         return false;
     }
 
@@ -352,21 +376,20 @@ public class TradeServiceImpl implements TradeService {
 
     private Date getCurrentDate() {
         ZoneId defaultZoneId = ZoneId.systemDefault();
-        // Creating the instance of LocalDateTime using the day, month, year info
         LocalDateTime localDate = LocalDateTime.now();
-        //local date + atStartOfDay() + default time zone + toInstant() = Date
         Date todayDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
         return todayDate;
     }
 
-    // TODO: Debug scheduled cron
+    // TODO: Verify this works on AWS
     @Scheduled(cron = "0 0 17 * * MON-FRI", zone = "Asia/Singapore")
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
-        System.out.println("CHECK!!!: CLOSING MARKET"); //DEBUG
         List<Trade> tradeList = tradeRepo.findAll();
         Set<String> customerAccountSet = new HashSet<>();
         List<Integer[]> customerAccountList = new ArrayList<>();
+
+        // Close trades for all trades in the tradeList
         for (Trade trade : tradeList) {
             Integer customerId = trade.getCustomerId();
             Integer accountId = trade.getAccountId();
@@ -385,7 +408,6 @@ public class TradeServiceImpl implements TradeService {
                 Integer[] customerAccountPair = {customerId, accountId};
                 customerAccountList.add(customerAccountPair);
             }
-
             tradeRepo.save(trade);
         }
 
@@ -393,9 +415,23 @@ public class TradeServiceImpl implements TradeService {
         for (Integer[] pair : customerAccountList){
             Integer customerId = pair[0];
             Integer accountId = pair[1];
-            System.out.println( customerId + ":" + accountId);
             // reset balance using FTS
             fundTransferService.resetAvailableBalance(customerId, accountId);
         }
+    }
+
+    @Override
+    public Trade saveMarketMakerTrade(TradeView tradeView) {
+        // By default, trade will be set to OPEN status.
+        tradeView.setStatus(Status.OPEN);
+
+        // Save trade.
+        Trade trade = tradeView.toTrade();
+        tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
+
+        // Reconcile market status after adding trade.
+        reconcileMarket(tradeView.getSymbol());
+
+        return getTrade(trade.getId());
     }
 }

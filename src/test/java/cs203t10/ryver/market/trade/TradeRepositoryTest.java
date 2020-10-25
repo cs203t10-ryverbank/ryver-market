@@ -17,7 +17,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRepository;
-import cs203t10.ryver.market.stock.StockException.NoSuchStockException;
+import cs203t10.ryver.market.stock.exception.*;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 
