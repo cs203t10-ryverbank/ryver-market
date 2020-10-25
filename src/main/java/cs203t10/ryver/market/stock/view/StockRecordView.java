@@ -38,6 +38,12 @@ public class StockRecordView {
     }
 
     public static StockRecordView fromRecordAskBid(StockRecord record, Trade bestBuy, Trade bestSell) {
+        // Todo : Take in an arraylist of all stock records
+        // Process each stock record
+            // TotalQuantity += stockRecord.getQuantity
+            // TotalFilledQuantity += stockRecord.getFilledQuantity
+        // BidVolume = TotalQuantity - TotalFilledQuantity
+        // If bestSell.getPrice == 0 || bestBuy.getPrice == 0,  set to lastPrice.
         if (record == null) {
             throw new RuntimeException("Cannot build stock record view from null record");
         }

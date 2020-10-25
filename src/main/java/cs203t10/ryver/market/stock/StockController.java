@@ -39,6 +39,8 @@ public class StockController {
     @GetMapping("/stocks/{symbol}")
     public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
+        // Todo: Get all the stockRecords belong to the symbol,
+        // ArrayList<StockRecord> stockRecords = stockRecordService.getStockRecordsBySymbol
         return StockRecordView.fromRecordAskBid(
                 latestStockRecord,
                 tradeService.getBestBuy(symbol),
