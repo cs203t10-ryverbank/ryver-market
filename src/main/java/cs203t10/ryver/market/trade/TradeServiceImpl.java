@@ -105,6 +105,8 @@ public class TradeServiceImpl implements TradeService {
     private void reconcileMarket(String symbol){
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
+        System.out.println("Sell: " + (bestSell == null));
+        System.out.println("Buy: " + (bestBuy == null));
 
         // The market undergoes reconciliation as long as there is a bestSell and bestBuy.
         while (bestSell != null && bestBuy != null) {
@@ -256,7 +258,8 @@ public class TradeServiceImpl implements TradeService {
         if (bestMarket == null) return bestLimit;
 
         if (bestSell == null) {
-            return null;
+            return bestMarket.getSubmittedDate().before(bestLimit.getSubmittedDate())
+                ? bestMarket : bestLimit;
         }
 
         // The buy with a higher price is better, as it gives the
@@ -277,6 +280,10 @@ public class TradeServiceImpl implements TradeService {
         if (bestLimit == null) return bestMarket;
         if (bestMarket == null) return bestLimit;
 
+        if (bestBuy == null) {
+            return bestMarket.getSubmittedDate().before(bestLimit.getSubmittedDate())
+                ? bestMarket : bestLimit;
+        }
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.
         if (bestLimit.getPrice() < bestBuy.getPrice()) {
