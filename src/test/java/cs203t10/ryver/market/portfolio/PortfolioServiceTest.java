@@ -26,9 +26,13 @@ import cs203t10.ryver.market.portfolio.PortfolioRepository;
 import cs203t10.ryver.market.portfolio.PortfolioServiceImpl;
 import cs203t10.ryver.market.portfolio.asset.Asset;
 import cs203t10.ryver.market.portfolio.asset.AssetRepository;
+import cs203t10.ryver.market.portfolio.asset.AssetServiceImpl;
+import cs203t10.ryver.market.portfolio.asset.view.AssetInfoViewableByCustomer;
+import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordRepository;
+import cs203t10.ryver.market.stock.StockRecordServiceImpl;
 import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
@@ -40,7 +44,10 @@ public class PortfolioServiceTest {
     private PortfolioRepository portfolios;
 
     @Mock
-    private StockRecordRepository stockRecords;
+    private StockRecordServiceImpl stockRecordService;
+
+    @Mock
+    private AssetServiceImpl assetService;
 
     @Mock
     private AssetRepository assets;
@@ -68,154 +75,186 @@ public class PortfolioServiceTest {
         verify(portfolios).save(portfolio);
     }
 
+    @Test
+    public void viewPortfolio_NoPortfolio_ReturnsPortfolioInfoViewableByCustomer() {
+        
+        Random rand = new Random();
+        Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
+
+        Portfolio testPortfolio = Portfolio.builder()
+                              .customerId(testCustomerId)
+                              .totalGainLoss(0.0)
+                              .unrealizedGainLoss(0.0)
+                              .build();
+
+        List<AssetInfoViewableByCustomer> testAssetInfoList = new ArrayList<>();
+        
+        PortfolioInfoViewableByCustomer testPortfolioInfo = new PortfolioInfoViewableByCustomer(
+            testPortfolio.getCustomerId(),
+            testAssetInfoList,
+            testPortfolio.getUnrealizedGainLoss(),
+            testPortfolio.getTotalGainLoss());
+        
+        when(portfolios.save(testPortfolio)).thenReturn(testPortfolio);
+        when(portfolios.findByCustomerId(testCustomerId)).thenReturn(Optional.empty());
+
+        PortfolioInfoViewableByCustomer portfolioInfo = portfolioService.viewPortfolio(testCustomerId);
+        
+        assertEquals(testPortfolioInfo, portfolioInfo);
+        verify(portfolios).save(testPortfolio); 
+        verify(portfolios).findByCustomerId(testCustomerId);
+    }
+
     // @Test
-    // public void processBuyTrade_NewStock_ExistingPortfolio_ReturnPortfolio() {
+    // public void processSellTrade_ExistingPortfolio_UpdateUnrealizedGainLossAndTotalGainLoss() {
+        
+    //     Random rand = new Random();
+    //     Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
+
+    //     List<Asset> testAssetList = new ArrayList<>();
+
+    //     Portfolio testPortfolio = Portfolio.builder().customerId(testCustomerId).assets(testAssetList)
+    //                               .unrealizedGainLoss(-110.00).totalGainLoss(100.0).build();
+        
+    //     Asset testAsset1 = Asset.builder().portfolio(testPortfolio).code("TEST1")
+    //                        .quantity(1000).averagePrice(1.12).currentPrice(1.10)
+    //                        .value(1120.0).gainLoss(-120.0).build();
+            
+    //     Asset testAsset2 = Asset.builder().portfolio(testPortfolio).code("TEST2")
+    //                        .quantity(1000).averagePrice(1.10).currentPrice(1.11)
+    //                        .value(1100.0).gainLoss(10.0).build();
+        
+    //     testAssetList.add(testAsset1);
+    //     testAssetList.add(testAsset2);
 
     //     Date date = new Date(1602321010000L);
-    //     Random rand = new Random();
-    //     Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
-        
-    //     Portfolio portfolio = Portfolio.builder()
-    //                           .customerId(testCustomerId)
-    //                           .totalGainLoss(0.0)
-    //                           .unrealizedGainLoss(0.0)
-    //                           .build();
+    //     Stock testStock1 = new Stock("TEST1");
+    //     Stock testStock2 = new Stock("TEST2");
 
-    //     Stock testStock = new Stock("A1");
-
-    //     StockRecord testStockRecord = StockRecord.builder()
-    //                                   .stock(testStock)
-    //                                   .submittedDate(date)
-    //                                   .price(1.10)
-    //                                   .totalVolume(1000000)
-    //                                   .build();
+    //     StockRecord testStockRecord1 = StockRecord.builder().stock(testStock1).submittedDate(date)
+    //                                   .price(1.11).totalVolume(1000000).build();
+    //     StockRecord testStockRecord2 = StockRecord.builder().stock(testStock2).submittedDate(date)
+    //                                   .price(1.11).totalVolume(1000000).build();
         
     //     Trade testTrade = Trade.builder()
-    //                   .stock(testStock).action(Action.BUY)
-    //                   .quantity(10000).filledQuantity(10000)
-    //                   .customerId(testCustomerId).accountId(1)
-    //                   .submittedDate(date)
-    //                   .status(Status.FILLED).price(1.18).build();
+    //                       .stock(testStock1).action(Action.SELL).quantity(100)
+    //                       .filledQuantity(100).customerId(testCustomerId).accountId(1)
+    //                       .submittedDate(date).status(Status.FILLED).price(1.18).build();
         
-    //     Asset asset = Asset.builder()
-    //                   .portfolio(portfolio)
-    //                   .code("A1")
-    //                   .quantity(1000)
-    //                   .averagePrice(1.18)
-    //                   .currentPrice(1.10)
-    //                   .value(11800.0)
-    //                   .gainLoss(800.0)
-    //                   .build();
-        
-    //     List<Asset> assetList = new ArrayList<>();
-    //     assetList.add(asset);
-        
-    //     when(stockRecords.findLatestBySymbol(testStock.getSymbol())).thenReturn(Optional.of(testStockRecord));
-    //     when(portfolios.findByCustomerId(testCustomerId)).thenReturn(Optional.of(portfolio));
-    //     when(assets.findByPortfolioCustomerIdAndCode(testCustomerId, testStock.getSymbol())).thenReturn(Optional.empty());
-    //     when(portfolios.save(any(Portfolio.class))).thenReturn(portfolio);
-    //     when(portfolios.save(portfolio)).thenReturn(portfolio);
+    //     /* Returned portfolo should be:
+    //         {
+    //         "customer_id": testCustomerId
+    //             "assests": [
+    //             {
+    //                 "code":"TEST1",
+    //                 "quantity":900,
+    //                 "avg_price": 1.12,
+    //                 "current_price":1.11,
+    //                 "value":1008.0,
+    //                 "gain_loss":-9.0
+    //             },
+    //             {
+    //                 "code":"TEST2",
+    //                 "quantity":1000,
+    //                 "avg_price": 1.10,
+    //                 "current_price":1.11,
+    //                 "value":1100.0,
+    //                 "gain_loss":10.0
+    //             }],
+    //         "unrealized_gain_loss": -1.0
+    //         "total_gain_loss": 106.0
+    //         }
+    //     */
 
-    //     Portfolio updatedPortfolio = portfolioService.processBuyTrade(testTrade);
+    //     List<Asset> updatedAssetList = new ArrayList<>();
+        
+    //     Asset updatedAsset1 = Asset.builder().portfolio(testPortfolio).code("TEST1")
+    //                        .quantity(900).averagePrice(1.12).currentPrice(1.11)
+    //                        .value(1008.0).gainLoss(-9.0).build();
+            
+    //     Asset updatedAsset2 = Asset.builder().portfolio(testPortfolio).code("TEST2")
+    //                        .quantity(1000).averagePrice(1.10).currentPrice(1.11)
+    //                        .value(1100.0).gainLoss(10.0).build();
+        
+    //     updatedAssetList.add(updatedAsset1);
+    //     updatedAssetList.add(updatedAsset2);
 
-    //     assertEquals(assetList, updatedPortfolio.getAssets());
-    //     assertEquals(800.0, updatedPortfolio.getUnrealizedGainLoss());
-    //     assertEquals(800.0, updatedPortfolio.getTotalGainLoss());
-    //     verify(stockRecords).findLatestBySymbol(testStock.getSymbol());
-    //     verify(portfolios).findByCustomerId(testCustomerId);
-    //     verify(portfolios).save(portfolio);
+    //     when(assets.findByPortfolioCustomerId(testCustomerId)).thenReturn(testAssetList, updatedAssetList);
+    //     when(portfolios.findByCustomerId(testCustomerId)).thenReturn(Optional.of(testPortfolio));
+    //     when(stockRecordService.getLatestStockRecordBySymbol("TEST1")).thenReturn(testStockRecord1);
+    //     when(stockRecordService.getLatestStockRecordBySymbol("TEST2")).thenReturn(testStockRecord2);
+
+    //     Portfolio returnedPortfolio = portfolioService.processSellTrade(testTrade);
+        
+    //     /* Returned portfolo should be:
+    //         {
+    //         "customer_id": testCustomerId
+    //             "assests": [
+    //             {
+    //                 "code":"TEST1",
+    //                 "quantity":900,
+    //                 "avg_price": 1.12,
+    //                 "current_price":1.11,
+    //                 "value":1008.0,
+    //                 "gain_loss":-9.0
+    //             },
+    //             {
+    //                 "code":"TEST2",
+    //                 "quantity":1000,
+    //                 "avg_price": 1.10,
+    //                 "current_price":1.11,
+    //                 "value":1100.0,
+    //                 "gain_loss":10.0
+    //             }],
+    //         "unrealized_gain_loss": -1.0
+    //         "total_gain_loss": 106.0
+    //         }
+    //     */
+    //     assertEquals(-1.0, returnedPortfolio.getUnrealizedGainLoss());
+    //     assertEquals(106.0, returnedPortfolio.getTotalGainLoss());
     // }
 
-    // public void processSellTrade_ReturnPortfolio() {
+    @Test
+    public void calculateUnrealizedGainLoss() {
 
-    //     Date date = new Date(1602321010000L);
-    //     Random rand = new Random();
-    //     Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
+        Random rand = new Random();
+        Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
+        List<Asset> assetList = new ArrayList<>();
+
+        // Mock portfolio
+        Portfolio portfolio = Portfolio.builder()
+                                .customerId(testCustomerId)
+                                .assets(assetList)
+                                .totalGainLoss(0.0)
+                                .unrealizedGainLoss(0.0)
+                                .build();
+
+
+        Asset testAsset1 = Asset.builder()
+                           .portfolio(portfolio)
+                           .code("A1")
+                           .quantity(10000)
+                           .averagePrice(1.12)
+                           .currentPrice(1.10)
+                           .value(11200.0)
+                           .gainLoss(200.0)
+                           .build();
         
-    //     Portfolio portfolio = Portfolio.builder()
-    //                           .customerId(testCustomerId)
-    //                           .totalGainLoss(0.0)
-    //                           .unrealizedGainLoss(0.0)
-    //                           .build();
-
-    //     Stock testStock = new Stock("A1");
-
-    //     StockRecord testStockRecord = StockRecord.builder()
-    //                                   .stock(testStock)
-    //                                   .submittedDate(date)
-    //                                   .price(1.10)
-    //                                   .totalVolume(1000000)
-    //                                   .build();
+        Asset testAsset2 = Asset.builder()
+                           .portfolio(portfolio)
+                           .code("A2")
+                           .quantity(10000)
+                           .averagePrice(1.12)
+                           .currentPrice(1.10)
+                           .value(11200.0)
+                           .gainLoss(200.0)
+                           .build();
         
-    //     Trade testTrade = Trade.builder()
-    //                   .stock(testStock).action(Action.SELL)
-    //                   .quantity(10000).filledQuantity(10000)
-    //                   .customerId(testCustomerId).accountId(1)
-    //                   .submittedDate(date)
-    //                   .status(Status.FILLED).price(1.18).build();
+        assetList.add(testAsset1);
+        assetList.add(testAsset2);
         
-    //     Asset asset = Asset.builder()
-    //                   .portfolio(portfolio)
-    //                   .code("A1")
-    //                   .quantity(100000)
-    //                   .averagePrice(1.18)
-    //                   .currentPrice(1.10)
-    //                   .value(118000.0)
-    //                   .gainLoss(8000.0)
-    //                   .build();
-        
-    //     List<Asset> assetList = new ArrayList<>();
-    //     assetList.add(asset);
+        Double calculatedUnrealizedGainLoss = portfolioService.calculateUnrealizedGainLoss(portfolio);
 
-    //     portfolio.setAssets(assetList);
-    //     portfolio.setUnrealizedGainLoss(800.0);
-
-    //     when(stockRecords.findLatestBySymbol(testStock.getSymbol())).thenReturn(Optional.of(testStockRecord));
-    //     when(portfolios.findByCustomerId(testCustomerId)).thenReturn(Optional.of(portfolio));
-    //     when(assets.findByPortfolioCustomerIdAndCode(testCustomerId, testStock.getSymbol())).thenReturn(Optional.of(asset));
-    //     when(portfolios.save(portfolio)).thenReturn(portfolio);
-        
-    //     Portfolio updatedPortfolio = portfolioService.processSellTrade(testTrade);
-        
-    //     assertEquals(assetList, updatedPortfolio.getAssets());
-    //     assertEquals(800.0, updatedPortfolio.getUnrealizedGainLoss());
-    //     assertEquals(800.0, updatedPortfolio.getTotalGainLoss());
-    //     verify(stockRecords).findLatestBySymbol(testStock.getSymbol());
-    //     verify(portfolios).findByCustomerId(testCustomerId);
-    //     verify(portfolios).save(portfolio);
-
-    // }
-
-    // @Test
-    // public void calculateUnrealizedGainLoss() {
-    //     Random rand = new Random();
-    //     Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
-
-
-    // }
-
-    // @Test
-    // public void processBuyTrade_StockNotCurrentlyOwned_ReturnPortfolio() {
-    //     Random rand = new Random();
-    //     Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
-
-    //     Asset testAsset1 = Asset.builder()
-    //         .code("A17U")
-    //         .quantity(1000)
-    //         .avgPrice(3.30)
-    //         .currentPrice(3.31)
-    //         .value(3310.0)
-    //         .gainLoss(10.0)
-    //         .build();
-
-    //     List<Asset> testAssets = [testAsset1];
-
-    //     Portfolio testPortfolio = Portfolio.builder()
-    //         .customerId(testCustomerId)
-    //         .assets(testAssets)
-    //         .unrealizedGainLoss(10.0)
-    //         .totalGainLoss(0.0);
-
-    //     when()
-    // }
+        assertEquals(400.0, calculatedUnrealizedGainLoss);
+    }
 }

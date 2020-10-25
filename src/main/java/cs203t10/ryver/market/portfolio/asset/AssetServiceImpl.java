@@ -65,7 +65,7 @@ public class AssetServiceImpl implements AssetService{
             newAveragePrice *= 100;
             newAveragePrice = (double) Math.round(newAveragePrice);
             newAveragePrice /= 100;
-            Double newGainLoss = newValue - (newQuantity * currentPrice);
+            Double newGainLoss = (newQuantity * currentPrice) - newValue;
             newGainLoss *= 100;
             newGainLoss = (double) Math.round(newGainLoss);
             newGainLoss /= 100;
@@ -87,7 +87,6 @@ public class AssetServiceImpl implements AssetService{
         Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
         
         Integer filledQuantity = trade.getFilledQuantity();
-        Double tradeAvgPrice = trade.getPrice();
 
         StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
         Double currentPrice = stockRecord.getPrice();
@@ -98,16 +97,14 @@ public class AssetServiceImpl implements AssetService{
             assets.delete(asset);
             return null;
         } else {
-            Double newValue = asset.getValue() - (filledQuantity * tradeAvgPrice);
-            Double newAveragePrice = newValue/newQuantity;
-            newAveragePrice *= 100;
-            newAveragePrice = (double) Math.round(newAveragePrice);
-            newAveragePrice /= 100;
-            Double newGainLoss = newValue - (newQuantity * currentPrice); 
+            Double newValue = newQuantity * asset.getAveragePrice();
+            newValue *= 100;
+            newValue = (double) Math.round(newValue);
+            newValue /= 100;
+            Double newGainLoss = (newQuantity * currentPrice) - newValue; 
             newGainLoss *= 100;
             newGainLoss = (double) Math.round(newGainLoss);
             newGainLoss /= 100;
-            asset.setAveragePrice(newAveragePrice);
             asset.setCurrentPrice(currentPrice);
             asset.setQuantity(newQuantity);
             asset.setValue(newValue);
@@ -126,16 +123,17 @@ public class AssetServiceImpl implements AssetService{
             StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
             if (!stockRecord.getPrice().equals(asset.getCurrentPrice())) {
                 Double currentPrice = stockRecord.getPrice();
-                Double newGainLoss = (asset.getAveragePrice() - currentPrice) * asset.getQuantity();
+                Double newGainLoss = (currentPrice - asset.getAveragePrice()) * asset.getQuantity();
                 newGainLoss *= 100;
                 newGainLoss = (double) Math.round(newGainLoss);
                 newGainLoss /= 100;
 
                 asset.setCurrentPrice(currentPrice);
                 asset.setGainLoss(newGainLoss);
+                assets.save(asset);
             }
         }
-        return portfolio.getAssets();
+        return assetList;
     }
 
     @Override

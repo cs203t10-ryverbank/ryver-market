@@ -13,7 +13,7 @@ import cs203t10.ryver.market.portfolio.asset.Asset;
 @Entity
 @Getter @Setter @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
-@EqualsAndHashCode @ToString
+@EqualsAndHashCode
 public class Portfolio {
 
     @Id

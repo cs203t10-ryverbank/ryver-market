@@ -95,16 +95,17 @@ public class AssetServiceTest {
     public void processBuyTrade_Owned_NeedToUpdateCurrentPrice_ReturnAsset() {
         Random rand = new Random();
         Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
-        
-        // Mock portfolio
-        Portfolio portfolio = Portfolio.builder()
+
+        List<Asset> testAssetList = new ArrayList<>();
+
+        Portfolio testPortfolio = Portfolio.builder()
                                 .customerId(testCustomerId)
                                 .totalGainLoss(0.0)
-                                .unrealizedGainLoss(0.0)
+                                .unrealizedGainLoss(-200.0)
                                 .build();
-        
+
         Date date = new Date(1602321010000L);
-        Stock testStock = new Stock("A1");
+        Stock testStock = new Stock("TEST");
 
         //Mock stockRecord to return
         StockRecord testStockRecord = StockRecord.builder()
@@ -123,41 +124,41 @@ public class AssetServiceTest {
                           .status(Status.FILLED).price(1.18).build();
         
         // Mock the asset record which user currently owns
-        Asset oldAsset = Asset.builder()
-                     .portfolio(portfolio)
-                     .code("A1")
+        Asset testAsset = Asset.builder()
+                     .portfolio(testPortfolio)
+                     .code("TEST")
                      .quantity(10000)
                      .averagePrice(1.12)
                      .currentPrice(1.10)
                      .value(11200.0)
-                     .gainLoss(200.0)
+                     .gainLoss(-200.0)
                      .build();
         
-        List<Asset> oldAssetList = new ArrayList<>();
-        oldAssetList.add(oldAsset);
+        testAssetList.add(testAsset);
 
-        // New asset record after user completes buy trade
-        Asset newAsset = Asset.builder()
-                         .portfolio(portfolio)
-                         .code("A1")
-                         .quantity(20000)
-                         .averagePrice(1.15)
-                         .currentPrice(1.11)
-                         .value(23000.0)
-                         .gainLoss(800.0)
-                         .build();
+        // // New asset record after user completes buy trade
+        // Asset updatedAsset = Asset.builder()
+        //                     .portfolio(updatedPortfolio)
+        //                     .code("TEST")
+        //                     .quantity(20000)
+        //                     .averagePrice(1.15)
+        //                     .currentPrice(1.11)
+        //                     .value(23000.0)
+        //                     .gainLoss(-800.0)
+        //                     .build();
 
-        when(assets.findByPortfolioCustomerIdAndCode(testCustomerId, testStock.getSymbol())).thenReturn(Optional.of(oldAsset));
-        when(assets.save(newAsset)).thenReturn(newAsset);
+        when(assets.findByPortfolioCustomerIdAndCode(testCustomerId, testStock.getSymbol())).thenReturn(Optional.of(testAsset));
         when(stockRecordService.getLatestStockRecordBySymbol(testStock.getSymbol())).thenReturn(testStockRecord);
         
-        Asset updatedAsset = assetService.processBuyTrade(testTrade, portfolio);
+        Asset returnedAsset = assetService.processBuyTrade(testTrade, testPortfolio);
 
-        assertEquals(newAsset, updatedAsset);
+        assertEquals(20000, returnedAsset.getQuantity());
+        assertEquals(1.15, returnedAsset.getAveragePrice());
+        assertEquals(1.11, returnedAsset.getCurrentPrice());
+        assertEquals(23000.0, returnedAsset.getValue());
+        assertEquals(-800.0, returnedAsset.getGainLoss());
         verify(assets).findByPortfolioCustomerIdAndCode(testCustomerId, testStock.getSymbol());
-        verify(assets).save(newAsset);
         verify(stockRecordService).getLatestStockRecordBySymbol(testStock.getSymbol());
-       
     }
 
     @Test
@@ -216,11 +217,14 @@ public class AssetServiceTest {
     public void processSellTrade_NewQuantityNotZero_NeedToUpdateCurrentPrice_ReturnAsset() {
         Random rand = new Random();
         Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
+
+        List<Asset> testAssetList = new ArrayList<>();
         
         // Mock portfolio
-        Portfolio portfolio = Portfolio.builder()
+        Portfolio testPortfolio = Portfolio.builder()
                                 .customerId(testCustomerId)
-                                .totalGainLoss(0.0)
+                                .assets(testAssetList)
+                                .totalGainLoss(-250.0)
                                 .unrealizedGainLoss(0.0)
                                 .build();
         
@@ -238,62 +242,81 @@ public class AssetServiceTest {
         // Mock trade
         Trade testTrade = Trade.builder()
                           .stock(testStock).action(Action.SELL)
-                          .quantity(5000).filledQuantity(5000)
+                          .quantity(50000).filledQuantity(5000)
                           .customerId(testCustomerId).accountId(1)
                           .submittedDate(date)
-                          .status(Status.FILLED).price(1.18).build();
+                          .status(Status.PARTIAL_FILLED).price(1.18).build();
         
         // Mock the asset record which user currently owns
-        Asset oldAsset = Asset.builder()
-                     .portfolio(portfolio)
+        Asset testAsset = Asset.builder()
+                     .portfolio(testPortfolio)
                      .code("A1")
                      .quantity(10000)
                      .averagePrice(1.12)
                      .currentPrice(1.10)
                      .value(11200.0)
-                     .gainLoss(200.0)
+                     .gainLoss(-200.0)
                      .build();
         
-        List<Asset> oldAssetList = new ArrayList<>();
-        oldAssetList.add(oldAsset);
+        testAssetList.add(testAsset);
 
-        // New asset record after user completes sell trade
-        Asset newAsset = Asset.builder()
-                         .portfolio(portfolio)
-                         .code("A1")
-                         .quantity(5000)
-                         .averagePrice(1.06)
-                         .currentPrice(1.11)
-                         .value(5300.0)
-                         .gainLoss(-250.0)
-                         .build();
+        // // New asset record after user completes sell trade
+        // Asset newAsset = Asset.builder()
+        //                  .portfolio(testPortfolio)
+        //                  .code("A1")
+        //                  .quantity(5000)
+        //                  .averagePrice(1.12)
+        //                  .currentPrice(1.11)
+        //                  .value(5600.0)
+        //                  .gainLoss(-50.0)
+        //                  .build();
 
-        when(assets.findByPortfolioCustomerIdAndCode(testCustomerId, testStock.getSymbol())).thenReturn(Optional.of(oldAsset));
+        when(assets.findByPortfolioCustomerIdAndCode(testCustomerId, testStock.getSymbol())).thenReturn(Optional.of(testAsset));
         when(stockRecordService.getLatestStockRecordBySymbol(testStock.getSymbol())).thenReturn(testStockRecord);
-        when(assets.save(newAsset)).thenReturn(newAsset);
 
-        Asset updatedAsset = assetService.processSellTrade(testTrade);
+        Asset returnedAsset = assetService.processSellTrade(testTrade);
 
-        assertEquals(newAsset, updatedAsset);
+        assertEquals(5000, returnedAsset.getQuantity());
+        assertEquals(1.12, returnedAsset.getAveragePrice());
+        assertEquals(1.11, returnedAsset.getCurrentPrice());
+        assertEquals(5600.0, returnedAsset.getValue());
+        assertEquals(-50.0, returnedAsset.getGainLoss());
         verify(assets).findByPortfolioCustomerIdAndCode(testCustomerId, testStock.getSymbol());
-        verify(assets).save(newAsset);
+        verify(assets).save(returnedAsset);
         verify(stockRecordService).getLatestStockRecordBySymbol(testStock.getSymbol());
     }
 
-    @Test public void updateAssets_ReturnListOfUpdatedAssets() {
+    @Test 
+    public void updateAssets_ChangeCurrentPriceAndGainLoss() {
+        
         Random rand = new Random();
         Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
+
+        List<Asset> testAssetList = new ArrayList<>();
         
         // Mock portfolio
-        Portfolio portfolio = Portfolio.builder()
+        Portfolio testPortfolio = Portfolio.builder()
                                 .customerId(testCustomerId)
                                 .totalGainLoss(0.0)
-                                .unrealizedGainLoss(0.0)
+                                .unrealizedGainLoss(-200.0)
                                 .build();
+
+        // Mock the asset record which user currently owns
+        Asset testAsset1 = Asset.builder()
+                         .portfolio(testPortfolio)
+                         .code("TEST1")
+                         .quantity(10000)
+                         .averagePrice(1.12)
+                         .currentPrice(1.10)
+                         .value(11200.0)
+                         .gainLoss(-200.0)
+                         .build();
         
+        testAssetList.add(testAsset1);
+
         Date date = new Date(1602321010000L);
-        Stock testStock1 = new Stock("A1");
-        Stock testStock2 = new Stock("A2");
+        Stock testStock1 = new Stock("TEST1");
+        Stock testStock2 = new Stock("TEST2");
 
         //Mock stockRecord to return
         StockRecord testStockRecord1 = StockRecord.builder()
@@ -302,128 +325,32 @@ public class AssetServiceTest {
                                       .price(1.11)
                                       .totalVolume(1000000)
                                       .build();
-        StockRecord testStockRecord2 = StockRecord.builder()
-                                      .stock(testStock2)
-                                      .submittedDate(date)
-                                      .price(1.11)
-                                      .totalVolume(1000000)
-                                      .build();
-        
-        // Mock the asset record which user currently owns
-        Asset testAsset1 = Asset.builder()
-                         .portfolio(portfolio)
-                         .code("A1")
-                         .quantity(10000)
-                         .averagePrice(1.12)
-                         .currentPrice(1.10)
-                         .value(11200.0)
-                         .gainLoss(200.0)
-                         .build();
-        Asset testAsset2 = Asset.builder()
-                         .portfolio(portfolio)
-                         .code("A2")
-                         .quantity(10000)
-                         .averagePrice(1.12)
-                         .currentPrice(1.15)
-                         .value(11200.0)
-                         .gainLoss(-30.0)
-                         .build();
-        
-        List<Asset> testAssetList = new ArrayList<>();
-        testAssetList.add(testAsset1);
-        testAssetList.add(testAsset2);
-        portfolio.setAssets(testAssetList);
 
-        Asset newAsset1 = Asset.builder()
-                         .portfolio(portfolio)
-                         .code("A1")
-                         .quantity(10000)
-                         .averagePrice(1.12)
-                         .currentPrice(1.11)
-                         .value(11200.0)
-                         .gainLoss(100.0)
-                         .build();
-        Asset newAsset2 = Asset.builder()
-                         .portfolio(portfolio)
-                         .code("A2")
-                         .quantity(10000)
-                         .averagePrice(1.12)
-                         .currentPrice(1.11)
-                         .value(11200.0)
-                         .gainLoss(100.0)
-                         .build();
-
-        List<Asset> newAssetList = new ArrayList<>();
-        newAssetList.add(newAsset1);
-        newAssetList.add(newAsset2);
+        // Asset updatedAsset1 = Asset.builder()
+        //                  .portfolio(testPortfolio)
+        //                  .code("TEST1")
+        //                  .quantity(10000)
+        //                  .averagePrice(1.12)
+        //                  .currentPrice(1.11)
+        //                  .value(11200.0)
+        //                  .gainLoss(-100.0)
+        //                  .build();
         
         when(assets.findByPortfolioCustomerId(testCustomerId)).thenReturn(testAssetList);
         when(stockRecordService.getLatestStockRecordBySymbol(testStock1.getSymbol())).thenReturn(testStockRecord1);
-        when(stockRecordService.getLatestStockRecordBySymbol(testStock2.getSymbol())).thenReturn(testStockRecord2);
 
-        List<Asset> updatedAssetList = assetService.updateAssets(portfolio);
+        List<Asset> returnedAssetList = assetService.updateAssets(testPortfolio);
+        Asset returnedAsset = returnedAssetList.get(0);
+        assertEquals(1, returnedAssetList.size());
+        assertEquals("TEST1", returnedAsset.getCode());
+        assertEquals(10000, returnedAsset.getQuantity());
+        assertEquals(1.12, returnedAsset.getAveragePrice());
+        assertEquals(1.11, returnedAsset.getCurrentPrice());
+        assertEquals(11200.0, returnedAsset.getValue());
+        assertEquals(-100.0, returnedAsset.getGainLoss());
 
-        assertEquals(newAssetList, updatedAssetList);
         verify(assets).findByPortfolioCustomerId(testCustomerId);
         verify(stockRecordService).getLatestStockRecordBySymbol(testStock1.getSymbol());
-        verify(stockRecordService).getLatestStockRecordBySymbol(testStock2.getSymbol());
+        verify(assets).save(returnedAsset);
     }
 }
-
-//     @Test
-//     public void addAssetRecord_ValidAssetRecord_ChangesUnrealizedGainLoss() {
-//         Random rand = new Random();
-//         Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
-
-//         Portfolio testPortfolio = Portfolio.builder()
-//             .customerId(testCustomerId)
-//             .unrealizedGainLoss(0.0)
-//             .totalGainLoss(0.0);
-        
-//         Asset asset = Asset.builder()
-//             .portfolio(testPortfolio)
-//             .code("A17U")
-//             .quantity(1000)
-//             .avgPrice(3.30)
-//             .currentPrice(3.31)
-//             .value(3310.0)
-//             .gainLoss(10.0)
-//             .build();
-        
-//         when(assets.save(asset)).thenReturn(asset);
-
-//         Asset addedAsset = assetService.addAssetRecord(asset);
-
-//         assertEquals(10.0, portfolio.getUnrealizedGainLoss());
-//     }
-
-//     @Test
-//     public processBuyTrade_ValidTrade_ChangesUnrealizedGainLoss() {
-//         Random rand = new Random();
-//         Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
-
-//         Portfolio testPortfolio = Portfolio.builder()
-//             .customerId(testCustomerId)
-//             .unrealizedGainLoss(0.0)
-//             .totalGainLoss(0.0);
-        
-//         Trade trade = Trade.builder()
-//             .action("buy")
-//             .symbol("A17U")
-//             .quantity(1000)
-//             .price(3.30)
-//             .filledQuantity(1000)
-//             .
-//         Asset testAsset = Asset.builder()
-//             .portfolio(testPortfolio)
-//             .code("A17U")
-//             .quantity(1000)
-//             .avgPrice(3.30)
-//             .currentPrice(3.31)
-//             .value(3310.0)
-//             .gainLoss(10.0)
-//             .build();
-        
-//         List<Asset> assets = new ArrayList<Asset>();
-//         assets.add(TestAsset)
-//     }

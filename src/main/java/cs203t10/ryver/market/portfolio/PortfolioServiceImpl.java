@@ -111,7 +111,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         }
         String code = trade.getStock().getSymbol();
         Asset asset = assetService.findByPortfolioCustomerIdAndCode(customerId, code);
-        Double assetAvgPriceBeforeTrade = asset.getAveragePrice();
 
         assetService.processSellTrade(trade);
 
@@ -119,7 +118,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Integer filledQuantity = trade.getFilledQuantity();
         Double tradeAvgPrice = trade.getPrice();
-        Double tradeGainLoss = filledQuantity * (tradeAvgPrice - assetAvgPriceBeforeTrade);
+        Double tradeGainLoss = filledQuantity * (tradeAvgPrice - asset.getAveragePrice());
 
         portfolio.setTotalGainLoss(portfolio.getTotalGainLoss() + tradeGainLoss);
         portfolio.setUnrealizedGainLoss(unrealizedGainLoss);
