@@ -210,8 +210,8 @@ public class PortfolioServiceTest {
     //         "total_gain_loss": 106.0
     //         }
     //     */
-    //     assertEquals(-1.0, returnedPortfolio.getUnrealizedGainLoss());
-    //     assertEquals(106.0, returnedPortfolio.getTotalGainLoss());
+        // assertEquals(-1.0, returnedPortfolio.getUnrealizedGainLoss());
+        // assertEquals(106.0, returnedPortfolio.getTotalGainLoss());
     // }
 
     @Test
