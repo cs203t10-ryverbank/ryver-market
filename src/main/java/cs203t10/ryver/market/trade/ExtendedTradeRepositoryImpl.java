@@ -15,7 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.trade.Trade.Action;
 
-import static cs203t10.ryver.market.stock.StockException.NoSuchStockException;
+import cs203t10.ryver.market.stock.exception.*;
 
 public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
 
