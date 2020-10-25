@@ -56,7 +56,7 @@ public class StockRecordViewTest {
 
     @Test
     public void stockRecordViewFromStockRecordTest_nullTrades() {
-        var result = StockRecordView.fromRecordAskBid(testRecord, null, null);
+        var result = StockRecordView.fromRecordAskBid(testRecord, null, null, 0, 0);
         StockRecordView expected = StockRecordView.builder()
                 .symbol(testStock.getSymbol())
                 .lastPrice(testRecord.getPrice())
@@ -66,7 +66,7 @@ public class StockRecordViewTest {
 
     @Test
     public void stockRecordViewFromStockRecordTest() {
-        var result = StockRecordView.fromRecordAskBid(testRecord, testBuy, testSell);
+        var result = StockRecordView.fromRecordAskBid(testRecord, testBuy, testSell, 0, 0);
         StockRecordView expected = StockRecordView.builder()
                 .symbol(testStock.getSymbol()).lastPrice(testRecord.getPrice())
                 .bidVolume(testBuy.getQuantity()).bid(testBuy.getPrice())

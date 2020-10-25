@@ -1,7 +1,10 @@
 package cs203t10.ryver.market.stock.view;
 
+import java.util.List;
+
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.trade.Trade;
+
 import lombok.*;
 
 @Data @Builder
@@ -34,11 +37,12 @@ public class StockRecordView {
     private Double ask = 0.0;
 
     public static StockRecordView fromRecordAskBid(StockRecord record) {
-        return fromRecordAskBid(record, null, null);
+        return fromRecordAskBid(record, null, null, 0, 0);
     }
 
-    public static StockRecordView fromRecordAskBid(StockRecord record, Trade bestBuy, Trade bestSell) {
+    public static StockRecordView fromRecordAskBid(StockRecord record, Trade bestBuy, Trade bestSell, Integer bidVolume, Integer askVolume) {
         // Todo : Take in an arraylist of all stock records
+
         // Process each stock record
             // TotalQuantity += stockRecord.getQuantity
             // TotalFilledQuantity += stockRecord.getFilledQuantity
@@ -53,12 +57,20 @@ public class StockRecordView {
         if (bestSell == null) {
             bestSell = new Trade();
         }
+
+        Double lastPrice = record.getPrice();
+        if (bestBuy.getPrice() == 0){
+            bestBuy.setPrice(lastPrice);
+        }
+        if (bestSell.getPrice() == 0){
+            bestSell.setPrice(lastPrice);
+        }
         return StockRecordView.builder()
                 .symbol(record.getStock().getSymbol())
                 .lastPrice(record.getPrice())
-                .bidVolume(bestBuy.getQuantity()-bestBuy.getFilledQuantity())
+                .bidVolume(bidVolume)
                 .bid(bestBuy.getPrice())
-                .askVolume(bestSell.getQuantity()-bestSell.getFilledQuantity())
+                .askVolume(askVolume)
                 .ask(bestSell.getPrice())
                 .build();
     }

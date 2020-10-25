@@ -434,4 +434,44 @@ public class TradeServiceImpl implements TradeService {
 
         return getTrade(trade.getId());
     }
+
+    @Override
+    public List <Trade> getAllSellTradesBySymbol(String symbol){
+        return tradeRepo.findAllSellTradesBySymbol(symbol);
+    };
+
+    @Override
+    public List <Trade> getAllBuyTradesBySymbol(String symbol){
+        return tradeRepo.findAllBuyTradesBySymbol(symbol);
+    };
+
+    @Override
+    public Integer getTotalBidVolume(String symbol){
+        List<Trade> buyTrades = getAllBuyTradesBySymbol(symbol);
+        Integer totalBuyFilledQuantity = 0;
+        Integer totalBuyQuantity = 0;
+        for (Trade trade : buyTrades){
+            totalBuyQuantity += trade.getQuantity();
+            totalBuyFilledQuantity += trade.getFilledQuantity();
+
+            System.out.println("Buy Qty: "+ trade.getQuantity());
+            System.out.println("Buy Filled Qty: "+ trade.getFilledQuantity());
+        }
+        return totalBuyQuantity - totalBuyFilledQuantity;
+    }
+
+    @Override
+    public Integer getTotalAskVolume(String symbol){
+        List<Trade> sellTrades = getAllSellTradesBySymbol(symbol);
+        Integer totalSellFilledQuantity = 0;
+        Integer totalSellQuantity = 0;
+        for (Trade trade : sellTrades){
+            System.out.println("Ask Qty: "+ trade.getQuantity());
+            System.out.println("Ask Filled Qty: "+ trade.getFilledQuantity());
+            totalSellQuantity += trade.getQuantity();
+            totalSellFilledQuantity += trade.getFilledQuantity();
+        }
+        return totalSellQuantity - totalSellFilledQuantity;
+    }
+
 }

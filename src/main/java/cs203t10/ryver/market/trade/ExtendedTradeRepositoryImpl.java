@@ -67,6 +67,40 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
+    public List<Trade> findAllSellTradesBySymbol(String symbol) {
+        final String sql = String.join(" ",
+            "SELECT * FROM TRADE",
+            "WHERE stock_id = :stock_id",
+            "AND action = :action"
+        );
+        Query query = entityManager
+                .createNativeQuery(sql, Trade.class)
+                .setParameter("stock_id", symbol)
+                .setParameter("action", (Action.SELL).toString().toUpperCase());
+        @SuppressWarnings("unchecked")
+        List<Trade> results = query.getResultList();
+        System.out.println(results.size());
+        return results;
+    }
+
+    @Override
+    public List<Trade> findAllBuyTradesBySymbol(String symbol) {
+        final String sql = String.join(" ",
+            "SELECT * FROM TRADE",
+            "WHERE stock_id = :stock_id",
+            "AND action = :action"
+        );
+        Query query = entityManager
+                .createNativeQuery(sql, Trade.class)
+                .setParameter("stock_id", symbol)
+                .setParameter("action", (Action.BUY).toString().toUpperCase());
+        @SuppressWarnings("unchecked")
+        List<Trade> results = query.getResultList();
+        System.out.println(results.size());
+        return results;
+    }
+
+    @Override
     public Optional<Trade> findBestMarketBuyBySymbol(String symbol) {
         return findBestMarketBySymbol(symbol, Action.BUY);
     }
