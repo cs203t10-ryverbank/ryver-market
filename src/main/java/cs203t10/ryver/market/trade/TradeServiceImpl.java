@@ -28,6 +28,7 @@ import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
+import cs203t10.ryver.market.trade.exception.*;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
 import cs203t10.ryver.market.maker.MarketMaker;

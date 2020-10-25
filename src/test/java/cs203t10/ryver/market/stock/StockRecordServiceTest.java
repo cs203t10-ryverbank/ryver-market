@@ -15,7 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import cs203t10.ryver.market.stock.StockException.NoSuchStockException;
+import cs203t10.ryver.market.stock.exception.*;
 
 @ExtendWith(MockitoExtension.class)
 public class StockRecordServiceTest {
