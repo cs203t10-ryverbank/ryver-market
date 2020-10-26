@@ -18,11 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import cs203t10.ryver.market.fund.FundTransferService;
-import cs203t10.ryver.market.portfolio.Portfolio;
-import cs203t10.ryver.market.portfolio.PortfolioService;
-import cs203t10.ryver.market.portfolio.asset.Asset;
-import cs203t10.ryver.market.portfolio.asset.AssetService;
-import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
@@ -32,6 +27,9 @@ import cs203t10.ryver.market.trade.exception.*;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
 import cs203t10.ryver.market.maker.MarketMaker;
+import cs203t10.ryver.market.portfolio.Portfolio;
+import cs203t10.ryver.market.portfolio.PortfolioService;
+import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
 
 @Component
 @Service
@@ -42,9 +40,6 @@ public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private StockRecordService stockRecordService;
-
-    @Autowired
-    private AssetService assetService;
 
     @Autowired
     private PortfolioService portfolioService;
@@ -199,12 +194,10 @@ public class TradeServiceImpl implements TradeService {
         fundTransferService.deductAvailableBalance(customerId, accountId, 0.0);
 
         // Check if account has enough stocks from portfolio.
-        Asset asset = assetService.findByPortfolioCustomerIdAndCode(customerId, symbol);
-        Integer quantityOwned = assetService.getQuantityOfAsset(asset);
-        if (quantityOwned < quantity) {
+        Integer assetQuantityOwned = portfolioService.getQuantityOfAsset(customerId, symbol);
+        if (quantity > assetQuantityOwned){
             throw new InsufficientStockQuantityException(customerId, symbol);
         }
-
         // Add to stock records
         stockRecordService.updateStockRecordAddToMarket(symbol, quantity);
     }
@@ -219,7 +212,7 @@ public class TradeServiceImpl implements TradeService {
         }
 
         // Add stocks to buyer portfolio
-        Portfolio portfolio = portfolioService.processBuyTrade(trade);
+        portfolioService.processBuyTrade(trade);
 
         // Deduct balance from buyer's account.
         fundTransferService.deductBalance(customerId, accountId, totalPrice);
@@ -233,7 +226,7 @@ public class TradeServiceImpl implements TradeService {
             return;
         }
         // Deduct stocks from seller portfolio.
-        Portfolio portfolio = portfolioService.processSellTrade(trade);
+        portfolioService.processSellTrade(trade);
 
         // Add balance to seller's account.
         fundTransferService.addBalance(customerId, accountId, totalPrice);

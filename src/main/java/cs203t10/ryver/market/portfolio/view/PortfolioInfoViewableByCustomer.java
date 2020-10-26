@@ -5,7 +5,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import cs203t10.ryver.market.portfolio.asset.view.AssetInfoViewableByCustomer;
-
 import lombok.*;
 
 @Data

@@ -20,11 +20,9 @@ public class Portfolio {
     @NotNull(message = "Customer ID cannot be null")
     private Integer customerId;
 
+    @NotNull(message = "Assets cannot be null")
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL)
     private List<Asset> assets;
-
-    @NotNull(message = "Unrealized gain/loss cannot be null")
-    private Double unrealizedGainLoss;
 
     @NotNull(message = "Total gain/loss cannot be null")
     private Double totalGainLoss;

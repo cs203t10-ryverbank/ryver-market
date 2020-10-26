@@ -31,14 +31,7 @@ public class Asset {
     @NotNull(message = "Average price cannot be null")
     private Double averagePrice;
 
-    @NotNull(message = "Current price cannot be null")
-    private Double currentPrice;
-
     @NotNull(message = "Value cannot be null")
     private Double value;
-
-    @NotNull(message = "Gain/loss cannot be null")
-    private Double gainLoss;
-
 }
 

@@ -2,15 +2,11 @@ package cs203t10.ryver.market.portfolio.asset;
 
 import java.util.List;
 
-import cs203t10.ryver.market.trade.Trade;
-import cs203t10.ryver.market.stock.StockRecord;
-import cs203t10.ryver.market.portfolio.Portfolio;
-
 public interface AssetService {
-    public List<Asset> findByPortfolioCustomerId(Integer customerId);
+    public List<Asset> findByPortfolioCustomerId(Integer customerId); 
     public Asset findByPortfolioCustomerIdAndCode(Integer customerId, String code);
-    public Asset processBuyTrade(Trade trade, Portfolio portfolio);
-    public Asset processSellTrade(Trade trade);
-    public List<Asset> updateAssets(Portfolio portfolio);
-    public Integer getQuantityOfAsset(Asset asset);
+    public Integer getQuantityByPortfolioCustomerIdAndCode(Integer customerId, String code);
+    public Asset addAsset(Integer customerId, String code, Integer quantity, Double averagePrice);
+    public Asset deductFromAsset(Integer customerId, String code, Integer quantity);
+    public Asset addToAsset(Integer customerId, String code, Integer quantity, Double unitPrice);
 }
