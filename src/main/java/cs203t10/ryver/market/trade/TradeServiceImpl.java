@@ -105,8 +105,6 @@ public class TradeServiceImpl implements TradeService {
     private void reconcileMarket(String symbol){
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
-        System.out.println("Sell: " + (bestSell == null));
-        System.out.println("Buy: " + (bestBuy == null));
 
         // The market undergoes reconciliation as long as there is a bestSell and bestBuy.
         while (bestSell != null && bestBuy != null) {

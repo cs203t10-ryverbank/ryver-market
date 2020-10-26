@@ -3,7 +3,7 @@ GET http://localhost:8080/
 Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDU2ODg3NH0.Zrjp5_w1YkdFpZUpT-1dAjzdtLK89vdZYkjcidIZAI7kxTNd1HuNXc-g2njXnZd-30nFzSaT2HeKAgSvr9KVLQ
 
 ### Get one stock as customer
-GET http://localhost:8080/stocks/A17U
+GET http://localhost:8080/stocks/M44U
 Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDU2ODg3NH0.Zrjp5_w1YkdFpZUpT-1dAjzdtLK89vdZYkjcidIZAI7kxTNd1HuNXc-g2njXnZd-30nFzSaT2HeKAgSvr9KVLQ
 
 ### Get non-existent stock
