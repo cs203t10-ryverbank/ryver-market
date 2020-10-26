@@ -249,7 +249,8 @@ public class TradeServiceImpl implements TradeService {
         if (bestMarket == null) return bestLimit;
 
         if (bestSell == null) {
-            return null;
+            return bestMarket.getSubmittedDate().before(bestLimit.getSubmittedDate())
+                ? bestMarket : bestLimit;
         }
 
         // The buy with a higher price is better, as it gives the
@@ -270,6 +271,10 @@ public class TradeServiceImpl implements TradeService {
         if (bestLimit == null) return bestMarket;
         if (bestMarket == null) return bestLimit;
 
+        if (bestBuy == null) {
+            return bestMarket.getSubmittedDate().before(bestLimit.getSubmittedDate())
+                ? bestMarket : bestLimit;
+        }
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.
         if (bestLimit.getPrice() < bestBuy.getPrice()) {
@@ -427,4 +432,44 @@ public class TradeServiceImpl implements TradeService {
 
         return getTrade(trade.getId());
     }
+
+    @Override
+    public List <Trade> getAllSellTradesBySymbol(String symbol){
+        return tradeRepo.findAllSellTradesBySymbol(symbol);
+    };
+
+    @Override
+    public List <Trade> getAllBuyTradesBySymbol(String symbol){
+        return tradeRepo.findAllBuyTradesBySymbol(symbol);
+    };
+
+    @Override
+    public Integer getTotalBidVolume(String symbol){
+        List<Trade> buyTrades = getAllBuyTradesBySymbol(symbol);
+        Integer totalBuyFilledQuantity = 0;
+        Integer totalBuyQuantity = 0;
+        for (Trade trade : buyTrades){
+            totalBuyQuantity += trade.getQuantity();
+            totalBuyFilledQuantity += trade.getFilledQuantity();
+
+            System.out.println("Buy Qty: "+ trade.getQuantity());
+            System.out.println("Buy Filled Qty: "+ trade.getFilledQuantity());
+        }
+        return totalBuyQuantity - totalBuyFilledQuantity;
+    }
+
+    @Override
+    public Integer getTotalAskVolume(String symbol){
+        List<Trade> sellTrades = getAllSellTradesBySymbol(symbol);
+        Integer totalSellFilledQuantity = 0;
+        Integer totalSellQuantity = 0;
+        for (Trade trade : sellTrades){
+            System.out.println("Ask Qty: "+ trade.getQuantity());
+            System.out.println("Ask Filled Qty: "+ trade.getFilledQuantity());
+            totalSellQuantity += trade.getQuantity();
+            totalSellFilledQuantity += trade.getFilledQuantity();
+        }
+        return totalSellQuantity - totalSellFilledQuantity;
+    }
+
 }

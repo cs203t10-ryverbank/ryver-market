@@ -1,19 +1,19 @@
 ### Get default stocks as customer
 GET http://localhost:8080/
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDMyNjkwM30.nFIjA1Vs_euzygcxKSaQD52MKH1hOF8AjY3rrstbav-BPHsb-EQE78w-NSJZU7GxGQZDrh6fycT9BbECLEueAA
+Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDU2ODg3NH0.Zrjp5_w1YkdFpZUpT-1dAjzdtLK89vdZYkjcidIZAI7kxTNd1HuNXc-g2njXnZd-30nFzSaT2HeKAgSvr9KVLQ
 
 ### Get one stock as customer
-GET http://localhost:8086/stocks/A17U
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDMyNjkwM30.nFIjA1Vs_euzygcxKSaQD52MKH1hOF8AjY3rrstbav-BPHsb-EQE78w-NSJZU7GxGQZDrh6fycT9BbECLEueAA
+GET http://localhost:8080/stocks/M44U
+Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDU2ODg3NH0.Zrjp5_w1YkdFpZUpT-1dAjzdtLK89vdZYkjcidIZAI7kxTNd1HuNXc-g2njXnZd-30nFzSaT2HeKAgSvr9KVLQ
 
 ### Get non-existent stock
 GET http://localhost:8086/stocks/A17V
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDMyNjkwM30.nFIjA1Vs_euzygcxKSaQD52MKH1hOF8AjY3rrstbav-BPHsb-EQE78w-NSJZU7GxGQZDrh6fycT9BbECLEueAA
+Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDU2ODg3NH0.Zrjp5_w1YkdFpZUpT-1dAjzdtLK89vdZYkjcidIZAI7kxTNd1HuNXc-g2njXnZd-30nFzSaT2HeKAgSvr9KVLQ
 
 ### Create new trade
 POST http://localhost:8080/trades
 Content-Type: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDMyNjkwM30.nFIjA1Vs_euzygcxKSaQD52MKH1hOF8AjY3rrstbav-BPHsb-EQE78w-NSJZU7GxGQZDrh6fycT9BbECLEueAA
+Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDU2ODg3NH0.Zrjp5_w1YkdFpZUpT-1dAjzdtLK89vdZYkjcidIZAI7kxTNd1HuNXc-g2njXnZd-30nFzSaT2HeKAgSvr9KVLQ
 
 {
     "action":"buy",
@@ -22,7 +22,7 @@ Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZ
     "bid":0,
     "ask":0,
     "avg_price":0,
-    "account_id":2,
+    "account_id":1,
     "customer_id": 4
 }
 

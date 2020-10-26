@@ -24,13 +24,18 @@ public class StockController {
     @GetMapping("/stocks")
     public List<StockRecordView> getAllLatestStockRecords() {
         List<StockRecord> latestStockRecords = stockRecordService.getAllLatestStockRecords();
+
         return latestStockRecords.stream()
                 .map(record -> {
                     String symbol = record.getStock().getSymbol();
+                    Integer bidVolume = tradeService.getTotalAskVolume(symbol);
+                    Integer askVolume = tradeService.getTotalAskVolume(symbol);
                     return StockRecordView.fromRecordAskBid(
                             record,
                             tradeService.getBestBuy(symbol),
-                            tradeService.getBestSell(symbol)
+                            tradeService.getBestSell(symbol),
+                            bidVolume,
+                            askVolume
                     );
                 })
                 .collect(Collectors.toList());
@@ -39,10 +44,15 @@ public class StockController {
     @GetMapping("/stocks/{symbol}")
     public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
+        Integer bidVolume = tradeService.getTotalBidVolume(symbol);
+        Integer askVolume = tradeService.getTotalAskVolume(symbol);
         return StockRecordView.fromRecordAskBid(
                 latestStockRecord,
                 tradeService.getBestBuy(symbol),
-                tradeService.getBestSell(symbol)
+                tradeService.getBestSell(symbol),
+                bidVolume,
+                askVolume
+
         );
     }
 

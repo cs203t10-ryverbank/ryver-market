@@ -25,7 +25,7 @@ public class FakeScraper{
     public List<StockRecord> buildFakeRecords() {
         List<StockRecord> records = new ArrayList<>();
         Date date = new Date();
-        try (Scanner scanner = new Scanner(new File("src/main/java/cs203t10/ryver/market/stock/scrape/FakeStocks.csv"));) {
+        try (Scanner scanner = new Scanner(new File("lib/FakeStocks.csv"));) {
             while (scanner.hasNextLine()) {
                 List<String> temp = getRecordFromLine(scanner.nextLine());
                 String symbol = temp.get(3);

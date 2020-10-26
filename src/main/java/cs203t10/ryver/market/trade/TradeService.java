@@ -8,6 +8,10 @@ public interface TradeService {
     Trade saveTrade(TradeView tradeView);
     Trade saveMarketMakerTrade(TradeView tradeView);
     Trade getTrade(Integer tradeId);
+    List<Trade> getAllSellTradesBySymbol(String symbol);
+    List<Trade> getAllBuyTradesBySymbol(String symbol);
+    Integer getTotalBidVolume(String symbol);
+    Integer getTotalAskVolume(String symbol);
     Trade getBestBuy(String symbol);
     Trade getBestSell(String symbol);
     Trade updateTrade(Trade trade);
