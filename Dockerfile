@@ -4,6 +4,8 @@ FROM openjdk:11-jre
 WORKDIR /app
 # Copy the packaged jar to the image.
 COPY ./target/out.jar .
+# Copy the lib files to the image.
+COPY ./lib ./lib
 # Run the application.
 ENTRYPOINT ["java", "-jar", "./out.jar"]
 
