@@ -476,7 +476,6 @@ public class TradeServiceImpl implements TradeService {
     public void resetTrades(){
         tradeRepo.deleteAll();
         portfolioService.resetPortfolios();
-        assetService.resetAssets();
         marketMaker.makeNewTrades();
     }
 }

@@ -76,7 +76,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         }
 
         PortfolioInfoViewableByCustomer portfolioInfoViewableByCustomer = new PortfolioInfoViewableByCustomer(portfolio.getCustomerId(), assetInfoList, unrealizedGainLoss, portfolio.getTotalGainLoss());
-        return portfolioInfoViewableByCustomer; 
+        return portfolioInfoViewableByCustomer;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         String code = trade.getStock().getSymbol();
         Integer filledQuantity = trade.getFilledQuantity();
         assetService.deductFromAsset(customerId, code, filledQuantity);
-        
+
         StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
         Double currentPrice = stockRecord.getPrice();
         Double sellPrice = trade.getPrice();
@@ -114,6 +114,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     @Override
     public void resetPortfolios(){
+        assetService.resetAssets();
         portfolios.deleteAll();
     }
 }
