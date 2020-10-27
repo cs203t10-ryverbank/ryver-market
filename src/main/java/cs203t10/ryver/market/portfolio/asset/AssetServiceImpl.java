@@ -11,7 +11,7 @@ import cs203t10.ryver.market.portfolio.asset.AssetRepository;
 
 @Service
 public class AssetServiceImpl implements AssetService{
-    
+
     @Autowired
     private AssetRepository assets;
 
@@ -34,7 +34,6 @@ public class AssetServiceImpl implements AssetService{
         Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
         return asset.getQuantity();
     }
-
 
     @Override
     public Asset addAsset(Integer customerId, String code, Integer quantity, Double averagePrice) {
@@ -75,6 +74,7 @@ public class AssetServiceImpl implements AssetService{
     }
 }
 
+<<<<<<< HEAD
 
     
 //     processBuyTrade(Trade trade, Portfolio portfolio) {
@@ -184,3 +184,16 @@ public class AssetServiceImpl implements AssetService{
 //         return asset.getQuantity();
 //     }
 // }
+=======
+    @Override
+    public Integer getQuantityOfAsset(Asset asset) {
+        Integer quantityOwned = asset.getQuantity();
+        return quantityOwned;
+    }
+
+    @Override
+    public void resetAssets(){
+        assets.deleteAll();
+    }
+}
+>>>>>>> a2c44b89e49684b09dadc58375ecdb11c6044472

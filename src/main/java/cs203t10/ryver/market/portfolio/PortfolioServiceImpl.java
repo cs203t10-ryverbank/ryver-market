@@ -111,85 +111,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         assetService.addToAsset(customerId, code, filledQuantity, unitPrice);
         return portfolios.save(portfolio);
     }
+
+    @Override
+    public void resetPortfolios(){
+        portfolios.deleteAll();
+    }
 }
-//     public List<Asset> updateAssets(Portfolio portfolio) {
-//         List<Asset> assetList = portfolio.getAssets();
-//         if (!assetList.isEmpty()) {
-//             for (Asset asset : assetList) {
-//                 String code = asset.getCode();
-//                 StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
-//                 Double currentPrice = stockRecord.getPrice();
-//                 Double newGainLoss = (currentPrice - asset.getAveragePrice()) * asset.getQuantity();
-//                 newGainLoss *= 100;
-//                 newGainLoss = (double) Math.round(newGainLoss);
-//                 newGainLoss /= 100;
-//                 asset.setCurrentPrice(currentPrice);
-//                 asset.setGainLoss(newGainLoss);
-//             }
-//         }
-//         return assetList;
-//     }
-
-//     @Override
-//     public PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId) {
-//         Portfolio portfolio = portfolios.findByCustomerId(customerId).orElse(null);
-//         if (portfolio == null) {
-//             portfolio = createPortfolio(customerId);
-//         } else {
-//             List<Asset> updatedAssetList = updateAssets(portfolio);
-//             Double unrealizedGainLoss = calculateUnrealizedGainLoss(portfolio);
-//             portfolio.setAssets(updatedAssetList);
-//             portfolio.setUnrealizedGainLoss(unrealizedGainLoss);
-//             portfolio = portfolios.save(portfolio);
-//         }
-//         PortfolioInfoViewableByCustomer portfolioInfo = new PortfolioInfoViewableByCustomer(portfolio.getCustomerId(),
-//                                                                         portfolio.getAssets(),
-//                                                                         portfolio.getUnrealizedGainLoss(),
-//                                                                         portfolio.getTotalGainLoss());
-//         return portfolioInfo;
-//     }
-
-//     @Override
-//     public Double calculateUnrealizedGainLoss(List<Asset> assetList) {
-//         Double unrealizedGainLoss = 0.0;
-//         if (!assetList.isEmpty()){
-//             for (Asset asset : assetList) {
-//                 unrealizedGainLoss += asset.getGainLoss();
-//             }
-//         }
-//         return unrealizedGainLoss;
-//     }
-
-//     @Override
-//     public Portfolio processBuyTrade(Trade trade) {
-//         Integer customerId = trade.getCustomerId();
-//         Portfolio portfolio = portfolios.findByCustomerId(customerId).orElse(null);
-//         if (portfolio == null) {
-//             portfolio = createPortfolio(customerId);
-//         }
-//         assetService.processBuyTrade(trade, portfolio);
-//         Double unrealizedGainLoss = calculateUnrealizedGainLoss(portfolio);
-//         portfolio.setUnrealizedGainLoss(unrealizedGainLoss);
-//         return portfolios.save(portfolio);
-//     }
-
-//     @Override
-//     public Portfolio processSellTrade(Trade trade) {
-//         Integer customerId = trade.getCustomerId();
-//         Portfolio portfolio = portfolios.findByCustomerId(customerId).orElse(null);
-//         if (portfolio == null) {
-//             portfolio = createPortfolio(customerId);
-//         }
-
-//         Asset asset = assetService.processSellTrade(trade);
-//         Double unrealizedGainLoss = calculateUnrealizedGainLoss(portfolio);
-
-//         Integer filledQuantity = trade.getFilledQuantity();
-//         Double tradeAvgPrice = trade.getPrice();
-//         Double tradeGainLoss = filledQuantity * (tradeAvgPrice - asset.getAveragePrice());
-
-//         portfolio.setTotalGainLoss(portfolio.getTotalGainLoss() + tradeGainLoss);
-//         portfolio.setUnrealizedGainLoss(unrealizedGainLoss);
-//         return portfolios.save(portfolio);
-//     }
-// }

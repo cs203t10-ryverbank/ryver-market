@@ -38,8 +38,8 @@ public class PortfolioControllerAuthTest {
     @Test
     @WithMockUser(roles = { "USER" })
     public void getPortfolioAsUser_isOk() throws Exception {
-        when(principalService.getPrincipal())
-            .thenReturn(userPrincipal);
+        // when(principalService.getPrincipal())
+        //     .thenReturn(userPrincipal);
         mockMvc.perform(get("/portfolio")).andExpect(status().isOk());
     }
     

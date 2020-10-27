@@ -17,4 +17,5 @@ public interface TradeService {
     Trade updateTrade(Trade trade);
     List<Trade> getAllUserOpenTrades(Long customerId);
     Trade cancelTrade(Integer tradeId);
+    void resetTrades();
 }
