@@ -71,7 +71,7 @@ public class TradeController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-	@PostMapping("/trades/reset")
+	@PostMapping("/reset")
 	@RolesAllowed("MANAGER")
 	public void resetTrades() {
 		tradeService.resetTrades();
