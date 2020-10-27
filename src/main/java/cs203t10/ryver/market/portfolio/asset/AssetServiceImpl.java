@@ -38,7 +38,7 @@ public class AssetServiceImpl implements AssetService{
 
     @Override
     public Asset addAsset(Integer customerId, String code, Integer quantity, Double averagePrice) {
-        Portfolio portfolio = portfoliosService.findByCustomerIdElseCreate(customerId);
+        Portfolio portfolio = portfoliosService.findByCustomerId(customerId);
         Asset asset = Asset.builder().portfolio(portfolio).code(code).quantity(quantity).averagePrice(averagePrice).value(quantity*averagePrice).build();
         return assets.save(asset);
     }
@@ -51,7 +51,8 @@ public class AssetServiceImpl implements AssetService{
             assets.delete(asset);
             return null;
         }
-        asset.setQuantity(asset.getQuantity() - quantity);
+        asset.setQuantity(newQuantity);
+        asset.setValue(newQuantity*asset.getAveragePrice());
         return assets.save(asset);
     }
 

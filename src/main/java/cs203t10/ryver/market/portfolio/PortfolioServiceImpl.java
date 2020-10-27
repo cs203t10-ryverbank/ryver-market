@@ -29,7 +29,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     @Override
     public Portfolio findByCustomerId(Integer customerId) {
-        return portfolios.findByCustomerId(customerId).orElse(null);
+        return portfolios.findByCustomerId(customerId).orElseThrow(() -> new PortfolioNotFoundException(customerId));
     }
 
     @Override
@@ -38,7 +38,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         if (portfolio == null) {
             List<Asset> assetList = new ArrayList<>();
             PortfolioInitial portfolioInitial = new PortfolioInitial(customerId, assetList, 0.0);
-            return savePortfolio(portfolioInitial);
+            return portfolios.save(portfolioInitial.toPortfolio());
         } else return portfolio;
     }
 
@@ -95,6 +95,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         Double currentPrice = stockRecord.getPrice();
         Double sellPrice = trade.getPrice();
         Double gainLoss = filledQuantity * (sellPrice - currentPrice);
+        gainLoss *= 100;
+        gainLoss = (double) Math.round(gainLoss);
+        gainLoss /= 100;
         portfolio.setTotalGainLoss(portfolio.getTotalGainLoss() + gainLoss);
         return portfolios.save(portfolio);
     }
