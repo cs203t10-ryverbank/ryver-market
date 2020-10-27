@@ -127,4 +127,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolio.setUnrealizedGainLoss(unrealizedGainLoss);
         return portfolios.save(portfolio);
     }
+
+    @Override
+    public void resetPortfolios(){
+        portfolios.deleteAll();
+    }
 }

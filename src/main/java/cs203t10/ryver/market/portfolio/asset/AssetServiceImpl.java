@@ -15,7 +15,7 @@ import cs203t10.ryver.market.portfolio.asset.AssetRepository;
 
 @Service
 public class AssetServiceImpl implements AssetService{
-    
+
     @Autowired
     private AssetRepository assets;
 
@@ -41,7 +41,7 @@ public class AssetServiceImpl implements AssetService{
 
         Integer filledQuantity = trade.getFilledQuantity();
         Double tradeAvgPrice = trade.getPrice();
-        
+
         StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
         Double currentPrice = stockRecord.getPrice();
 
@@ -79,7 +79,7 @@ public class AssetServiceImpl implements AssetService{
         Integer customerId = trade.getCustomerId();
         Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
         Integer assetId = asset.getId();
-        
+
         Integer filledQuantity = trade.getFilledQuantity();
         Double tradeAvgPrice = trade.getPrice();
 
@@ -93,7 +93,7 @@ public class AssetServiceImpl implements AssetService{
         } else {
             Double newValue = asset.getValue() - (filledQuantity * tradeAvgPrice);
             Double newAveragePrice = newValue/newQuantity;
-            Double newGainLoss = newValue - (newQuantity * currentPrice); 
+            Double newGainLoss = newValue - (newQuantity * currentPrice);
             asset.setAveragePrice(newAveragePrice);
             asset.setQuantity(newQuantity);
             asset.setValue(newValue);
@@ -123,5 +123,10 @@ public class AssetServiceImpl implements AssetService{
     public Integer getQuantityOfAsset(Asset asset) {
         Integer quantityOwned = asset.getQuantity();
         return quantityOwned;
+    }
+
+    @Override
+    public void resetAssets(){
+        assets.deleteAll();
     }
 }

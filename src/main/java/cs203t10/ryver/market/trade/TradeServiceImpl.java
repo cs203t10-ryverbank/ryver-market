@@ -479,4 +479,11 @@ public class TradeServiceImpl implements TradeService {
         return totalSellQuantity - totalSellFilledQuantity;
     }
 
+    @Override
+    public void resetTrades(){
+        tradeRepo.deleteAll();
+        portfolioService.resetPortfolios();
+        assetService.resetAssets();
+        marketMaker.makeNewTrades();
+    }
 }

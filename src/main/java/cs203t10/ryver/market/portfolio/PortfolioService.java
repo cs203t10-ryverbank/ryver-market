@@ -12,4 +12,5 @@ public interface PortfolioService {
     public Double calculateUnrealizedGainLoss(Portfolio portfolio);
     public Portfolio processBuyTrade(Trade trade);
     public Portfolio processSellTrade(Trade trade);
+    public void resetPortfolios();
 }

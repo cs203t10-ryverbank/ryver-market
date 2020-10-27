@@ -42,7 +42,7 @@ public class TradeController {
         Trade retrievedTrade = tradeService.getTrade(tradeId);
         System.out.println("test: " + retrievedTrade == null);
         TradeView retrievedTradeView =  TradeView.fromTrade(retrievedTrade);
-        
+
         if (principal.uid.intValue() != retrievedTradeView.getCustomerId()) {
             throw new TradeNotAllowedException(tradeId, principal.uid.intValue());
         }
@@ -59,7 +59,7 @@ public class TradeController {
         if (principal.uid.intValue() != tradeView.getCustomerId()) {
             throw new TradeNotAllowedException(tradeView.getCustomerId());
         }
-        
+
         Trade savedTrade = tradeService.saveTrade(tradeView);
         return TradeView.fromTrade(savedTrade);
     }
@@ -69,6 +69,13 @@ public class TradeController {
     public TradeView cancelTrade(@PathVariable Integer tradeId) {
         return TradeView.fromTrade(tradeService.cancelTrade(tradeId));
     }
+
+    @ResponseStatus(HttpStatus.OK)
+	@PostMapping("/trades/reset")
+	@RolesAllowed("MANAGER")
+	public void resetTrades() {
+		tradeService.resetTrades();
+	}
 
 }
 
