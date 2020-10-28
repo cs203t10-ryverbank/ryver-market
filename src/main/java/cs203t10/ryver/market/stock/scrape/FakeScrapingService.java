@@ -1,14 +1,10 @@
 package cs203t10.ryver.market.stock.scrape;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordRepository;
 import cs203t10.ryver.market.stock.StockRepository;
@@ -17,13 +13,13 @@ import cs203t10.ryver.market.stock.StockRepository;
  * Scrape SGX for updated Straits Time Index data.
  */
 @Service
-public class FakeScrapingService implements ScrapingService {
+public final class FakeScrapingService implements ScrapingService {
 
     @Autowired
-    StockRepository stockRepo;
+    private StockRepository stockRepo;
 
     @Autowired
-    StockRecordRepository stockRecordRepo;
+    private StockRecordRepository stockRecordRepo;
 
     public List<StockRecord> loadStockRecords() {
         FakeScraper scraper = new FakeScraper();
