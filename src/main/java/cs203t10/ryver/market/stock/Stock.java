@@ -16,7 +16,7 @@ import lombok.*;
 @AllArgsConstructor @NoArgsConstructor
 public class Stock {
 
-    public Stock(String symbol) {
+    public Stock(final String symbol) {
         this.symbol = symbol;
     }
 

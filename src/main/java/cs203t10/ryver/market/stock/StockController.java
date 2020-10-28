@@ -12,14 +12,14 @@ import cs203t10.ryver.market.stock.view.StockRecordView;
 import cs203t10.ryver.market.trade.TradeService;
 
 @RestController
-@RolesAllowed({"MANAGER","USER"})
-public class StockController {
+@RolesAllowed({"MANAGER", "USER"})
+public final class StockController {
 
     @Autowired
-    StockRecordService stockRecordService;
+    private StockRecordService stockRecordService;
 
     @Autowired
-    TradeService tradeService;
+    private TradeService tradeService;
 
     @GetMapping("/stocks")
     public List<StockRecordView> getAllLatestStockRecords() {
@@ -42,7 +42,7 @@ public class StockController {
     }
 
     @GetMapping("/stocks/{symbol}")
-    public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
+    public StockRecordView getLatestStockRecord(@PathVariable final String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
         Integer bidVolume = tradeService.getTotalBidVolume(symbol);
         Integer askVolume = tradeService.getTotalAskVolume(symbol);

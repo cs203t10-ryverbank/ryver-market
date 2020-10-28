@@ -1,7 +1,5 @@
 package cs203t10.ryver.market.stock.view;
 
-import java.util.List;
-
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.trade.Trade;
 
@@ -36,12 +34,14 @@ public class StockRecordView {
     @Builder.Default
     private Double ask = 0.0;
 
-    public static StockRecordView fromRecordAskBid(StockRecord record) {
+    public static StockRecordView fromRecordAskBid(final StockRecord record) {
         return fromRecordAskBid(record, null, null, 0, 0);
     }
 
-    public static StockRecordView fromRecordAskBid(StockRecord record, Trade bestBuy, Trade bestSell, Integer bidVolume, Integer askVolume) {
-        // Todo : Take in an arraylist of all stock records
+    public static StockRecordView fromRecordAskBid(
+            final StockRecord record, final Trade bestBuy, final Trade bestSell,
+            final Integer bidVolume, final Integer askVolume) {
+        // TODO: Take in an arraylist of all stock records
 
         // Process each stock record
             // TotalQuantity += stockRecord.getQuantity
@@ -51,27 +51,23 @@ public class StockRecordView {
         if (record == null) {
             throw new RuntimeException("Cannot build stock record view from null record");
         }
-        if (bestBuy == null) {
-            bestBuy = new Trade();
-        }
-        if (bestSell == null) {
-            bestSell = new Trade();
-        }
+        Trade bestBuyToUse = bestBuy == null ? new Trade() : bestBuy;
+        Trade bestSellToUse = bestSell == null ? new Trade() : bestSell;
 
         Double lastPrice = record.getPrice();
-        if (bestBuy.getPrice() == 0){
-            bestBuy.setPrice(lastPrice);
+        if (bestBuyToUse.getPrice() == 0) {
+            bestBuyToUse.setPrice(lastPrice);
         }
-        if (bestSell.getPrice() == 0){
-            bestSell.setPrice(lastPrice);
+        if (bestSellToUse.getPrice() == 0) {
+            bestSellToUse.setPrice(lastPrice);
         }
         return StockRecordView.builder()
                 .symbol(record.getStock().getSymbol())
                 .lastPrice(record.getPrice())
                 .bidVolume(bidVolume)
-                .bid(bestBuy.getPrice())
+                .bid(bestBuyToUse.getPrice())
                 .askVolume(askVolume)
-                .ask(bestSell.getPrice())
+                .ask(bestSellToUse.getPrice())
                 .build();
     }
 
