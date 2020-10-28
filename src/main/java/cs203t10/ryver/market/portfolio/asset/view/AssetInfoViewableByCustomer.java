@@ -2,9 +2,6 @@ package cs203t10.ryver.market.portfolio.asset.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
-
 import lombok.*;
 
 @Data

@@ -13,18 +13,17 @@ import cs203t10.ryver.market.portfolio.asset.Asset;
 @Entity
 @Getter @Setter @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
-@EqualsAndHashCode @ToString
+@EqualsAndHashCode
 public class Portfolio {
 
     @Id
     @NotNull(message = "Customer ID cannot be null")
     private Integer customerId;
 
+    @EqualsAndHashCode.Exclude
+    @NotNull(message = "Assets cannot be null")
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL)
     private List<Asset> assets;
-
-    @NotNull(message = "Unrealized gain/loss cannot be null")
-    private Double unrealizedGainLoss;
 
     @NotNull(message = "Total gain/loss cannot be null")
     private Double totalGainLoss;

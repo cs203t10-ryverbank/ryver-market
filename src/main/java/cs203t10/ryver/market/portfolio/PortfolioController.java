@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
 import cs203t10.ryver.market.security.RyverPrincipal;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
@@ -17,7 +18,7 @@ public class PortfolioController {
     private PortfolioService portfolioService;
 
     @GetMapping("/portfolio")
-    @RolesAllowed("USER")
+    @PreAuthorize("hasRole('USER')")
     public PortfolioInfoViewableByCustomer viewPortfolio(@AuthenticationPrincipal RyverPrincipal principal) {
         return portfolioService.viewPortfolio(Math.toIntExact(principal.uid));
     }

@@ -12,12 +12,13 @@ import lombok.*;
 @Entity
 @Getter @Setter @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
-@EqualsAndHashCode @ToString
+@EqualsAndHashCode
 public class Asset {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @EqualsAndHashCode.Exclude
     @ManyToOne(targetEntity = Portfolio.class)
     @JoinColumn(name = "portfolio", nullable = false)
     private Portfolio portfolio;
@@ -31,14 +32,7 @@ public class Asset {
     @NotNull(message = "Average price cannot be null")
     private Double averagePrice;
 
-    @NotNull(message = "Current price cannot be null")
-    private Double currentPrice;
-
     @NotNull(message = "Value cannot be null")
     private Double value;
-
-    @NotNull(message = "Gain/loss cannot be null")
-    private Double gainLoss;
-
 }
 

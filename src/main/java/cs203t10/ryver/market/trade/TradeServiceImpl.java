@@ -2,34 +2,32 @@ package cs203t10.ryver.market.trade;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
 import java.util.HashSet;
-import java.time.LocalTime;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.scheduling.annotation.Scheduled;
 
+import cs203t10.ryver.market.exception.TradeInvalidDateException;
+import cs203t10.ryver.market.exception.TradeNotFoundException;
 import cs203t10.ryver.market.fund.FundTransferService;
-import cs203t10.ryver.market.portfolio.Portfolio;
+import cs203t10.ryver.market.maker.MarketMaker;
 import cs203t10.ryver.market.portfolio.PortfolioService;
-import cs203t10.ryver.market.portfolio.asset.Asset;
-import cs203t10.ryver.market.portfolio.asset.AssetService;
 import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
-import cs203t10.ryver.market.exception.TradeNotFoundException;
-import cs203t10.ryver.market.maker.MarketMaker;
 
 @Component
 @Service
@@ -40,9 +38,6 @@ public final class TradeServiceImpl implements TradeService {
 
     @Autowired
     private StockRecordService stockRecordService;
-
-    @Autowired
-    private AssetService assetService;
 
     @Autowired
     private PortfolioService portfolioService;
@@ -62,7 +57,7 @@ public final class TradeServiceImpl implements TradeService {
         if (checkInvalidSubmittedDate(tradeView)) {
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
             String strCurrentTime = formatter.format(todayDate);
-            // throw new TradeInvalidDateException(strCurrentTime);
+            throw new TradeInvalidDateException(strCurrentTime);
         }
 
         // If buy trade, deduct available balance.
@@ -199,12 +194,10 @@ public final class TradeServiceImpl implements TradeService {
         fundTransferService.deductAvailableBalance(customerId, accountId, 0.0);
 
         // Check if account has enough stocks from portfolio.
-        Asset asset = assetService.findByPortfolioCustomerIdAndCode(customerId, symbol);
-        Integer quantityOwned = assetService.getQuantityOfAsset(asset);
-        if (quantityOwned < quantity) {
+        Integer assetQuantityOwned = portfolioService.getQuantityOfAsset(customerId, symbol);
+        if (quantity > assetQuantityOwned) {
             throw new InsufficientStockQuantityException(customerId, symbol);
         }
-
         // Add to stock records
         stockRecordService.updateStockRecordAddToMarket(symbol, quantity);
     }
@@ -219,7 +212,7 @@ public final class TradeServiceImpl implements TradeService {
         }
 
         // Add stocks to buyer portfolio
-        Portfolio portfolio = portfolioService.processBuyTrade(trade);
+        portfolioService.processBuyTrade(trade);
 
         // Deduct balance from buyer's account.
         fundTransferService.deductBalance(customerId, accountId, totalPrice);
@@ -365,9 +358,9 @@ public final class TradeServiceImpl implements TradeService {
         LocalTime target = LocalTime.parse(strCurrentTime);
 
         // NOTE: Commented segment off to test. Please uncomment before deploying.
-        // if (target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("17:00:00")) ){
-        //     return true;
-        // }
+        if (target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("17:00:00"))) {
+            return true;
+        }
 
         // Trade is invalid if not made on the current date.
         if (!isSameDay(todayDate, tradeDate)) {
@@ -396,7 +389,7 @@ public final class TradeServiceImpl implements TradeService {
     private Date getCurrentDate() {
         ZoneId defaultZoneId = ZoneId.systemDefault();
         LocalDateTime localDate = LocalDateTime.now();
-        Date todayDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+        Date todayDate = Date.from(localDate.atZone(defaultZoneId).toInstant());
         return todayDate;
     }
 
@@ -497,7 +490,6 @@ public final class TradeServiceImpl implements TradeService {
     public void resetTrades() {
         tradeRepo.deleteAll();
         portfolioService.resetPortfolios();
-        assetService.resetAssets();
         marketMaker.makeNewTrades();
     }
 }
