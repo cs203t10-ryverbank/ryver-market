@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.stock.Stock;
+import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.stock.StockRepository;
+import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 
 @Component
@@ -20,6 +22,9 @@ public final class ScheduledTradeService {
 
     @Autowired
     private StockRepository stockRepo;
+
+    @Autowired
+    private StockRecordService stockRecordService;
 
     @Autowired
     private TradeService tradeService;
@@ -31,8 +36,23 @@ public final class ScheduledTradeService {
     private FundTransferService fundTransferService;
 
     // TODO: Verify this works on AWS
+    // Cron expression: open market at 9am from Monday to Friday.
     @Scheduled(cron = "0 0 09 * * MON-FRI", zone = "Asia/Singapore")
     public void openMarket() {
+        List<Trade> tradeList = tradeRepo.findAll();
+
+        // Update the stock record for any open sell trade.
+        for (Trade trade : tradeList) {
+            if (!trade.getStatus().equals(Status.OPEN)) {
+                continue;
+            }
+
+            if (trade.getAction() == Action.SELL) {
+                stockRecordService.updateStockRecordAddToMarket(trade.getStock().getSymbol(), trade.getQuantity());
+            }
+        }
+
+        // Match all pending open trades.
         List<Stock> allStocks = stockRepo.findAll();
         for (Stock stock : allStocks) {
             tradeService.reconcileMarket(stock.getSymbol());
@@ -40,9 +60,9 @@ public final class ScheduledTradeService {
     }
 
     // TODO: Verify this works on AWS
+    // Cron expression: close market at 5pm from Monday to Friday.
     @Scheduled(cron = "0 0 17 * * MON-FRI", zone = "Asia/Singapore")
     public void closeMarket() {
-        // Cron expression: close market at 5pm from Monday to Friday.
         List<Trade> tradeList = tradeRepo.findAll();
         Set<List<Integer>> customerAccountSet = new HashSet<>();
 

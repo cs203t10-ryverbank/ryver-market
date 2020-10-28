@@ -39,22 +39,23 @@ public final class TradeServiceImpl implements TradeService {
 
     @Override
     public Trade saveTrade(final TradeView tradeView) {
-        if (DateUtils.isMarketOpen(tradeView.getSubmittedDate())) {
-            return saveMarketOpenTrade(tradeView);
-        }
-        return saveMarketClosedTrade(tradeView);
-    }
-
-    private Trade saveMarketOpenTrade(final TradeView tradeView) {
-        // If buy trade, deduct available balance.
+        // Register the trade against the FTS and ensure the trade is valid.
         if (tradeView.getAction() == Action.BUY) {
             registerBuyTrade(tradeView);
+        } else {
+            registerSellTrade(tradeView);
         }
 
-        // If sell trade, add to stock records and check if stocks available.
+        if (DateUtils.isMarketOpen(tradeView.getSubmittedDate())) {
+            return addTradeToOpenMarket(tradeView);
+        }
+        return addTradeToClosedMarket(tradeView);
+    }
+
+    private Trade addTradeToOpenMarket(final TradeView tradeView) {
         if (tradeView.getAction() == Action.SELL) {
-            registerSellTrade(tradeView);
-            // Add to stock records
+            // Sell trades will increase the trade quantity of the stock records only when the market is open.
+            // If the market is closed, the quantity only increases after the market is opened.
             stockRecordService.updateStockRecordAddToMarket(tradeView.getSymbol(), tradeView.getQuantity());
         }
 
@@ -71,17 +72,7 @@ public final class TradeServiceImpl implements TradeService {
         return toReturn;
     }
 
-    private Trade saveMarketClosedTrade(final TradeView tradeView) {
-        // If buy trade, deduct available balance.
-        if (tradeView.getAction() == Action.BUY) {
-            registerBuyTrade(tradeView);
-        }
-
-        // If sell trade, add to stock records and check if stocks available.
-        if (tradeView.getAction() == Action.SELL) {
-            registerSellTrade(tradeView);
-        }
-
+    private Trade addTradeToClosedMarket(final TradeView tradeView) {
         // By default, trade will be set to OPEN status.
         tradeView.setStatus(Status.OPEN);
 
@@ -93,12 +84,10 @@ public final class TradeServiceImpl implements TradeService {
     }
 
     /**
-     * Register a buy trade on the fund transfer service by deducting the
-     * available balance of the appropriate user.
+     * Reconcile the market by searching for matching buy and sell trades.
      *
-     * The market maker does not need to register trades.
-     *
-     * The market maker has customerId = 0 and accountId = 0.
+     * If market trades are matched, then they will be completed on the fund
+     * transfer service, then remove the trade quantity from the stock records.
      */
     @Override
     public void reconcileMarket(final String symbol) {
