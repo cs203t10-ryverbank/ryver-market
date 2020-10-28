@@ -23,7 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
     securedEnabled = true, // Enables @Secured
     jsr250Enabled = true   // Enables @RolesAllowed
 )
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public final class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * Attach the user details and password encoder.
      */
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
         auth
             .userDetailsService(userDetailsService)
             .passwordEncoder(encoder());
@@ -42,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      *  Allow access to h2-console without http authorization
      */
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(final WebSecurity web) throws Exception {
         web
             .ignoring()
             .antMatchers("/h2-console/**");
@@ -52,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * Allow all requests by default, and control access with method security.
      */
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(final HttpSecurity http) throws Exception {
         http
             .authorizeRequests().anyRequest().authenticated()
         .and()
@@ -65,8 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .headers().disable()
             .addFilter(new JWTAuthorizationFilter(authenticationManager()))
             // Disable session creation on Spring Security
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        ;
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     /**

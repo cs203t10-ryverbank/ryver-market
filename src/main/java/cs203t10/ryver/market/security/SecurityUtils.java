@@ -3,7 +3,9 @@ package cs203t10.ryver.market.security;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public class SecurityUtils {
+public final class SecurityUtils {
+
+    private SecurityUtils() { }
 
     public static boolean isManagerAuthenticated() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

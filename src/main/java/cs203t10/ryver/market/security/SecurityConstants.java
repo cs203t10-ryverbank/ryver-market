@@ -1,6 +1,7 @@
 package cs203t10.ryver.market.security;
 
-public class SecurityConstants {
+public final class SecurityConstants {
+    private SecurityConstants() { }
     public static final String SECRET = "RyverAPISecretKey";
     public static final long EXPIRATION_TIME = 864_000_000;
     public static final String BEARER_PREFIX = "Bearer ";

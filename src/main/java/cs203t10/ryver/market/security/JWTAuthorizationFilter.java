@@ -27,15 +27,15 @@ import static cs203t10.ryver.market.security.SecurityConstants.BEARER_PREFIX;
 import static cs203t10.ryver.market.security.SecurityConstants.SECRET;
 import static cs203t10.ryver.market.security.SecurityConstants.UID_KEY;
 
-public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
+public final class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-    public JWTAuthorizationFilter(AuthenticationManager authManager) {
+    public JWTAuthorizationFilter(final AuthenticationManager authManager) {
         super(authManager);
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-            HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(final HttpServletRequest request,
+            final HttpServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
         String header = request.getHeader(AUTH_HEADER_KEY);
 
@@ -57,7 +57,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
      * Verify the JWT of a request.
      * @return An authentication token if the JWT is valid, or null if it is not.
      */
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+    private UsernamePasswordAuthenticationToken getAuthentication(final HttpServletRequest request) {
         String token = request.getHeader(AUTH_HEADER_KEY);
         if (token == null || !token.startsWith(BEARER_PREFIX)) {
             return null;
@@ -86,3 +86,4 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
 }
+
