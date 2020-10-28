@@ -15,11 +15,11 @@ import io.swagger.annotations.ApiOperation;
 @EnableDiscoveryClient
 @RestController
 @EnableScheduling
-public class RyverBankMarketServiceApplication {
+public final class RyverBankMarketServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(RyverBankMarketServiceApplication.class, args);
-	}
+    public static void main(final String[] args) {
+        SpringApplication.run(RyverBankMarketServiceApplication.class, args);
+    }
 
     @GetMapping("/")
     @ApiOperation(value = "Check the service name")
