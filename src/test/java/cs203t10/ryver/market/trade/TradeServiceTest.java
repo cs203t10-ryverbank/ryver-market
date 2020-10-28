@@ -81,18 +81,18 @@ public class TradeServiceTest {
             .customerId(1).accountId(50)
             .submittedDate(firstDate).status(Status.OPEN)
             .bid(2.0).avgPrice(0.0).build();
-      
+
         Mockito.doThrow(new AccountNotAllowedException(1, 50))
                 .when(fundTransferService)
                 .deductAvailableBalance(any(Integer.class), any(Integer.class), any(Double.class));
-        
+
         assertThrows(AccountNotAllowedException.class, () -> {
             tradeService.saveTrade(testBuy);
         });
         verifyNoInteractions(tradeRepo);
     }
 
-    @Test 
+    @Test
     public void saveTrade_InsufficientBalance_noRegister() {
         TradeView testBuy = TradeView.builder()
             .action(Action.BUY).symbol(a1.getSymbol())
@@ -100,11 +100,11 @@ public class TradeServiceTest {
             .customerId(1).accountId(1)
             .submittedDate(firstDate).status(Status.OPEN)
             .bid(2.0).avgPrice(0.0).build();
-      
+
         Mockito.doThrow(new InsufficientBalanceException(1, 20000.0, 0.0))
                 .when(fundTransferService)
                 .deductAvailableBalance(any(Integer.class), any(Integer.class), any(Double.class));
-        
+
         assertThrows(InsufficientBalanceException.class, () -> {
             tradeService.saveTrade(testBuy);
         });
@@ -119,7 +119,7 @@ public class TradeServiceTest {
             .customerId(1).accountId(1)
             .submittedDate(firstDate).status(Status.OPEN)
             .bid(2.0).avgPrice(0.0).build();
-        
+
         Mockito.doNothing()
             .when(fundTransferService)
             .deductAvailableBalance(any(Integer.class), any(Integer.class), any(Double.class));

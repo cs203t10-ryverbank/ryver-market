@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -54,7 +53,7 @@ public final class TradeServiceImpl implements TradeService {
         tradeView.setSubmittedDate(todayDate);
 
         // TODO: Checks for valid date.
-        if (checkInvalidSubmittedDate(tradeView)) {
+        if (isInvalidSubmittedDate(tradeView)) {
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
             String strCurrentTime = formatter.format(todayDate);
             throw new TradeInvalidDateException(strCurrentTime);
@@ -88,7 +87,6 @@ public final class TradeServiceImpl implements TradeService {
     }
 
     /**
-     * Reconcile market
      * Register a buy trade on the fund transfer service by deducting the
      * available balance of the appropriate user.
      *
@@ -346,7 +344,10 @@ public final class TradeServiceImpl implements TradeService {
         return tradeRepo.save(trade);
     }
 
-    public boolean checkInvalidSubmittedDate(final TradeView tradeView) {
+    /**
+     * An invalid date is one that is outside of 9am to 5pm, on a weekend, or not made on the current date.
+     */
+    public boolean isInvalidSubmittedDate(final TradeView tradeView) {
         // Returns true if date is invalid
         // Check if the post is made on a weekday, between 9am and 5pm.
         Date todayDate = getCurrentDate();
@@ -364,11 +365,6 @@ public final class TradeServiceImpl implements TradeService {
 
         // Trade is invalid if not made on the current date.
         if (!isSameDay(todayDate, tradeDate)) {
-            return true;
-        }
-
-        // Trade is invalid if it is made before current time.
-        if (tradeDate.before(todayDate)) {
             return true;
         }
 
@@ -398,36 +394,30 @@ public final class TradeServiceImpl implements TradeService {
     public void closeMarket() {
         // Cron expression: close market at 5pm from Monday to Friday.
         List<Trade> tradeList = tradeRepo.findAll();
-        Set<String> customerAccountSet = new HashSet<>();
-        List<Integer[]> customerAccountList = new ArrayList<>();
+        Set<List<Integer>> customerAccountSet = new HashSet<>();
 
         // Close trades for all trades in the tradeList
         for (Trade trade : tradeList) {
-            Integer customerId = trade.getCustomerId();
-            Integer accountId = trade.getAccountId();
-            String uniqueCustomerAccount = Integer.toString(customerId) + Integer.toString(accountId);
+            // TODO: Implement tradeRepo.findAllNonExpired() instead.
             if (trade.getStatus().equals(Status.EXPIRED)) {
                 continue;
             }
-            if (customerId == 0 && accountId == 0) {
-                continue;
-            }
-            trade.setStatus(Status.EXPIRED);
 
-            // Checks if customer-account pair has already been added to the list.
-            if (!customerAccountSet.contains(uniqueCustomerAccount)) {
-                customerAccountSet.add(uniqueCustomerAccount);
-                Integer[] customerAccountPair = {customerId, accountId};
-                customerAccountList.add(customerAccountPair);
-            }
+            // Expire trades.
+            trade.setStatus(Status.EXPIRED);
             tradeRepo.save(trade);
+
+            Integer customerId = trade.getCustomerId();
+            Integer accountId = trade.getAccountId();
+            // Set will only store unique instances of { customerId, accountId }.
+            customerAccountSet.add(List.of(customerId, accountId));
         }
 
-        // For each account-customer pair, reset available balance.
-        for (Integer[] pair : customerAccountList) {
-            Integer customerId = pair[0];
-            Integer accountId = pair[1];
-            // reset balance using FTS
+        // For each { customerId, accountId } pair, reset available balance.
+        for (List<Integer> pair : customerAccountSet) {
+            Integer customerId = pair.get(0);
+            Integer accountId = pair.get(1);
+            // Reset balance using FTS
             fundTransferService.resetAvailableBalance(customerId, accountId);
         }
     }
@@ -450,12 +440,12 @@ public final class TradeServiceImpl implements TradeService {
     @Override
     public List<Trade> getAllSellTradesBySymbol(final String symbol) {
         return tradeRepo.findAllSellTradesBySymbol(symbol);
-    };
+    }
 
     @Override
     public List<Trade> getAllBuyTradesBySymbol(final String symbol) {
         return tradeRepo.findAllBuyTradesBySymbol(symbol);
-    };
+    }
 
     @Override
     public Integer getTotalBidVolume(final String symbol) {
@@ -492,4 +482,6 @@ public final class TradeServiceImpl implements TradeService {
         portfolioService.resetPortfolios();
         marketMaker.makeNewTrades();
     }
+
 }
+
