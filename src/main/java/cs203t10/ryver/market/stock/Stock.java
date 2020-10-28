@@ -26,11 +26,13 @@ public class Stock {
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL)
     @Getter(value = AccessLevel.NONE)
     @Setter(value = AccessLevel.NONE)
+    @ToString.Exclude
     private List<StockRecord> records;
 
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL)
     @Getter(value = AccessLevel.NONE)
     @Setter(value = AccessLevel.NONE)
+    @ToString.Exclude
     private List<Trade> trades;
 
 }
