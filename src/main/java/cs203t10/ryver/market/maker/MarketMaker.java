@@ -6,10 +6,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordRepository;
-import cs203t10.ryver.market.stock.StockRepository;
 import cs203t10.ryver.market.trade.TradeRepository;
 import cs203t10.ryver.market.trade.TradeService;
 import cs203t10.ryver.market.trade.Trade.Action;
@@ -19,20 +17,20 @@ import cs203t10.ryver.market.trade.view.TradeView;
 // TODO: At 9am, inject liquidity - can use cron Expression
 
 @Service
-public class MarketMaker {
+public final class MarketMaker {
 
     public static final int MIN_QUANTITY = 20_000;
     public static final double NEW_BID_RATIO = 0.9;
     public static final double NEW_ASK_RATIO = 1.1;
 
     @Autowired
-    StockRecordRepository stockRecordRepo;
+    private StockRecordRepository stockRecordRepo;
 
     @Autowired
-    TradeRepository tradeRepo;
+    private TradeRepository tradeRepo;
 
     @Autowired
-    TradeService tradeService;
+    private TradeService tradeService;
 
     public void makeNewTrades() {
         List<StockRecord> latestRecords = stockRecordRepo.findAllLatestPerStock();
@@ -43,9 +41,9 @@ public class MarketMaker {
         }
     }
 
-    public void makeNewBuyTradesAtPrice(String symbol, Double price) {
+    public void makeNewBuyTradesAtPrice(final String symbol, final Double price) {
         // The liquid quantity = Total Quantity - Filled Quantity
-        Long totalQuantity = tradeRepo.getBuyQuantityBySymbol(symbol) - tradeRepo.getBuyFilledQuantityBySymbol(symbol)  ;
+        Long totalQuantity = tradeRepo.getBuyQuantityBySymbol(symbol) - tradeRepo.getBuyFilledQuantityBySymbol(symbol);
         // If liquidity is low, then make new trades
         if (totalQuantity < MIN_QUANTITY) {
             tradeService.saveMarketMakerTrade(TradeView.builder()
@@ -61,9 +59,10 @@ public class MarketMaker {
         }
     }
 
-    public void makeNewSellTradesAtPrice(String symbol, Double price) {
+    public void makeNewSellTradesAtPrice(final String symbol, final Double price) {
         // The liquid quantity = Total Quantity - Filled Quantity
-        Long totalQuantity = tradeRepo.getSellQuantityBySymbol(symbol)  - tradeRepo.getSellFilledQuantityBySymbol(symbol);
+        Long totalQuantity = tradeRepo.getSellQuantityBySymbol(symbol)
+                - tradeRepo.getSellFilledQuantityBySymbol(symbol);
         // If liquidity is low, then make new trades
         if (totalQuantity < MIN_QUANTITY) {
             tradeService.saveMarketMakerTrade(TradeView.builder()
