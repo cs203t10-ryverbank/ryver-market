@@ -23,7 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
     securedEnabled = true, // Enables @Secured
     jsr250Enabled = true   // Enables @RolesAllowed
 )
-public final class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -32,7 +32,7 @@ public final class SecurityConfig extends WebSecurityConfigurerAdapter {
      * Attach the user details and password encoder.
      */
     @Override
-    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
             .userDetailsService(userDetailsService)
             .passwordEncoder(encoder());
@@ -42,7 +42,7 @@ public final class SecurityConfig extends WebSecurityConfigurerAdapter {
      *  Allow access to h2-console without http authorization
      */
     @Override
-    public void configure(final WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) throws Exception {
         web
             .ignoring()
             .antMatchers("/h2-console/**");
@@ -52,7 +52,7 @@ public final class SecurityConfig extends WebSecurityConfigurerAdapter {
      * Allow all requests by default, and control access with method security.
      */
     @Override
-    protected void configure(final HttpSecurity http) throws Exception {
+    protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests().anyRequest().authenticated()
         .and()
@@ -80,7 +80,7 @@ public final class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // Allow all sources to access this service.
         source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
         return source;

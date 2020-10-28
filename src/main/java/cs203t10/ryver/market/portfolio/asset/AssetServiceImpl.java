@@ -10,7 +10,7 @@ import cs203t10.ryver.market.portfolio.PortfolioService;
 import cs203t10.ryver.market.util.DoubleUtils;
 
 @Service
-public final class AssetServiceImpl implements AssetService {
+public class AssetServiceImpl implements AssetService {
 
     @Autowired
     private AssetRepository assets;
@@ -19,25 +19,25 @@ public final class AssetServiceImpl implements AssetService {
     private PortfolioService portfoliosService;
 
     @Override
-    public List<Asset> findByPortfolioCustomerId(final Integer customerId) {
+    public List<Asset> findByPortfolioCustomerId(Integer customerId) {
         return assets.findByPortfolioCustomerId(customerId);
     }
 
     @Override
-    public Asset findByPortfolioCustomerIdAndCode(final Integer customerId, final String code) {
+    public Asset findByPortfolioCustomerIdAndCode(Integer customerId, String code) {
         return assets.findByPortfolioCustomerIdAndCode(customerId, code)
                     .orElseThrow(() -> new StockNotOwnedException(customerId, code));
     }
 
     @Override
-    public Integer getQuantityByPortfolioCustomerIdAndCode(final Integer customerId, final String code) {
+    public Integer getQuantityByPortfolioCustomerIdAndCode(Integer customerId, String code) {
         Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
         return asset.getQuantity();
     }
 
     @Override
-    public Asset addAsset(final Integer customerId, final String code,
-            final Integer quantity, final Double averagePrice) {
+    public Asset addAsset(Integer customerId, String code,
+            Integer quantity, Double averagePrice) {
         Portfolio portfolio = portfoliosService.findByCustomerId(customerId);
         Asset asset = Asset.builder()
             .portfolio(portfolio).code(code)
@@ -48,7 +48,7 @@ public final class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Asset deductFromAsset(final Integer customerId, final String code, final Integer quantity) {
+    public Asset deductFromAsset(Integer customerId, String code, Integer quantity) {
         Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
         Integer newQuantity = asset.getQuantity() - quantity;
         if (newQuantity == 0) {
@@ -61,8 +61,8 @@ public final class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Asset addToAsset(final Integer customerId, final String code,
-            final Integer quantity, final Double unitPrice) {
+    public Asset addToAsset(Integer customerId, String code,
+            Integer quantity, Double unitPrice) {
         Asset asset = assets.findByPortfolioCustomerIdAndCode(customerId, code).orElse(null);
         if (asset == null) {
             return addAsset(customerId, code, quantity, unitPrice);

@@ -15,9 +15,9 @@ import io.swagger.annotations.ApiOperation;
 @EnableDiscoveryClient
 @RestController
 @EnableScheduling
-public final class RyverBankMarketServiceApplication {
+public class RyverBankMarketServiceApplication {
 
-    public static void main(final String[] args) {
+    public static void main(String[] args) {
         SpringApplication.run(RyverBankMarketServiceApplication.class, args);
     }
 

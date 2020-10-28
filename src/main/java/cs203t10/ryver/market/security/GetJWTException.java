@@ -4,7 +4,7 @@ public class GetJWTException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public GetJWTException(final String message) {
+    public GetJWTException(String message) {
         super(message);
     }
 

@@ -20,7 +20,7 @@ import cs203t10.ryver.market.util.DateUtils;
 
 @Component
 @Service
-public final class TradeServiceImpl implements TradeService {
+public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private FundTransferService fundTransferService;
@@ -38,7 +38,7 @@ public final class TradeServiceImpl implements TradeService {
     private MarketMaker marketMaker;
 
     @Override
-    public Trade saveTrade(final TradeView tradeView) {
+    public Trade saveTrade(TradeView tradeView) {
         // Register the trade against the FTS and ensure the trade is valid.
         if (tradeView.getAction() == Action.BUY) {
             registerBuyTrade(tradeView);
@@ -52,7 +52,7 @@ public final class TradeServiceImpl implements TradeService {
         return addTradeToClosedMarket(tradeView);
     }
 
-    private Trade addTradeToOpenMarket(final TradeView tradeView) {
+    private Trade addTradeToOpenMarket(TradeView tradeView) {
         if (tradeView.getAction() == Action.SELL) {
             // Sell trades will increase the trade quantity of the stock records only when the market is open.
             // If the market is closed, the quantity only increases after the market is opened.
@@ -72,7 +72,7 @@ public final class TradeServiceImpl implements TradeService {
         return toReturn;
     }
 
-    private Trade addTradeToClosedMarket(final TradeView tradeView) {
+    private Trade addTradeToClosedMarket(TradeView tradeView) {
         // By default, trade will be set to OPEN status.
         tradeView.setStatus(Status.OPEN);
 
@@ -90,7 +90,7 @@ public final class TradeServiceImpl implements TradeService {
      * transfer service, then remove the trade quantity from the stock records.
      */
     @Override
-    public void reconcileMarket(final String symbol) {
+    public void reconcileMarket(String symbol) {
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 
@@ -154,7 +154,7 @@ public final class TradeServiceImpl implements TradeService {
      *
      * The market maker has customerId = 0 and accountId = 0.
      */
-    private void registerBuyTrade(final TradeView tradeView) {
+    private void registerBuyTrade(TradeView tradeView) {
         Integer customerId = tradeView.getCustomerId();
         Integer accountId = tradeView.getAccountId();
         if (customerId == 0 && accountId == 0) {
@@ -175,7 +175,7 @@ public final class TradeServiceImpl implements TradeService {
      *
      * The market maker has customerId = 0 and accountId = 0.
      */
-    private void registerSellTrade(final TradeView tradeView) {
+    private void registerSellTrade(TradeView tradeView) {
         Integer customerId = tradeView.getCustomerId();
         Integer accountId = tradeView.getAccountId();
         String symbol = tradeView.getSymbol();
@@ -194,7 +194,7 @@ public final class TradeServiceImpl implements TradeService {
         }
     }
 
-    private void completeBuyTrade(final Trade trade, final Double totalPrice) {
+    private void completeBuyTrade(Trade trade, Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
@@ -210,7 +210,7 @@ public final class TradeServiceImpl implements TradeService {
         fundTransferService.deductBalance(customerId, accountId, totalPrice);
     }
 
-    private void completeSellTrade(final Trade trade, final Double totalPrice) {
+    private void completeSellTrade(Trade trade, Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
@@ -226,13 +226,13 @@ public final class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public Trade getTrade(final Integer tradeId) {
+    public Trade getTrade(Integer tradeId) {
         return tradeRepo.findById(tradeId)
                     .orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
     @Override
-    public Trade getBestBuy(final String symbol) {
+    public Trade getBestBuy(String symbol) {
         Trade bestSell = getBestLimitSellBySymbol(symbol);
         Trade bestMarket = getBestMarketBuyBySymbol(symbol);
         Trade bestLimit = getBestLimitBuyBySymbol(symbol);
@@ -261,7 +261,7 @@ public final class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public Trade getBestSell(final String symbol) {
+    public Trade getBestSell(String symbol) {
         Trade bestBuy = getBestLimitBuyBySymbol(symbol);
         Trade bestMarket = getBestMarketSellBySymbol(symbol);
         Trade bestLimit = getBestLimitSellBySymbol(symbol);
@@ -288,29 +288,29 @@ public final class TradeServiceImpl implements TradeService {
         }
     }
 
-    private Trade getBestMarketBuyBySymbol(final String symbol) {
+    private Trade getBestMarketBuyBySymbol(String symbol) {
         return tradeRepo.findBestMarketBuyBySymbol(symbol).orElse(null);
     }
 
-    private Trade getBestMarketSellBySymbol(final String symbol) {
+    private Trade getBestMarketSellBySymbol(String symbol) {
         return tradeRepo.findBestMarketSellBySymbol(symbol).orElse(null);
     }
 
-    private Trade getBestLimitBuyBySymbol(final String symbol) {
+    private Trade getBestLimitBuyBySymbol(String symbol) {
         return tradeRepo.findBestLimitBuyBySymbol(symbol).orElse(null);
     }
 
-    private Trade getBestLimitSellBySymbol(final String symbol) {
+    private Trade getBestLimitSellBySymbol(String symbol) {
         return tradeRepo.findBestLimitSellBySymbol(symbol).orElse(null);
     }
 
     @Override
-    public List<Trade> getAllUserOpenTrades(final Long customerId) {
+    public List<Trade> getAllUserOpenTrades(Long customerId) {
         return tradeRepo.findAllByCustomerId(customerId);
     }
 
     @Override
-    public Trade updateTrade(final Trade newTrade) {
+    public Trade updateTrade(Trade newTrade) {
         Integer tradeId = newTrade.getId();
         return tradeRepo.findById(tradeId).map(trade -> {
             trade.setPrice(newTrade.getPrice());
@@ -329,7 +329,7 @@ public final class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public Trade cancelTrade(final Integer tradeId) {
+    public Trade cancelTrade(Integer tradeId) {
         Trade trade = getTrade(tradeId);
         if (trade == null) {
             throw new TradeNotFoundException(tradeId);
@@ -340,7 +340,7 @@ public final class TradeServiceImpl implements TradeService {
 
 
     @Override
-    public Trade saveMarketMakerTrade(final TradeView tradeView) {
+    public Trade saveMarketMakerTrade(TradeView tradeView) {
         // By default, trade will be set to OPEN status.
         tradeView.setStatus(Status.OPEN);
 
@@ -355,17 +355,17 @@ public final class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public List<Trade> getAllSellTradesBySymbol(final String symbol) {
+    public List<Trade> getAllSellTradesBySymbol(String symbol) {
         return tradeRepo.findAllSellTradesBySymbol(symbol);
     }
 
     @Override
-    public List<Trade> getAllBuyTradesBySymbol(final String symbol) {
+    public List<Trade> getAllBuyTradesBySymbol(String symbol) {
         return tradeRepo.findAllBuyTradesBySymbol(symbol);
     }
 
     @Override
-    public Integer getTotalBidVolume(final String symbol) {
+    public Integer getTotalBidVolume(String symbol) {
         List<Trade> buyTrades = getAllBuyTradesBySymbol(symbol);
         Integer totalBuyFilledQuantity = 0;
         Integer totalBuyQuantity = 0;
@@ -380,7 +380,7 @@ public final class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public Integer getTotalAskVolume(final String symbol) {
+    public Integer getTotalAskVolume(String symbol) {
         List<Trade> sellTrades = getAllSellTradesBySymbol(symbol);
         Integer totalSellFilledQuantity = 0;
         Integer totalSellQuantity = 0;

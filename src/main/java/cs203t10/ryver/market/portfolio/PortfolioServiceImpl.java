@@ -17,7 +17,7 @@ import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.util.DoubleUtils;
 
 @Service
-public final class PortfolioServiceImpl implements PortfolioService {
+public class PortfolioServiceImpl implements PortfolioService {
 
     @Autowired
     private PortfolioRepository portfolios;
@@ -29,12 +29,12 @@ public final class PortfolioServiceImpl implements PortfolioService {
     private StockRecordService stockRecordService;
 
     @Override
-    public Portfolio findByCustomerId(final Integer customerId) {
+    public Portfolio findByCustomerId(Integer customerId) {
         return portfolios.findByCustomerId(customerId).orElseThrow(() -> new PortfolioNotFoundException(customerId));
     }
 
     @Override
-    public Portfolio findByCustomerIdElseCreate(final Integer customerId) {
+    public Portfolio findByCustomerIdElseCreate(Integer customerId) {
         Portfolio portfolio = portfolios.findByCustomerId(customerId).orElse(null);
         if (portfolio == null) {
             List<Asset> assetList = new ArrayList<>();
@@ -46,7 +46,7 @@ public final class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public Portfolio savePortfolio(final PortfolioInitial portfolioInitial) {
+    public Portfolio savePortfolio(PortfolioInitial portfolioInitial) {
         try {
             return portfolios.save(portfolioInitial.toPortfolio());
         } catch (DataIntegrityViolationException e) {
@@ -55,7 +55,7 @@ public final class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public PortfolioInfoViewableByCustomer viewPortfolio(final Integer customerId) {
+    public PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId) {
         Portfolio portfolio = findByCustomerIdElseCreate(customerId);
         List<Asset> assetList = assetService.findByPortfolioCustomerId(customerId);
 
@@ -81,11 +81,11 @@ public final class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public Integer getQuantityOfAsset(final Integer customerId, final String code) {
+    public Integer getQuantityOfAsset(Integer customerId, String code) {
         return assetService.getQuantityByPortfolioCustomerIdAndCode(customerId, code);
     }
 
-    public Portfolio processSellTrade(final Trade trade) {
+    public Portfolio processSellTrade(Trade trade) {
         Integer customerId = trade.getCustomerId();
         Portfolio portfolio = findByCustomerIdElseCreate(customerId);
         String code = trade.getStock().getSymbol();
@@ -100,7 +100,7 @@ public final class PortfolioServiceImpl implements PortfolioService {
         return portfolios.save(portfolio);
     }
 
-    public Portfolio processBuyTrade(final Trade trade) {
+    public Portfolio processBuyTrade(Trade trade) {
         Integer customerId = trade.getCustomerId();
         Portfolio portfolio = findByCustomerIdElseCreate(customerId);
         String code = trade.getStock().getSymbol();

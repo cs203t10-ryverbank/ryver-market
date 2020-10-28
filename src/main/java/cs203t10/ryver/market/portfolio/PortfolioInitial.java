@@ -14,7 +14,7 @@ import lombok.*;
 @Getter @Setter @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
 @EqualsAndHashCode
-public final class PortfolioInitial {
+public class PortfolioInitial {
 
     @Id
     @JsonProperty("customer_id")

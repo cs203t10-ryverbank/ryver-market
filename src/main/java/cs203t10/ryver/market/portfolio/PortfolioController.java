@@ -10,14 +10,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
-public final class PortfolioController {
+public class PortfolioController {
 
     @Autowired
     private PortfolioService portfolioService;
 
     @GetMapping("/portfolio")
     @PreAuthorize("hasRole('USER')")
-    public PortfolioInfoViewableByCustomer viewPortfolio(@AuthenticationPrincipal final RyverPrincipal principal) {
+    public PortfolioInfoViewableByCustomer viewPortfolio(@AuthenticationPrincipal RyverPrincipal principal) {
         return portfolioService.viewPortfolio(Math.toIntExact(principal.uid));
     }
 

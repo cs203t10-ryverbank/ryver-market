@@ -5,7 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
-public final class PrincipalService {
+public class PrincipalService {
 
     public RyverPrincipal getPrincipal() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

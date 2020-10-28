@@ -27,15 +27,15 @@ import static cs203t10.ryver.market.security.SecurityConstants.BEARER_PREFIX;
 import static cs203t10.ryver.market.security.SecurityConstants.SECRET;
 import static cs203t10.ryver.market.security.SecurityConstants.UID_KEY;
 
-public final class JWTAuthorizationFilter extends BasicAuthenticationFilter {
+public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-    public JWTAuthorizationFilter(final AuthenticationManager authManager) {
+    public JWTAuthorizationFilter(AuthenticationManager authManager) {
         super(authManager);
     }
 
     @Override
-    protected void doFilterInternal(final HttpServletRequest request,
-            final HttpServletResponse response, final FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         String header = request.getHeader(AUTH_HEADER_KEY);
 
@@ -57,7 +57,7 @@ public final class JWTAuthorizationFilter extends BasicAuthenticationFilter {
      * Verify the JWT of a request.
      * @return An authentication token if the JWT is valid, or null if it is not.
      */
-    private UsernamePasswordAuthenticationToken getAuthentication(final HttpServletRequest request) {
+    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String token = request.getHeader(AUTH_HEADER_KEY);
         if (token == null || !token.startsWith(BEARER_PREFIX)) {
             return null;
@@ -67,8 +67,8 @@ public final class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                 .verify(token.replace(BEARER_PREFIX, ""));
 
         // Extract the username (subject) and uid from the JWT.
-        final Long uid = jwt.getClaim(UID_KEY).asLong();
-        final String username = jwt.getSubject();
+        Long uid = jwt.getClaim(UID_KEY).asLong();
+        String username = jwt.getSubject();
         if (username == null || uid == null) {
             return null;
         }
@@ -76,7 +76,7 @@ public final class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         RyverPrincipal principal = new RyverPrincipal(uid, username, token.replace(BEARER_PREFIX, ""));
 
         // Extract the authorities from the JWT.
-        final Collection<? extends GrantedAuthority> authorities =
+        Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(jwt.getClaim(AUTHORITIES_KEY).asString().split(","))
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());

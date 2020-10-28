@@ -18,7 +18,7 @@ import cs203t10.ryver.market.trade.Trade.Status;
 
 @Component
 @Service
-public final class ScheduledTradeService {
+public class ScheduledTradeService {
 
     @Autowired
     private StockRepository stockRepo;

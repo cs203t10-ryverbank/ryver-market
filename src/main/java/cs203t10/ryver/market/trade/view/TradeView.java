@@ -52,7 +52,7 @@ public class TradeView {
     @Builder.Default
     private Double avgPrice = 0.0;
 
-    public static TradeView fromTrade(final Trade trade) {
+    public static TradeView fromTrade(Trade trade) {
         if (trade == null) {
             throw new RuntimeException("Cannot build trade view from null trade");
         }

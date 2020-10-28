@@ -13,7 +13,7 @@ import cs203t10.ryver.market.stock.StockRepository;
  * Scrape SGX for updated Straits Time Index data.
  */
 @Service
-public final class FakeScrapingService implements ScrapingService {
+public class FakeScrapingService implements ScrapingService {
 
     @Autowired
     private StockRepository stockRepo;

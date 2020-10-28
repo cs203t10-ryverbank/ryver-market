@@ -11,7 +11,7 @@ import cs203t10.ryver.market.stock.exception.*;
  * Scrape SGX for updated Straits Time Index data.
  */
 @Service
-public final class StockRecordServiceImpl implements StockRecordService {
+public class StockRecordServiceImpl implements StockRecordService {
 
     @Autowired
     private StockRecordRepository stockRecordRepo;
@@ -22,7 +22,7 @@ public final class StockRecordServiceImpl implements StockRecordService {
     }
 
     @Override
-    public StockRecord getLatestStockRecordBySymbol(final String symbol) {
+    public StockRecord getLatestStockRecordBySymbol(String symbol) {
         return stockRecordRepo
                 .findLatestBySymbol(symbol)
                 .orElseThrow(() -> new NoSuchStockException(symbol));
@@ -30,7 +30,7 @@ public final class StockRecordServiceImpl implements StockRecordService {
 
     @Override
     public StockRecord updateStockRecordRemoveFromMarket(
-            final String symbol, final Double price, final Integer quantityToRemove) {
+            String symbol, Double price, Integer quantityToRemove) {
         StockRecord stockRecord = getLatestStockRecordBySymbol(symbol);
         stockRecord.setPrice(price);
         Integer initialQuantity = stockRecord.getTotalVolume();
@@ -40,7 +40,7 @@ public final class StockRecordServiceImpl implements StockRecordService {
     }
 
     @Override
-    public StockRecord updateStockRecordAddToMarket(final String symbol, final Integer quantityToAdd) {
+    public StockRecord updateStockRecordAddToMarket(String symbol, Integer quantityToAdd) {
         StockRecord stockRecord = getLatestStockRecordBySymbol(symbol);
         Integer initialQuantity = stockRecord.getTotalVolume();
         stockRecord.setTotalVolume(initialQuantity + quantityToAdd);

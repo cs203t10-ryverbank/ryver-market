@@ -8,7 +8,7 @@ public class StockNotOwnedException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public StockNotOwnedException(final Integer customerId, final String code) {
+    public StockNotOwnedException(Integer customerId, String code) {
         super(String.format("Customer with id: %s does not own any stocks with symbol: %s", customerId, code));
     }
 

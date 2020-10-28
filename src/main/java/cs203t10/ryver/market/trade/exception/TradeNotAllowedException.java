@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class TradeNotAllowedException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public TradeNotAllowedException(final Integer tradeId, final Integer customerId) {
+    public TradeNotAllowedException(Integer tradeId, Integer customerId) {
         super(String.format("Trade with id: %s was not made by customer with id: %s", tradeId, customerId));
     }
 
-    public TradeNotAllowedException(final Integer postBodyCustomerId) {
+    public TradeNotAllowedException(Integer postBodyCustomerId) {
         super(String.format("Trade must be made by customer with id: %s", postBodyCustomerId));
     }
 }

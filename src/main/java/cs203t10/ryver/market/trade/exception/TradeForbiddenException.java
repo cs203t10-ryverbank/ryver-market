@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class TradeForbiddenException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public TradeForbiddenException(final Integer quantity) {
+    public TradeForbiddenException(Integer quantity) {
         super(String.format("Trade with quantity: %s must be multiple of 100", quantity));
     }
 

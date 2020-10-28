@@ -23,7 +23,7 @@ import static cs203t10.ryver.market.security.SecurityConstants.BEARER_PREFIX;
 import static cs203t10.ryver.market.security.SecurityConstants.MARKET_JWT;
 
 @Service
-public final class FundTransferService {
+public class FundTransferService {
 
     @Autowired
     private DiscoveryClient discoveryClient;
@@ -70,7 +70,7 @@ public final class FundTransferService {
     }
 
 
-    public void deductAvailableBalance(final Integer customerId, final Integer accountId, final Double amount)
+    public void deductAvailableBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getUserHttpEntity();
@@ -94,7 +94,7 @@ public final class FundTransferService {
         System.out.println("Deduct Available Balance: " + response.getBody());
     }
 
-    public void addAvailableBalance(final Integer customerId, final Integer accountId, final Double amount)
+    public void addAvailableBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
@@ -106,7 +106,7 @@ public final class FundTransferService {
         System.out.println("Deduct Available Balance: " + response.getBody());
     }
 
-    public void deductBalance(final Integer customerId, final Integer accountId, final Double amount)
+    public void deductBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
@@ -130,7 +130,7 @@ public final class FundTransferService {
         System.out.println("Deduct Balance: " + response.getBody());
     }
 
-    public void addBalance(final Integer customerId, final Integer accountId, final Double amount)
+    public void addBalance(Integer customerId, Integer accountId, Double amount)
             throws AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
@@ -152,8 +152,8 @@ public final class FundTransferService {
         System.out.println("Add Balance: " + response.getBody());
     }
 
-    public void resetAvailableBalance(final Integer customerId, final Integer accountId)
-    throws AccountNotAllowedException {
+    public void resetAvailableBalance(Integer customerId, Integer accountId)
+            throws AccountNotAllowedException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
         ResponseEntity<String> response = restTemplate.exchange(

@@ -24,7 +24,7 @@ import cs203t10.ryver.market.trade.view.TradeView;
 
 @RestController
 @RolesAllowed("USER")
-public final class TradeController {
+public class TradeController {
 
     @Autowired
     private TradeService tradeService;
@@ -42,7 +42,7 @@ public final class TradeController {
 
     @GetMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
-    public TradeView getTrade(@PathVariable final Integer tradeId) {
+    public TradeView getTrade(@PathVariable Integer tradeId) {
         RyverPrincipal principal = principalService.getPrincipal();
         Trade retrievedTrade = tradeService.getTrade(tradeId);
         System.out.println("test: " + retrievedTrade == null);
@@ -58,7 +58,7 @@ public final class TradeController {
     @PostMapping("/trades")
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.CREATED)
-    public TradeView addTrade(@Valid @RequestBody final TradeView tradeView) {
+    public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
         RyverPrincipal principal = principalService.getPrincipal();
 
         if (principal.uid.intValue() != tradeView.getCustomerId()) {
@@ -71,7 +71,7 @@ public final class TradeController {
 
     @PutMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
-    public TradeView cancelTrade(@PathVariable final Integer tradeId) {
+    public TradeView cancelTrade(@PathVariable Integer tradeId) {
         return TradeView.fromTrade(tradeService.cancelTrade(tradeId));
     }
 

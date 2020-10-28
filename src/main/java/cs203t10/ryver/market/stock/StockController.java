@@ -13,7 +13,7 @@ import cs203t10.ryver.market.trade.TradeService;
 
 @RestController
 @RolesAllowed({"MANAGER", "USER"})
-public final class StockController {
+public class StockController {
 
     @Autowired
     private StockRecordService stockRecordService;
@@ -42,7 +42,7 @@ public final class StockController {
     }
 
     @GetMapping("/stocks/{symbol}")
-    public StockRecordView getLatestStockRecord(@PathVariable final String symbol) {
+    public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
         Integer bidVolume = tradeService.getTotalBidVolume(symbol);
         Integer askVolume = tradeService.getTotalAskVolume(symbol);

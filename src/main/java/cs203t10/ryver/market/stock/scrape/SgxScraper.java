@@ -20,7 +20,7 @@ import cs203t10.ryver.market.stock.StockRecord;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfAllElementsLocatedBy;
 
-public final class SgxScraper {
+public class SgxScraper {
 
     public static final String SGX_URL = "https://www.sgx.com/indices/products/sti/";
 
@@ -112,7 +112,7 @@ public final class SgxScraper {
             .build().perform();
     }
 
-    private StockRecord getStock(final WebElement row) {
+    private StockRecord getStock(WebElement row) {
         Stock stock = Stock.builder().symbol(getSymbol(row)).build();
         return StockRecord.builder()
                 .stock(stock)
@@ -124,16 +124,16 @@ public final class SgxScraper {
                 .build();
     }
 
-    private static WebElement getCellWithId(final WebElement row, final String id) {
+    private static WebElement getCellWithId(WebElement row, String id) {
         String selector = String.format("[data-column-id='%s']", id);
         return row.findElement(By.cssSelector(selector));
     }
 
-    private static String getSymbol(final WebElement row) {
+    private static String getSymbol(WebElement row) {
         return getCellWithId(row, "nc").getAttribute("innerHTML");
     }
 
-    private static Double getLastPrice(final WebElement row) {
+    private static Double getLastPrice(WebElement row) {
         String value = getCellWithId(row, "lt").getAttribute("innerHTML");
         try {
             return Double.parseDouble(value);
@@ -144,7 +144,7 @@ public final class SgxScraper {
 
     private static final int VOLUME_MULTIPLIER = 1000;
 
-    private static Integer getTotalVolume(final WebElement row) {
+    private static Integer getTotalVolume(WebElement row) {
         String value = getCellWithId(row, "vl").getAttribute("innerHTML");
         value = value.replaceAll(",", "");
         try {

@@ -10,13 +10,13 @@ import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 
 
-public final class FakeScraper {
+public class FakeScraper {
 
     private static final int PRICE_INDEX = 0;
     private static final int VOLUME_INDEX = 2;
     private static final int SYMBOL_INDEX = 3;
 
-    private List<String> getRecordFromLine(final String line) {
+    private List<String> getRecordFromLine(String line) {
         List<String> values = new ArrayList<String>();
         try (Scanner rowScanner = new Scanner(line)) {
             rowScanner.useDelimiter(",");

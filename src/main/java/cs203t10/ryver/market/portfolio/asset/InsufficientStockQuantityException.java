@@ -8,7 +8,7 @@ public class InsufficientStockQuantityException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public InsufficientStockQuantityException(final Integer customerId, final String code) {
+    public InsufficientStockQuantityException(Integer customerId, String code) {
         super(String.format(
                     "Customer with id: %s does not own a large enough quantity"
                     + " of the stock with symbol: %s for this action",

@@ -6,7 +6,7 @@ import lombok.*;
 
 @Data
 @AllArgsConstructor
-public final class AssetInfoViewableByCustomer {
+public class AssetInfoViewableByCustomer {
 
     @JsonProperty("code")
     private String code;

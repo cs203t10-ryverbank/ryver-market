@@ -25,7 +25,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 @Import(BeanValidatorPluginsConfiguration.class)
-public final class SwaggerConfig {
+public class SwaggerConfig {
 
     @Bean
     public Docket springfoxDocket() {

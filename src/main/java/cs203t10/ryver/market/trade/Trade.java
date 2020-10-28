@@ -14,9 +14,9 @@ import lombok.*;
 @Entity
 @Data @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
-public final class Trade {
+public class Trade {
 
-    public Trade(final Stock stock) {
+    public Trade(Stock stock) {
         this();
         this.stock = stock;
     }

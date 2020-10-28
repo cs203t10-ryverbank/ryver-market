@@ -34,13 +34,13 @@ public class StockRecordView {
     @Builder.Default
     private Double ask = 0.0;
 
-    public static StockRecordView fromRecordAskBid(final StockRecord record) {
+    public static StockRecordView fromRecordAskBid(StockRecord record) {
         return fromRecordAskBid(record, null, null, 0, 0);
     }
 
     public static StockRecordView fromRecordAskBid(
-            final StockRecord record, final Trade bestBuy, final Trade bestSell,
-            final Integer bidVolume, final Integer askVolume) {
+            StockRecord record, Trade bestBuy, Trade bestSell,
+            Integer bidVolume, Integer askVolume) {
         // TODO: Take in an arraylist of all stock records
 
         // Process each stock record

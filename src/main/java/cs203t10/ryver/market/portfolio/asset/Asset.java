@@ -12,7 +12,7 @@ import lombok.*;
 @Getter @Setter @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
 @EqualsAndHashCode
-public final class Asset {
+public class Asset {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

@@ -17,7 +17,7 @@ import cs203t10.ryver.market.trade.view.TradeView;
 // TODO: At 9am, inject liquidity - can use cron Expression
 
 @Service
-public final class MarketMaker {
+public class MarketMaker {
 
     public static final int MIN_QUANTITY = 20_000;
     public static final double NEW_BID_RATIO = 0.9;
@@ -41,7 +41,7 @@ public final class MarketMaker {
         }
     }
 
-    public void makeNewBuyTradesAtPrice(final String symbol, final Double price) {
+    public void makeNewBuyTradesAtPrice(String symbol, Double price) {
         // The liquid quantity = Total Quantity - Filled Quantity
         Long totalQuantity = tradeRepo.getBuyQuantityBySymbol(symbol) - tradeRepo.getBuyFilledQuantityBySymbol(symbol);
         // If liquidity is low, then make new trades
@@ -59,7 +59,7 @@ public final class MarketMaker {
         }
     }
 
-    public void makeNewSellTradesAtPrice(final String symbol, final Double price) {
+    public void makeNewSellTradesAtPrice(String symbol, Double price) {
         // The liquid quantity = Total Quantity - Filled Quantity
         Long totalQuantity = tradeRepo.getSellQuantityBySymbol(symbol)
                 - tradeRepo.getSellFilledQuantityBySymbol(symbol);

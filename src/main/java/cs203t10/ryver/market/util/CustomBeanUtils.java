@@ -10,14 +10,14 @@ import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
 
-public final class CustomBeanUtils extends BeanUtils {
+public class CustomBeanUtils extends BeanUtils {
 
-    public static void copyNonNullProperties(final Object source, final Object target) throws BeansException {
+    public static void copyNonNullProperties(Object source, Object target) throws BeansException {
         BeanUtils.copyProperties(source, target, getNullPropertyNames(source));
     }
 
-    private static String[] getNullPropertyNames(final Object source) {
-        final BeanWrapper wrappedSource = new BeanWrapperImpl(source);
+    private static String[] getNullPropertyNames(Object source) {
+        BeanWrapper wrappedSource = new BeanWrapperImpl(source);
         return Stream.of(wrappedSource.getPropertyDescriptors())
                 .map(FeatureDescriptor::getName)
                 .filter(propertyName ->
@@ -25,9 +25,9 @@ public final class CustomBeanUtils extends BeanUtils {
                 .toArray(String[]::new);
     }
 
-    public static boolean nonNullIsSubsetOf(final Object source, final Object target) throws BeansException {
-        final BeanWrapper wrappedSource = new BeanWrapperImpl(source);
-        final BeanWrapper wrappedTarget = new BeanWrapperImpl(target);
+    public static boolean nonNullIsSubsetOf(Object source, Object target) throws BeansException {
+        BeanWrapper wrappedSource = new BeanWrapperImpl(source);
+        BeanWrapper wrappedTarget = new BeanWrapperImpl(target);
         Set<String> sourceNonNullProperties = Stream.of(wrappedSource.getPropertyDescriptors())
                 .map(FeatureDescriptor::getName)
                 .filter(propertyName ->
@@ -40,9 +40,9 @@ public final class CustomBeanUtils extends BeanUtils {
     }
 
     public static <T> T getPropertyValueWithName(
-            final Object source, final String propertyName, final Class<T> type)
+            Object source, String propertyName, Class<T> type)
             throws BeansException {
-        final BeanWrapper wrappedSource = new BeanWrapperImpl(source);
+        BeanWrapper wrappedSource = new BeanWrapperImpl(source);
         try {
             @SuppressWarnings("unchecked")
             T value = (T) wrappedSource.getPropertyValue(propertyName);
