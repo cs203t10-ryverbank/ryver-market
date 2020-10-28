@@ -23,19 +23,17 @@ import cs203t10.ryver.market.portfolio.PortfolioService;
 import cs203t10.ryver.market.portfolio.asset.Asset;
 import cs203t10.ryver.market.portfolio.asset.AssetService;
 import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
-import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
-import cs203t10.ryver.market.trade.exception.*;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
 import cs203t10.ryver.market.maker.MarketMaker;
 
 @Component
 @Service
-public class TradeServiceImpl implements TradeService {
+public final class TradeServiceImpl implements TradeService {
 
     @Autowired
     private FundTransferService fundTransferService;
@@ -56,15 +54,15 @@ public class TradeServiceImpl implements TradeService {
     private MarketMaker marketMaker;
 
     @Override
-    public Trade saveTrade(TradeView tradeView) {
+    public Trade saveTrade(final TradeView tradeView) {
         Date todayDate = getCurrentDate();
         tradeView.setSubmittedDate(todayDate);
 
-        // Checks for valid date.
-        if (checkInvalidSubmittedDate(tradeView)){
+        // TODO: Checks for valid date.
+        if (checkInvalidSubmittedDate(tradeView)) {
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
             String strCurrentTime = formatter.format(todayDate);
-            //throw new TradeInvalidDateException(strCurrentTime);
+            // throw new TradeInvalidDateException(strCurrentTime);
         }
 
         // If buy trade, deduct available balance.
@@ -87,7 +85,8 @@ public class TradeServiceImpl implements TradeService {
         // Reconcile market status after adding trade.
         reconcileMarket(tradeView.getSymbol());
 
-        // EDIT: See closeMarket() method. Uses @Scheduled to close market every time it is 5pm.
+        // EDIT: See closeMarket() method. Uses @Scheduled to close market
+        // every time it is 5pm.
         // If limit order, expire the trade by 5PM.
 
         return getTrade(trade.getId());
@@ -102,23 +101,25 @@ public class TradeServiceImpl implements TradeService {
      *
      * The market maker has customerId = 0 and accountId = 0.
      */
-    private void reconcileMarket(String symbol){
+    private void reconcileMarket(final String symbol) {
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 
-        // The market undergoes reconciliation as long as there is a bestSell and bestBuy.
+        // The market undergoes reconciliation as long as there is a bestSell
+        // and bestBuy.
         while (bestSell != null && bestBuy != null) {
             // Determine transactedPrice.
             Double transactedPrice = 0.0;
-            if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0){
+            if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0) {
                 // Get last price if there are no prices available.
-                StockRecord latestStock = stockRecordService.getLatestStockRecordBySymbol(symbol);
+                StockRecord latestStock
+                    = stockRecordService.getLatestStockRecordBySymbol(symbol);
                 transactedPrice = latestStock.getPrice();
-            } else if (bestSell.getPrice() == 0){
+            } else if (bestSell.getPrice() == 0) {
                 transactedPrice = bestBuy.getPrice();
-            } else if (bestBuy.getPrice() == 0 || bestBuy.getPrice() > bestSell.getPrice()){
+            } else if (bestBuy.getPrice() == 0 || bestBuy.getPrice() > bestSell.getPrice()) {
                 transactedPrice = bestSell.getPrice();
-            } else if (bestBuy.getPrice() < bestSell.getPrice()){
+            } else if (bestBuy.getPrice() < bestSell.getPrice()) {
                 return;
             }
 
@@ -126,7 +127,7 @@ public class TradeServiceImpl implements TradeService {
             Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
             Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
             Integer transactedQuantity = buyQuantity;
-            if (sellQuantity < buyQuantity){
+            if (sellQuantity < buyQuantity) {
                 transactedQuantity = sellQuantity;
             }
 
@@ -164,7 +165,7 @@ public class TradeServiceImpl implements TradeService {
      *
      * The market maker has customerId = 0 and accountId = 0.
      */
-    private void registerBuyTrade(TradeView tradeView) {
+    private void registerBuyTrade(final TradeView tradeView) {
         Integer customerId = tradeView.getCustomerId();
         Integer accountId = tradeView.getAccountId();
         if (customerId == 0 && accountId == 0) {
@@ -185,7 +186,7 @@ public class TradeServiceImpl implements TradeService {
      *
      * The market maker has customerId = 0 and accountId = 0.
      */
-    private void registerSellTrade(TradeView tradeView) {
+    private void registerSellTrade(final TradeView tradeView) {
         Integer customerId = tradeView.getCustomerId();
         Integer accountId = tradeView.getAccountId();
         String symbol = tradeView.getSymbol();
@@ -194,7 +195,6 @@ public class TradeServiceImpl implements TradeService {
             return;
         }
 
-        // TODO: HOTFIX write proper method to check if account belongs customerId?
         // Deducts $0 from the account available balance to check if account belongs to customer.
         fundTransferService.deductAvailableBalance(customerId, accountId, 0.0);
 
@@ -209,7 +209,7 @@ public class TradeServiceImpl implements TradeService {
         stockRecordService.updateStockRecordAddToMarket(symbol, quantity);
     }
 
-    private void completeBuyTrade(Trade trade, Double totalPrice) {
+    private void completeBuyTrade(final Trade trade, final Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
@@ -225,7 +225,7 @@ public class TradeServiceImpl implements TradeService {
         fundTransferService.deductBalance(customerId, accountId, totalPrice);
     }
 
-    private void completeSellTrade(Trade trade, Double totalPrice) {
+    private void completeSellTrade(final Trade trade, final Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
@@ -233,7 +233,7 @@ public class TradeServiceImpl implements TradeService {
             return;
         }
         // Deduct stocks from seller portfolio.
-        Portfolio portfolio = portfolioService.processSellTrade(trade);
+        portfolioService.processSellTrade(trade);
 
         // Add balance to seller's account.
         fundTransferService.addBalance(customerId, accountId, totalPrice);
@@ -241,19 +241,25 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public Trade getTrade(Integer tradeId) {
+    public Trade getTrade(final Integer tradeId) {
         return tradeRepo.findById(tradeId)
                     .orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
     @Override
-    public Trade getBestBuy(String symbol) {
-        Trade bestSell =getBestLimitSellBySymbol(symbol);
+    public Trade getBestBuy(final String symbol) {
+        Trade bestSell = getBestLimitSellBySymbol(symbol);
         Trade bestMarket = getBestMarketBuyBySymbol(symbol);
         Trade bestLimit = getBestLimitBuyBySymbol(symbol);
-        if (bestMarket == null && bestLimit == null) return null;
-        if (bestLimit == null) return bestMarket;
-        if (bestMarket == null) return bestLimit;
+        if (bestMarket == null && bestLimit == null) {
+            return null;
+        }
+        if (bestLimit == null) {
+            return bestMarket;
+        }
+        if (bestMarket == null) {
+            return bestLimit;
+        }
 
         if (bestSell == null) {
             return bestMarket.getSubmittedDate().before(bestLimit.getSubmittedDate())
@@ -270,13 +276,19 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public Trade getBestSell(String symbol) {
-        Trade bestBuy =getBestLimitBuyBySymbol(symbol);
+    public Trade getBestSell(final String symbol) {
+        Trade bestBuy = getBestLimitBuyBySymbol(symbol);
         Trade bestMarket = getBestMarketSellBySymbol(symbol);
         Trade bestLimit = getBestLimitSellBySymbol(symbol);
-        if (bestMarket == null && bestLimit == null) return null;
-        if (bestLimit == null) return bestMarket;
-        if (bestMarket == null) return bestLimit;
+        if (bestMarket == null && bestLimit == null) {
+            return null;
+        }
+        if (bestLimit == null) {
+            return bestMarket;
+        }
+        if (bestMarket == null) {
+            return bestLimit;
+        }
 
         if (bestBuy == null) {
             return bestMarket.getSubmittedDate().before(bestLimit.getSubmittedDate())
@@ -291,38 +303,38 @@ public class TradeServiceImpl implements TradeService {
         }
     }
 
-    private Trade getBestMarketBuyBySymbol(String symbol) {
+    private Trade getBestMarketBuyBySymbol(final String symbol) {
         return tradeRepo.findBestMarketBuyBySymbol(symbol).orElse(null);
     }
 
-    private Trade getBestMarketSellBySymbol(String symbol) {
+    private Trade getBestMarketSellBySymbol(final String symbol) {
         return tradeRepo.findBestMarketSellBySymbol(symbol).orElse(null);
     }
 
-    private Trade getBestLimitBuyBySymbol(String symbol) {
+    private Trade getBestLimitBuyBySymbol(final String symbol) {
         return tradeRepo.findBestLimitBuyBySymbol(symbol).orElse(null);
     }
 
-    private Trade getBestLimitSellBySymbol(String symbol) {
+    private Trade getBestLimitSellBySymbol(final String symbol) {
         return tradeRepo.findBestLimitSellBySymbol(symbol).orElse(null);
     }
 
     @Override
-    public List<Trade> getAllUserOpenTrades(Long customerId) {
+    public List<Trade> getAllUserOpenTrades(final Long customerId) {
         return tradeRepo.findAllByCustomerId(customerId);
     }
 
     @Override
-    public Trade updateTrade(Trade newTrade) {
+    public Trade updateTrade(final Trade newTrade) {
         Integer tradeId = newTrade.getId();
         return tradeRepo.findById(tradeId).map(trade -> {
             trade.setPrice(newTrade.getPrice());
             trade.setFilledQuantity(newTrade.getFilledQuantity());
 
             // Set status
-            if (trade.getFilledQuantity().equals(trade.getQuantity())){
+            if (trade.getFilledQuantity().equals(trade.getQuantity())) {
                 trade.setStatus(Status.FILLED);
-            } else if (trade.getFilledQuantity() > 0){
+            } else if (trade.getFilledQuantity() > 0) {
                 trade.setStatus(Status.PARTIAL_FILLED);
             } else {
                 trade.setStatus(Status.OPEN);
@@ -332,14 +344,16 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public Trade cancelTrade(Integer tradeId) {
+    public Trade cancelTrade(final Integer tradeId) {
         Trade trade = getTrade(tradeId);
-        if(trade == null) throw new TradeNotFoundException(tradeId);
+        if (trade == null) {
+            throw new TradeNotFoundException(tradeId);
+        }
         trade.setStatus(Status.CANCELLED);
         return tradeRepo.save(trade);
     }
 
-    public boolean checkInvalidSubmittedDate(TradeView tradeView) {
+    public boolean checkInvalidSubmittedDate(final TradeView tradeView) {
         // Returns true if date is invalid
         // Check if the post is made on a weekday, between 9am and 5pm.
         Date todayDate = getCurrentDate();
@@ -356,12 +370,12 @@ public class TradeServiceImpl implements TradeService {
         // }
 
         // Trade is invalid if not made on the current date.
-        if (!isSameDay(todayDate,tradeDate)){
+        if (!isSameDay(todayDate, tradeDate)) {
             return true;
         }
 
         // Trade is invalid if it is made before current time.
-        if (tradeDate.before(todayDate)){
+        if (tradeDate.before(todayDate)) {
             return true;
         }
 
@@ -374,7 +388,7 @@ public class TradeServiceImpl implements TradeService {
         return false;
     }
 
-    public static boolean isSameDay(Date date1, Date date2) {
+    public static boolean isSameDay(final Date date1, final Date date2) {
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
         return fmt.format(date1).equals(fmt.format(date2));
     }
@@ -399,7 +413,7 @@ public class TradeServiceImpl implements TradeService {
             Integer customerId = trade.getCustomerId();
             Integer accountId = trade.getAccountId();
             String uniqueCustomerAccount = Integer.toString(customerId) + Integer.toString(accountId);
-            if (trade.getStatus().equals(Status.EXPIRED)){
+            if (trade.getStatus().equals(Status.EXPIRED)) {
                 continue;
             }
             if (customerId == 0 && accountId == 0) {
@@ -408,7 +422,7 @@ public class TradeServiceImpl implements TradeService {
             trade.setStatus(Status.EXPIRED);
 
             // Checks if customer-account pair has already been added to the list.
-            if (!customerAccountSet.contains(uniqueCustomerAccount)){
+            if (!customerAccountSet.contains(uniqueCustomerAccount)) {
                 customerAccountSet.add(uniqueCustomerAccount);
                 Integer[] customerAccountPair = {customerId, accountId};
                 customerAccountList.add(customerAccountPair);
@@ -417,7 +431,7 @@ public class TradeServiceImpl implements TradeService {
         }
 
         // For each account-customer pair, reset available balance.
-        for (Integer[] pair : customerAccountList){
+        for (Integer[] pair : customerAccountList) {
             Integer customerId = pair[0];
             Integer accountId = pair[1];
             // reset balance using FTS
@@ -426,7 +440,7 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public Trade saveMarketMakerTrade(TradeView tradeView) {
+    public Trade saveMarketMakerTrade(final TradeView tradeView) {
         // By default, trade will be set to OPEN status.
         tradeView.setStatus(Status.OPEN);
 
@@ -441,38 +455,38 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public List <Trade> getAllSellTradesBySymbol(String symbol){
+    public List<Trade> getAllSellTradesBySymbol(final String symbol) {
         return tradeRepo.findAllSellTradesBySymbol(symbol);
     };
 
     @Override
-    public List <Trade> getAllBuyTradesBySymbol(String symbol){
+    public List<Trade> getAllBuyTradesBySymbol(final String symbol) {
         return tradeRepo.findAllBuyTradesBySymbol(symbol);
     };
 
     @Override
-    public Integer getTotalBidVolume(String symbol){
+    public Integer getTotalBidVolume(final String symbol) {
         List<Trade> buyTrades = getAllBuyTradesBySymbol(symbol);
         Integer totalBuyFilledQuantity = 0;
         Integer totalBuyQuantity = 0;
-        for (Trade trade : buyTrades){
+        for (Trade trade : buyTrades) {
             totalBuyQuantity += trade.getQuantity();
             totalBuyFilledQuantity += trade.getFilledQuantity();
 
-            System.out.println("Buy Qty: "+ trade.getQuantity());
-            System.out.println("Buy Filled Qty: "+ trade.getFilledQuantity());
+            System.out.println("Buy Qty: " + trade.getQuantity());
+            System.out.println("Buy Filled Qty: " + trade.getFilledQuantity());
         }
         return totalBuyQuantity - totalBuyFilledQuantity;
     }
 
     @Override
-    public Integer getTotalAskVolume(String symbol){
+    public Integer getTotalAskVolume(final String symbol) {
         List<Trade> sellTrades = getAllSellTradesBySymbol(symbol);
         Integer totalSellFilledQuantity = 0;
         Integer totalSellQuantity = 0;
-        for (Trade trade : sellTrades){
-            System.out.println("Ask Qty: "+ trade.getQuantity());
-            System.out.println("Ask Filled Qty: "+ trade.getFilledQuantity());
+        for (Trade trade : sellTrades) {
+            System.out.println("Ask Qty: " + trade.getQuantity());
+            System.out.println("Ask Filled Qty: " + trade.getFilledQuantity());
             totalSellQuantity += trade.getQuantity();
             totalSellFilledQuantity += trade.getFilledQuantity();
         }
@@ -480,7 +494,7 @@ public class TradeServiceImpl implements TradeService {
     }
 
     @Override
-    public void resetTrades(){
+    public void resetTrades() {
         tradeRepo.deleteAll();
         portfolioService.resetPortfolios();
         assetService.resetAssets();
