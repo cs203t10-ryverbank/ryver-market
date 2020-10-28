@@ -1,19 +1,11 @@
 package cs203t10.ryver.market.trade;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import cs203t10.ryver.market.exception.TradeInvalidDateException;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.maker.MarketMaker;
@@ -62,6 +54,8 @@ public final class TradeServiceImpl implements TradeService {
         // If sell trade, add to stock records and check if stocks available.
         if (tradeView.getAction() == Action.SELL) {
             registerSellTrade(tradeView);
+            // Add to stock records
+            stockRecordService.updateStockRecordAddToMarket(tradeView.getSymbol(), tradeView.getQuantity());
         }
 
         // By default, trade will be set to OPEN status.
@@ -209,8 +203,6 @@ public final class TradeServiceImpl implements TradeService {
         if (quantity > assetQuantityOwned) {
             throw new InsufficientStockQuantityException(customerId, symbol);
         }
-        // Add to stock records
-        stockRecordService.updateStockRecordAddToMarket(symbol, quantity);
     }
 
     private void completeBuyTrade(final Trade trade, final Double totalPrice) {
