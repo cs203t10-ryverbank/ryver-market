@@ -91,7 +91,8 @@ public final class TradeServiceImpl implements TradeService {
      *
      * The market maker has customerId = 0 and accountId = 0.
      */
-    private void reconcileMarket(final String symbol) {
+    @Override
+    public void reconcileMarket(final String symbol) {
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
 

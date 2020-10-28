@@ -18,4 +18,5 @@ public interface TradeService {
     List<Trade> getAllUserOpenTrades(Long customerId);
     Trade cancelTrade(Integer tradeId);
     void resetTrades();
+    void reconcileMarket(String symbol);
 }
