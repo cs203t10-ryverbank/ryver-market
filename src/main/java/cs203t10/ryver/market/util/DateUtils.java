@@ -47,7 +47,7 @@ public class DateUtils {
         return isFuture(date, getCurrentDate());
     }
 
-    private static Date getCurrentDate() {
+    public static Date getCurrentDate() {
         ZoneId defaultZoneId = ZoneId.systemDefault();
         LocalDateTime localDate = LocalDateTime.now();
         Date todayDate = Date.from(localDate.atZone(defaultZoneId).toInstant());

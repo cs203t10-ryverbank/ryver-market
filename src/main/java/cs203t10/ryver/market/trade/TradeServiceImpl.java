@@ -39,6 +39,9 @@ public class TradeServiceImpl implements TradeService {
 
     @Override
     public Trade saveTrade(TradeView tradeView) {
+        // Set date for new trade
+        tradeView.setSubmittedDate(DateUtils.getCurrentDate());
+
         // Register the trade against the FTS and ensure the trade is valid.
         if (tradeView.getAction() == Action.BUY) {
             registerBuyTrade(tradeView);
