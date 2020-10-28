@@ -1,7 +1,5 @@
 package cs203t10.ryver.market.portfolio;
 
-import javax.annotation.security.RolesAllowed;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,14 +10,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 @RestController
-public class PortfolioController {
+public final class PortfolioController {
 
     @Autowired
     private PortfolioService portfolioService;
 
     @GetMapping("/portfolio")
     @PreAuthorize("hasRole('USER')")
-    public PortfolioInfoViewableByCustomer viewPortfolio(@AuthenticationPrincipal RyverPrincipal principal) {
+    public PortfolioInfoViewableByCustomer viewPortfolio(@AuthenticationPrincipal final RyverPrincipal principal) {
         return portfolioService.viewPortfolio(Math.toIntExact(principal.uid));
     }
 

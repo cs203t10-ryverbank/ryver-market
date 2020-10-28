@@ -8,7 +8,7 @@ public class PortfolioAlreadyExistsException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public PortfolioAlreadyExistsException(Integer customerId) {
+    public PortfolioAlreadyExistsException(final Integer customerId) {
         super(String.format("Portfolio with customer id: %s already exists", customerId));
     }
 

@@ -4,12 +4,13 @@ import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
 
 public interface PortfolioService {
-    public Portfolio findByCustomerId(Integer customerId);
-    public Portfolio findByCustomerIdElseCreate(Integer customerId);
-    public Portfolio savePortfolio(PortfolioInitial portfolioInitial);
-    public PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId);
-    public Integer getQuantityOfAsset(Integer customerId, String code);
-    public Portfolio processBuyTrade(Trade trade);
-    public Portfolio processSellTrade(Trade trade);
-    public void resetPortfolios();
+    Portfolio findByCustomerId(Integer customerId);
+    Portfolio findByCustomerIdElseCreate(Integer customerId);
+    Portfolio savePortfolio(PortfolioInitial portfolioInitial);
+    PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId);
+    Integer getQuantityOfAsset(Integer customerId, String code);
+    Portfolio processBuyTrade(Trade trade);
+    Portfolio processSellTrade(Trade trade);
+    void resetPortfolios();
 }
+

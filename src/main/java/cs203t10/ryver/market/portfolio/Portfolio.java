@@ -27,4 +27,6 @@ public class Portfolio {
 
     @NotNull(message = "Total gain/loss cannot be null")
     private Double totalGainLoss;
+
 }
+

@@ -11,15 +11,17 @@ import lombok.*;
 @AllArgsConstructor
 public class PortfolioInfoViewableByCustomer {
 
-  @JsonProperty("customer_id")
-  private Integer customerId;
+    @JsonProperty("customer_id")
+    private Integer customerId;
 
-  @JsonProperty("assets")
-  private List<AssetInfoViewableByCustomer> assets;
+    @JsonProperty("assets")
+    private List<AssetInfoViewableByCustomer> assets;
 
-  @JsonProperty("unrealized_gain_loss")
-  private Double unrealizedGainLoss;
+    @JsonProperty("unrealized_gain_loss")
+    private Double unrealizedGainLoss;
 
-  @JsonProperty("total_gain_loss")
-  private Double totalGainLoss;
+    @JsonProperty("total_gain_loss")
+    private Double totalGainLoss;
+
 }
+

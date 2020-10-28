@@ -8,7 +8,7 @@ public class PortfolioNotFoundException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public PortfolioNotFoundException(Integer customerId) {
+    public PortfolioNotFoundException(final Integer customerId) {
         super(String.format("Portfolio with customer id: %s not found", customerId));
     }
 

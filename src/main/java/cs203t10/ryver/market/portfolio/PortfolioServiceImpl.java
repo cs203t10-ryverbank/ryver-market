@@ -14,9 +14,10 @@ import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade;
+import cs203t10.ryver.market.util.DoubleUtils;
 
 @Service
-public class PortfolioServiceImpl implements PortfolioService {
+public final class PortfolioServiceImpl implements PortfolioService {
 
     @Autowired
     private PortfolioRepository portfolios;
@@ -28,32 +29,33 @@ public class PortfolioServiceImpl implements PortfolioService {
     private StockRecordService stockRecordService;
 
     @Override
-    public Portfolio findByCustomerId(Integer customerId) {
+    public Portfolio findByCustomerId(final Integer customerId) {
         return portfolios.findByCustomerId(customerId).orElseThrow(() -> new PortfolioNotFoundException(customerId));
     }
 
     @Override
-    public Portfolio findByCustomerIdElseCreate(Integer customerId) {
+    public Portfolio findByCustomerIdElseCreate(final Integer customerId) {
         Portfolio portfolio = portfolios.findByCustomerId(customerId).orElse(null);
         if (portfolio == null) {
             List<Asset> assetList = new ArrayList<>();
             PortfolioInitial portfolioInitial = new PortfolioInitial(customerId, assetList, 0.0);
             return portfolios.save(portfolioInitial.toPortfolio());
-        } else return portfolio;
+        } else {
+            return portfolio;
+        }
     }
 
     @Override
-    public Portfolio savePortfolio(PortfolioInitial portfolioInitial) {
+    public Portfolio savePortfolio(final PortfolioInitial portfolioInitial) {
         try {
-			return portfolios.save(portfolioInitial.toPortfolio());
-		}
-		catch (DataIntegrityViolationException e) {
-			throw new PortfolioAlreadyExistsException(portfolioInitial.getCustomerId());
-		}
+            return portfolios.save(portfolioInitial.toPortfolio());
+        } catch (DataIntegrityViolationException e) {
+            throw new PortfolioAlreadyExistsException(portfolioInitial.getCustomerId());
+        }
     }
 
     @Override
-    public PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId) {
+    public PortfolioInfoViewableByCustomer viewPortfolio(final Integer customerId) {
         Portfolio portfolio = findByCustomerIdElseCreate(customerId);
         List<Asset> assetList = assetService.findByPortfolioCustomerId(customerId);
 
@@ -66,25 +68,24 @@ public class PortfolioServiceImpl implements PortfolioService {
             Double averagePrice = asset.getAveragePrice();
             StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
             Double currentPrice = stockRecord.getPrice();
-            Double gainLoss = quantity * (currentPrice - averagePrice);
-            gainLoss *= 100;
-            gainLoss = (double) Math.round(gainLoss);
-            gainLoss /= 100;
-            AssetInfoViewableByCustomer assetInfoViewableByCustomer = new AssetInfoViewableByCustomer(code, quantity, averagePrice, currentPrice, asset.getValue(), gainLoss);
+            Double gainLoss = DoubleUtils.getRoundedToNearestCent(quantity * (currentPrice - averagePrice));
+            AssetInfoViewableByCustomer assetInfoViewableByCustomer = new AssetInfoViewableByCustomer(
+                    code, quantity, averagePrice, currentPrice, asset.getValue(), gainLoss);
             assetInfoList.add(assetInfoViewableByCustomer);
             unrealizedGainLoss += gainLoss;
         }
 
-        PortfolioInfoViewableByCustomer portfolioInfoViewableByCustomer = new PortfolioInfoViewableByCustomer(portfolio.getCustomerId(), assetInfoList, unrealizedGainLoss, portfolio.getTotalGainLoss());
+        PortfolioInfoViewableByCustomer portfolioInfoViewableByCustomer = new PortfolioInfoViewableByCustomer(
+                portfolio.getCustomerId(), assetInfoList, unrealizedGainLoss, portfolio.getTotalGainLoss());
         return portfolioInfoViewableByCustomer;
     }
 
     @Override
-    public Integer getQuantityOfAsset(Integer customerId, String code) {
+    public Integer getQuantityOfAsset(final Integer customerId, final String code) {
         return assetService.getQuantityByPortfolioCustomerIdAndCode(customerId, code);
     }
 
-    public Portfolio processSellTrade(Trade trade) {
+    public Portfolio processSellTrade(final Trade trade) {
         Integer customerId = trade.getCustomerId();
         Portfolio portfolio = findByCustomerIdElseCreate(customerId);
         String code = trade.getStock().getSymbol();
@@ -94,15 +95,12 @@ public class PortfolioServiceImpl implements PortfolioService {
         StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
         Double currentPrice = stockRecord.getPrice();
         Double sellPrice = trade.getPrice();
-        Double gainLoss = filledQuantity * (sellPrice - currentPrice);
-        gainLoss *= 100;
-        gainLoss = (double) Math.round(gainLoss);
-        gainLoss /= 100;
+        Double gainLoss = DoubleUtils.getRoundedToNearestCent(filledQuantity * (sellPrice - currentPrice));
         portfolio.setTotalGainLoss(portfolio.getTotalGainLoss() + gainLoss);
         return portfolios.save(portfolio);
     }
 
-    public Portfolio processBuyTrade(Trade trade) {
+    public Portfolio processBuyTrade(final Trade trade) {
         Integer customerId = trade.getCustomerId();
         Portfolio portfolio = findByCustomerIdElseCreate(customerId);
         String code = trade.getStock().getSymbol();
@@ -113,8 +111,10 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public void resetPortfolios(){
+    public void resetPortfolios() {
         assetService.resetAssets();
         portfolios.deleteAll();
     }
+
 }
+

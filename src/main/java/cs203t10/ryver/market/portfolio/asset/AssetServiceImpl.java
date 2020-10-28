@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.portfolio.Portfolio;
 import cs203t10.ryver.market.portfolio.PortfolioService;
+import cs203t10.ryver.market.util.DoubleUtils;
 
 @Service
 public final class AssetServiceImpl implements AssetService {
@@ -68,20 +69,13 @@ public final class AssetServiceImpl implements AssetService {
         }
         Integer newQuantity = asset.getQuantity() + quantity;
         Double newValue = asset.getValue() + (quantity * unitPrice);
-        Double newAveragePrice = getRoundedToNearestCent(newValue / newQuantity);
+        Double newAveragePrice = DoubleUtils.getRoundedToNearestCent(newValue / newQuantity);
         asset.setQuantity(newQuantity);
         asset.setValue(newValue);
         asset.setAveragePrice(newAveragePrice);
         return assets.save(asset);
     }
 
-    private Double getRoundedToNearestCent(final Double value) {
-        final int centsPerDollar = 100;
-        Double roundedValue = value * centsPerDollar;
-        roundedValue = (double) Math.round(value);
-        roundedValue /= centsPerDollar;
-        return roundedValue;
-    }
 
     @Override
     public void resetAssets() {
