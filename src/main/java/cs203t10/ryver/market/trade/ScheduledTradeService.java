@@ -88,6 +88,10 @@ public class ScheduledTradeService {
             Integer customerId = pair.get(0);
             Integer accountId = pair.get(1);
             // Reset balance using FTS
+            if (accountId == 0 && customerId == 0){
+                // Do not reset if it is a market maker trade.
+                continue;
+            }
             fundTransferService.resetAvailableBalance(customerId, accountId);
         }
     }
