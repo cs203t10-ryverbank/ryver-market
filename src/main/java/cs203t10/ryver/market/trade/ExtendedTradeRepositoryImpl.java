@@ -17,7 +17,7 @@ import cs203t10.ryver.market.trade.Trade.Action;
 
 import cs203t10.ryver.market.stock.exception.*;
 
-public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
+public final class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -26,7 +26,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     private TradeRepository tradeRepo;
 
     @Override
-    public Trade saveWithSymbol(Trade trade, String symbol) {
+    public Trade saveWithSymbol(final Trade trade, final String symbol) {
         try {
             Stock stockRef = entityManager.getReference(Stock.class, symbol);
             trade.setStock(stockRef);
@@ -37,7 +37,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public Optional<Trade> findLatestBySymbol(String symbol) {
+    public Optional<Trade> findLatestBySymbol(final String symbol) {
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
@@ -58,7 +58,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public List<Trade> findAllByCustomerId(Long customerId) {
+    public List<Trade> findAllByCustomerId(final Long customerId) {
         String jpql = "FROM Trade WHERE customer_id = :customer_id";
         TypedQuery<Trade> query = entityManager.createQuery(jpql, Trade.class);
         return query
@@ -67,7 +67,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public List<Trade> findAllSellTradesBySymbol(String symbol) {
+    public List<Trade> findAllSellTradesBySymbol(final String symbol) {
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
@@ -84,7 +84,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public List<Trade> findAllBuyTradesBySymbol(String symbol) {
+    public List<Trade> findAllBuyTradesBySymbol(final String symbol) {
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
@@ -101,19 +101,19 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public Optional<Trade> findBestMarketBuyBySymbol(String symbol) {
+    public Optional<Trade> findBestMarketBuyBySymbol(final String symbol) {
         return findBestMarketBySymbol(symbol, Action.BUY);
     }
 
     @Override
-    public Optional<Trade> findBestMarketSellBySymbol(String symbol) {
+    public Optional<Trade> findBestMarketSellBySymbol(final String symbol) {
         return findBestMarketBySymbol(symbol, Action.SELL);
     }
 
     /**
      * The best market trade is determined by submitted date.
      */
-    private Optional<Trade> findBestMarketBySymbol(String symbol, Action action) {
+    private Optional<Trade> findBestMarketBySymbol(final String symbol, final Action action) {
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
@@ -137,18 +137,18 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public Optional<Trade> findBestLimitBuyBySymbol(String symbol) {
+    public Optional<Trade> findBestLimitBuyBySymbol(final String symbol) {
         return findBestLimitBySymbol(symbol, Action.BUY);
     }
 
     @Override
-    public Optional<Trade> findBestLimitSellBySymbol(String symbol) {
+    public Optional<Trade> findBestLimitSellBySymbol(final String symbol) {
         return findBestLimitBySymbol(symbol, Action.SELL);
     }
 
-    private Optional<Trade> findBestLimitBySymbol(String symbol, Action action) {
+    private Optional<Trade> findBestLimitBySymbol(final String symbol, final Action action) {
         String bestFunction = action.equals(Action.BUY) ? "MAX" : "MIN";
-        //TODO: edit status to use query manager
+        // TODO: edit status to use query manager
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",
@@ -175,26 +175,26 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
-    public Long getBuyQuantityBySymbol(String symbol) {
+    public Long getBuyQuantityBySymbol(final String symbol) {
         return getQuantityBySymbol(symbol, Action.BUY);
     }
 
     @Override
-    public Long getBuyFilledQuantityBySymbol(String symbol) {
+    public Long getBuyFilledQuantityBySymbol(final String symbol) {
         return getFilledQuantityBySymbol(symbol, Action.BUY);
     }
 
     @Override
-    public Long getSellQuantityBySymbol(String symbol) {
+    public Long getSellQuantityBySymbol(final String symbol) {
         return getQuantityBySymbol(symbol, Action.SELL);
     }
 
     @Override
-    public Long getSellFilledQuantityBySymbol(String symbol) {
+    public Long getSellFilledQuantityBySymbol(final String symbol) {
         return getFilledQuantityBySymbol(symbol, Action.BUY);
     }
 
-    private Long getQuantityBySymbol(String symbol, Action action) {
+    private Long getQuantityBySymbol(final String symbol, final Action action) {
         final String sql = String.join(" ",
             "SELECT IFNULL(SUM(quantity), 0) FROM TRADE",
             "WHERE stock_id = :stock_id",
@@ -208,7 +208,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         return result.longValue();
     }
 
-    private Long getFilledQuantityBySymbol(String symbol, Action action) {
+    private Long getFilledQuantityBySymbol(final String symbol, final Action action) {
         final String sql = String.join(" ",
             "SELECT IFNULL(SUM(filled_quantity), 0) FROM TRADE",
             "WHERE stock_id = :stock_id",

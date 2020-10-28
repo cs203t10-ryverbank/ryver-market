@@ -14,9 +14,9 @@ import lombok.*;
 @Entity
 @Data @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
-public class Trade {
+public final class Trade {
 
-    public Trade(Stock stock) {
+    public Trade(final Stock stock) {
         this();
         this.stock = stock;
     }
@@ -41,11 +41,13 @@ public class Trade {
     @Builder.Default
     private Integer quantity = 0;
 
+    private static final int TRADE_MIN_RES = 100;
     public Integer getQuantity() {
-        if (quantity % 100 != 0)
+        if (quantity % TRADE_MIN_RES != 0) {
             throw new TradeForbiddenException(quantity);
-        else
+        } else {
             return quantity;
+        }
     }
 
     @Builder.Default
