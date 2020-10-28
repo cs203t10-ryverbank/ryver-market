@@ -8,7 +8,7 @@ public class InsufficientBalanceException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public InsufficientBalanceException(Integer accountId, Double amount, Double balance) {
+    public InsufficientBalanceException(final Integer accountId, final Double amount, final Double balance) {
         super(String.format(
                     "Account with id: %s has insufficient balance: withdrawing %s from %s",
                     accountId, amount, balance));
