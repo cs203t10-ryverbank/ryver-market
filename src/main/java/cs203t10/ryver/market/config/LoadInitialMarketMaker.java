@@ -9,13 +9,13 @@ import cs203t10.ryver.market.maker.MarketMaker;
 
 @Component
 @Order(2)
-public class LoadInitialMarketMaker implements CommandLineRunner {
+public final class LoadInitialMarketMaker implements CommandLineRunner {
 
     @Autowired
-    MarketMaker marketMaker;
+    private MarketMaker marketMaker;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(final String... args) throws Exception {
         marketMaker.makeNewTrades();
     }
 
