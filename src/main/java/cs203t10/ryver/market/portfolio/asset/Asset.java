@@ -4,7 +4,6 @@ import javax.persistence.*;
 
 import javax.validation.constraints.*;
 
-import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.portfolio.Portfolio;
 
 import lombok.*;
@@ -13,7 +12,7 @@ import lombok.*;
 @Getter @Setter @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
 @EqualsAndHashCode
-public class Asset {
+public final class Asset {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -24,7 +23,7 @@ public class Asset {
     private Portfolio portfolio;
 
     @NotNull(message = "Code cannot be null")
-    private String code; 
+    private String code;
 
     @NotNull(message = "Quantity cannot be null")
     private Integer quantity;
@@ -34,5 +33,6 @@ public class Asset {
 
     @NotNull(message = "Value cannot be null")
     private Double value;
+
 }
 
