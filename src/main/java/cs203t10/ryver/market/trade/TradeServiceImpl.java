@@ -24,6 +24,7 @@ import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
+import cs203t10.ryver.market.util.DateUtils;
 
 @Component
 @Service
@@ -46,16 +47,13 @@ public final class TradeServiceImpl implements TradeService {
 
     @Override
     public Trade saveTrade(final TradeView tradeView) {
-        Date todayDate = getCurrentDate();
-        tradeView.setSubmittedDate(todayDate);
-
-        // TODO: Checks for valid date.
-        if (isInvalidSubmittedDate(tradeView)) {
-            DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-            String strCurrentTime = formatter.format(todayDate);
-            throw new TradeInvalidDateException(strCurrentTime);
+        if (DateUtils.isMarketOpen(tradeView.getSubmittedDate())) {
+            return saveMarketOpenTrade(tradeView);
         }
+        return saveMarketClosedTrade(tradeView);
+    }
 
+    private Trade saveMarketOpenTrade(final TradeView tradeView) {
         // If buy trade, deduct available balance.
         if (tradeView.getAction() == Action.BUY) {
             registerBuyTrade(tradeView);
@@ -71,16 +69,33 @@ public final class TradeServiceImpl implements TradeService {
 
         // Save trade.
         Trade trade = tradeView.toTrade();
-        tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
+        Trade toReturn = tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
 
         // Reconcile market status after adding trade.
         reconcileMarket(tradeView.getSymbol());
 
-        // EDIT: See closeMarket() method. Uses @Scheduled to close market
-        // every time it is 5pm.
-        // If limit order, expire the trade by 5PM.
+        return toReturn;
+    }
 
-        return getTrade(trade.getId());
+    private Trade saveMarketClosedTrade(final TradeView tradeView) {
+        // If buy trade, deduct available balance.
+        if (tradeView.getAction() == Action.BUY) {
+            registerBuyTrade(tradeView);
+        }
+
+        // If sell trade, add to stock records and check if stocks available.
+        if (tradeView.getAction() == Action.SELL) {
+            registerSellTrade(tradeView);
+        }
+
+        // By default, trade will be set to OPEN status.
+        tradeView.setStatus(Status.OPEN);
+
+        // Save trade.
+        Trade trade = tradeView.toTrade();
+        Trade toReturn = tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
+
+        return toReturn;
     }
 
     /**
@@ -342,50 +357,6 @@ public final class TradeServiceImpl implements TradeService {
         return tradeRepo.save(trade);
     }
 
-    /**
-     * An invalid date is one that is outside of 9am to 5pm, on a weekend, or not made on the current date.
-     */
-    public boolean isInvalidSubmittedDate(final TradeView tradeView) {
-        // Returns true if date is invalid
-        // Check if the post is made on a weekday, between 9am and 5pm.
-        Date todayDate = getCurrentDate();
-        Date tradeDate = tradeView.getSubmittedDate();
-
-        // Trade is made between 9am and 5pm.
-        DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-        String strCurrentTime = formatter.format(tradeDate);
-        LocalTime target = LocalTime.parse(strCurrentTime);
-
-        // NOTE: Commented segment off to test. Please uncomment before deploying.
-        if (target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("17:00:00"))) {
-            return true;
-        }
-
-        // Trade is invalid if not made on the current date.
-        if (!isSameDay(todayDate, tradeDate)) {
-            return true;
-        }
-
-        // Checks if it is a weekday
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(tradeDate);
-        if ((cal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean isSameDay(final Date date1, final Date date2) {
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
-        return fmt.format(date1).equals(fmt.format(date2));
-    }
-
-    private Date getCurrentDate() {
-        ZoneId defaultZoneId = ZoneId.systemDefault();
-        LocalDateTime localDate = LocalDateTime.now();
-        Date todayDate = Date.from(localDate.atZone(defaultZoneId).toInstant());
-        return todayDate;
-    }
 
     @Override
     public Trade saveMarketMakerTrade(final TradeView tradeView) {
