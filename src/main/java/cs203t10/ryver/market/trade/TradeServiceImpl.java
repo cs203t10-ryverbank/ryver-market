@@ -256,7 +256,7 @@ public class TradeServiceImpl implements TradeService {
 
         // The buy with a higher price is better, as it gives the
         // matcher (seller) more per stock traded.
-        if (bestLimit.getPrice() > bestSell.getPrice()) {
+        if (bestLimit.getPrice() >= bestSell.getPrice()) {
             return bestLimit;
         } else {
             return bestMarket;
@@ -284,7 +284,7 @@ public class TradeServiceImpl implements TradeService {
         }
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.
-        if (bestLimit.getPrice() < bestBuy.getPrice()) {
+        if (bestLimit.getPrice() <= bestBuy.getPrice()) {
             return bestLimit;
         } else {
             return bestMarket;
@@ -373,11 +373,10 @@ public class TradeServiceImpl implements TradeService {
         Integer totalBuyFilledQuantity = 0;
         Integer totalBuyQuantity = 0;
         for (Trade trade : buyTrades) {
-            totalBuyQuantity += trade.getQuantity();
-            totalBuyFilledQuantity += trade.getFilledQuantity();
-
-            System.out.println("Buy Qty: " + trade.getQuantity());
-            System.out.println("Buy Filled Qty: " + trade.getFilledQuantity());
+            if (checkValidStatus(trade)){
+                totalBuyQuantity += trade.getQuantity();
+                totalBuyFilledQuantity += trade.getFilledQuantity();
+            }
         }
         return totalBuyQuantity - totalBuyFilledQuantity;
     }
@@ -388,12 +387,20 @@ public class TradeServiceImpl implements TradeService {
         Integer totalSellFilledQuantity = 0;
         Integer totalSellQuantity = 0;
         for (Trade trade : sellTrades) {
-            System.out.println("Ask Qty: " + trade.getQuantity());
-            System.out.println("Ask Filled Qty: " + trade.getFilledQuantity());
-            totalSellQuantity += trade.getQuantity();
-            totalSellFilledQuantity += trade.getFilledQuantity();
+            if (checkValidStatus(trade)){
+                totalSellQuantity += trade.getQuantity();
+                totalSellFilledQuantity += trade.getFilledQuantity();
+            }
         }
         return totalSellQuantity - totalSellFilledQuantity;
+    }
+
+    public boolean checkValidStatus(Trade trade){
+        if (trade.getStatus().equals(Status.PARTIAL_FILLED)
+            ||trade.getStatus().equals(Status.OPEN)){
+                return true;
+            }
+        return false;
     }
 
     @Override
