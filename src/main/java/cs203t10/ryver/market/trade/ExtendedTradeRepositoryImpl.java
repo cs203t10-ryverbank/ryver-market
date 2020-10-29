@@ -122,6 +122,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
             "AND status != 'FILLED'",
             "AND status != 'CANCELLED'",
             "AND status != 'EXPIRED'",
+            "AND STATUS != 'INVALID'",
             "ORDER BY submitted_date"
         );
         Query query = entityManager
@@ -161,6 +162,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 "AND STATUS != 'FILLED'",
                 "AND STATUS != 'CANCELLED'",
                 "AND STATUS != 'EXPIRED'",
+                "AND STATUS != 'INVALID'",
             ")",
             "AND status != 'FILLED'",
             "ORDER BY submitted_date"

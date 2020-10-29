@@ -12,5 +12,10 @@ public class DoubleUtils {
         return roundedValue;
     }
 
+    public static Integer getRoundedToNearestHundred(double value) {
+        Integer stocksPerHundred = 100;
+        return ((int)value / 100 ) * stocksPerHundred;
+    }
+
 }
 

@@ -17,6 +17,7 @@ import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.util.DateUtils;
+import cs203t10.ryver.market.util.DoubleUtils;
 
 @Component
 @Service
@@ -50,26 +51,33 @@ public class TradeServiceImpl implements TradeService {
         tradeView.setSubmittedDate(DateUtils.getCurrentDate());
 
         // Register the trade against the FTS and ensure the trade is valid.
+        Double availableBalance = 0.0;
         if (tradeView.getAction() == Action.BUY) {
-            registerBuyTrade(tradeView);
+            // Note that available balance will only be set for market buys
+            // Limit buys, market sells and limit sells available balance
+            // will be set to 0.
+            availableBalance = registerBuyTrade(tradeView);
         } else {
             registerSellTrade(tradeView);
         }
 
         if (DateUtils.isMarketOpen(tradeView.getSubmittedDate())) {
-            return addTradeToOpenMarket(tradeView);
+            return addTradeToOpenMarket(tradeView, availableBalance);
         }
-        return addTradeToClosedMarket(tradeView);
+        return addTradeToClosedMarket(tradeView, availableBalance);
     }
 
     /**
     *  Add trades when market is open and market reconcile all trades
     */
-    private Trade addTradeToOpenMarket(TradeView tradeView) {
+    private Trade addTradeToOpenMarket(TradeView tradeView, Double availableBalance) {
         if (tradeView.getAction() == Action.SELL) {
-            // Sell trades will increase the trade quantity of the stock records only when the market is open.
-            // If the market is closed, the quantity only increases after the market is opened.
-            stockRecordService.updateStockRecordAddToMarket(tradeView.getSymbol(), tradeView.getQuantity());
+            // Sell trades will increase the trade quantity of the stock
+            // records only when the market is open.
+            // If the market is closed, the quantity only increases after
+            // the market is opened.
+            stockRecordService
+                .updateStockRecordAddToMarket(tradeView.getSymbol(), tradeView.getQuantity());
         }
 
         // By default, trade will be set to OPEN status.
@@ -77,6 +85,7 @@ public class TradeServiceImpl implements TradeService {
 
         // Save trade.
         Trade trade = tradeView.toTrade();
+        trade.setAvailableBalance(availableBalance);
         Trade toReturn = tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
 
         // Reconcile market status after adding trade.
@@ -88,12 +97,13 @@ public class TradeServiceImpl implements TradeService {
     /**
     *  Add trades to the market when it is closed
     */
-    private Trade addTradeToClosedMarket(TradeView tradeView) {
+    private Trade addTradeToClosedMarket(TradeView tradeView, Double availableBalance) {
         // By default, trade will be set to OPEN status.
         tradeView.setStatus(Status.OPEN);
 
         // Save trade.
         Trade trade = tradeView.toTrade();
+        trade.setAvailableBalance(availableBalance);
         Trade toReturn = tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
 
         return toReturn;
@@ -114,6 +124,8 @@ public class TradeServiceImpl implements TradeService {
         while (bestSell != null && bestBuy != null) {
             // Determine transactedPrice.
             Double transactedPrice = 0.0;
+            Boolean isMarketBuy = bestBuy.getPrice() == 0
+                ? true : false;
             if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0) {
                 // Get last price if there are no prices available.
                 StockRecord latestStock
@@ -141,8 +153,22 @@ public class TradeServiceImpl implements TradeService {
                 transactedQuantity = sellQuantity;
             }
 
+
             // Update filledQuantity and totalPrice for trades.
             Double totalPrice = transactedQuantity * transactedPrice;
+            System.out.println("TotalPrice: " + totalPrice);
+            System.out.println("Best buy: " + bestBuy.getAvailableBalance() );
+            // If market buy, check if available balance is sufficient
+            if (isMarketBuy
+                && totalPrice + bestBuy.getTotalPrice() > bestBuy.getAvailableBalance() ){
+                    transactedQuantity = DoubleUtils
+                        .getRoundedToNearestHundred((bestBuy.getAvailableBalance()-bestBuy.getTotalPrice())/transactedPrice);
+                    System.out.println("check!!!" + transactedQuantity);
+                    totalPrice = transactedPrice * transactedQuantity;
+                    // Label it invalid status.
+                    bestBuy.setStatus(Status.INVALID);
+                }
+
             bestBuy.setFilledQuantity(bestBuy.getFilledQuantity() + transactedQuantity);
             bestSell.setFilledQuantity(bestSell.getFilledQuantity() + transactedQuantity);
             bestBuy.setTotalPrice(bestBuy.getTotalPrice() + totalPrice);
@@ -175,17 +201,39 @@ public class TradeServiceImpl implements TradeService {
      *
      * The market maker has customerId = 0 and accountId = 0.
      */
-    private void registerBuyTrade(TradeView tradeView) {
+    private Double registerBuyTrade(TradeView tradeView) {
         Integer customerId = tradeView.getCustomerId();
         Integer accountId = tradeView.getAccountId();
         if (customerId == 0 && accountId == 0) {
-            return;
+            return 0.0;
         }
+
+        // Last price
+        StockRecord latestStock = stockRecordService
+                                .getLatestStockRecordBySymbol(tradeView.getSymbol());
+
+        Double lastPrice = latestStock.getPrice();
+        Trade bestBuy = getBestSell(tradeView.getSymbol());
+
+        Double bid;
+        if (tradeView.getBid() == 0.0){
+            if (bestBuy == null){
+                bid = lastPrice;
+            } else {
+                bid = bestBuy.getPrice();
+            }
+        } else {
+            bid = tradeView.getBid();
+        }
+
+        Double availableBalance = bid * tradeView.getQuantity();
 
         fundTransferService.deductAvailableBalance(
                 customerId, accountId,
-                tradeView.getBid() * tradeView.getQuantity()
+                availableBalance
         );
+
+        return availableBalance;
     }
 
     /**
@@ -358,7 +406,9 @@ public class TradeServiceImpl implements TradeService {
             trade.setFilledQuantity(newTrade.getFilledQuantity());
 
             // Set status
-            if (trade.getFilledQuantity().equals(trade.getQuantity())) {
+            if (trade.getStatus() == Status.INVALID){
+                return tradeRepo.save(trade);
+            } else if (trade.getFilledQuantity().equals(trade.getQuantity())) {
                 trade.setStatus(Status.FILLED);
             } else if (trade.getFilledQuantity() > 0) {
                 trade.setStatus(Status.PARTIAL_FILLED);

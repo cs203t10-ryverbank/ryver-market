@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cs203t10.ryver.market.security.PrincipalService;
 import cs203t10.ryver.market.security.RyverPrincipal;
+import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.exception.TradeNotAllowedException;
 import cs203t10.ryver.market.trade.exception.TradeNotFoundException;
 import cs203t10.ryver.market.trade.view.TradeView;
@@ -41,6 +42,12 @@ public class TradeController {
         RyverPrincipal principal = principalService.getPrincipal();
         return tradeService.getAllUserOpenTrades(principal.uid).stream()
                 .map(TradeView::fromTrade)
+                .map(tradeView -> {
+                    if (tradeView.getStatus() == Status.INVALID) {
+                        tradeView.setStatus(Status.PARTIAL_FILLED);
+                    }
+                    return tradeView;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -52,7 +59,9 @@ public class TradeController {
         Trade retrievedTrade = tradeService.getTrade(tradeId);
         System.out.println("test: " + retrievedTrade == null);
         TradeView retrievedTradeView =  TradeView.fromTrade(retrievedTrade);
-
+        if (retrievedTradeView.getStatus() == Status.INVALID) {
+            retrievedTradeView.setStatus(Status.PARTIAL_FILLED);
+        }
         if (principal.uid.intValue() != retrievedTradeView.getCustomerId()) {
             throw new TradeNotAllowedException(tradeId, principal.uid.intValue());
         }

@@ -59,11 +59,15 @@ public class Trade {
 
     private Date submittedDate;
 
+    @Builder.Default
+    private Double availableBalance = 0.0;
+
     @AllArgsConstructor
     public enum Status {
         OPEN("open"),
         FILLED("filled"),
         PARTIAL_FILLED("partial-filled"),
+        INVALID("invalid"),
         CANCELLED("cancelled"),
         EXPIRED("expired");
 
