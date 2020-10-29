@@ -47,7 +47,7 @@ public class TradeServiceTest {
     TradeView marketMakerBuy = TradeView.builder()
         .action(Action.BUY).symbol(TestConstants.STOCK.getSymbol())
         .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
-        .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+        .customerId(0).accountId(0)
         .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
         .bid(TestConstants.LOW_PRICE).avgPrice(0.0).build();
 
@@ -302,16 +302,16 @@ public class TradeServiceTest {
     // }
 
     // Why does this make marketMakerBuy a nullpointer?
-    // @Test
-    // public void registerBuyTradeTest_marketMaker_noRegister() {
-    //     tradeService.saveTrade(marketMakerBuy);
+    @Test
+    public void registerBuyTradeTest_marketMaker_noRegister() {
+        tradeService.saveTrade(marketMakerBuy);
 
-    //     // Ensure that the fund transfer service is not called.
-    //     verifyNoInteractions(fundTransferService);
-    //     verify(tradeRepo).saveWithSymbol(
-    //         marketMakerBuy.toTrade(),
-    //         marketMakerBuy.getSymbol());
-    // }
+        // Ensure that the fund transfer service is not called.
+        verifyNoInteractions(fundTransferService);
+        verify(tradeRepo).saveWithSymbol(
+            marketMakerBuy.toTrade(),
+            marketMakerBuy.getSymbol());
+    }
 
     @Test
     public void getTradeTest_nonExistentTrade() {
