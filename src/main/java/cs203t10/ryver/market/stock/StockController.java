@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import cs203t10.ryver.market.stock.view.StockRecordView;
 import cs203t10.ryver.market.trade.TradeService;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
-@RolesAllowed({"MANAGER", "USER"})
+@RolesAllowed("USER")
 public class StockController {
 
     @Autowired
@@ -22,6 +24,7 @@ public class StockController {
     private TradeService tradeService;
 
     @GetMapping("/stocks")
+    @ApiOperation(value = "Get all stocks")
     public List<StockRecordView> getAllLatestStockRecords() {
         List<StockRecord> latestStockRecords = stockRecordService.getAllLatestStockRecords();
 
@@ -42,6 +45,7 @@ public class StockController {
     }
 
     @GetMapping("/stocks/{symbol}")
+    @ApiOperation(value = "Get a stock by symbol")
     public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
         Integer bidVolume = tradeService.getTotalBidVolume(symbol);

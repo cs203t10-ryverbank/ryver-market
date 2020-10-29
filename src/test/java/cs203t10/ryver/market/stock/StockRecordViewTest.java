@@ -3,10 +3,9 @@ package cs203t10.ryver.market.stock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Date;
-
 import org.junit.jupiter.api.Test;
 
+import cs203t10.ryver.market.TestConstants;
 import cs203t10.ryver.market.stock.view.StockRecordView;
 import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.trade.Trade.Action;
@@ -14,33 +13,32 @@ import cs203t10.ryver.market.trade.Trade.Status;
 
 public class StockRecordViewTest {
 
-    Date firstDate = new Date(1602321010000L);
-
-    Stock testStock = new Stock("A1");
 
     StockRecord testRecord = StockRecord.builder()
-            .stock(testStock).submittedDate(firstDate)
+            .stock(TestConstants.STOCK).submittedDate(TestConstants.FIRST_DATE)
             .price(1.0).totalVolume(1000).build();
 
     Trade testBuy = Trade.builder()
-            .stock(testStock).action(Action.BUY)
-            .quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1)
-            .submittedDate(firstDate)
+            .stock(TestConstants.STOCK).action(Action.BUY)
+            .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+            .submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(1.18).build();
 
     Trade testSell = Trade.builder()
-            .stock(testStock).action(Action.SELL)
-            .quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1)
-            .submittedDate(firstDate)
+            .stock(TestConstants.STOCK).action(Action.SELL)
+            .quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+            .submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(1.23).build();
 
     @Test
     public void stockRecordViewFromStockRecordTest_noTrades() {
         var result = StockRecordView.fromRecordAskBid(testRecord);
         StockRecordView expected = StockRecordView.builder()
-                .symbol(testStock.getSymbol())
+                .symbol(TestConstants.SYMBOL)
+                .ask(testRecord.getPrice())
+                .bid(testRecord.getPrice())
                 .lastPrice(1.0)
                 .build();
 
@@ -58,7 +56,9 @@ public class StockRecordViewTest {
     public void stockRecordViewFromStockRecordTest_nullTrades() {
         var result = StockRecordView.fromRecordAskBid(testRecord, null, null, 0, 0);
         StockRecordView expected = StockRecordView.builder()
-                .symbol(testStock.getSymbol())
+                .symbol(TestConstants.SYMBOL)
+                .bid(testRecord.getPrice())
+                .ask(testRecord.getPrice())
                 .lastPrice(testRecord.getPrice())
                 .build();
         assertEquals(expected, result);
@@ -66,13 +66,13 @@ public class StockRecordViewTest {
 
     @Test
     public void stockRecordViewFromStockRecordTest() {
-        var result = StockRecordView.fromRecordAskBid(testRecord, testBuy, testSell, 0, 0);
+        var result = StockRecordView.fromRecordAskBid(testRecord, testBuy, testSell, 10000, 10000);
         StockRecordView expected = StockRecordView.builder()
-                .symbol(testStock.getSymbol()).lastPrice(testRecord.getPrice())
-                .bidVolume(testBuy.getQuantity()).bid(testBuy.getPrice())
-                .askVolume(testSell.getQuantity()).ask(testSell.getPrice())
+                .symbol(TestConstants.SYMBOL).lastPrice(testRecord.getPrice())
+                .bidVolume(TestConstants.BUY_QUANTITY).bid(testBuy.getPrice())
+                .askVolume(TestConstants.SELL_QUANTITY).ask(testSell.getPrice())
                 .build();
-        assertEquals(result, expected);
+        assertEquals(expected, result);
     }
 
 }

@@ -20,7 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import cs203t10.ryver.market.security.PrincipalService;
 import cs203t10.ryver.market.security.RyverPrincipal;
 import cs203t10.ryver.market.trade.exception.TradeNotAllowedException;
+import cs203t10.ryver.market.trade.exception.TradeNotFoundException;
 import cs203t10.ryver.market.trade.view.TradeView;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RolesAllowed("USER")
@@ -33,6 +36,7 @@ public class TradeController {
     private PrincipalService principalService;
 
     @GetMapping("/trades")
+    @ApiOperation(value = "Get all user trades")
     public List<TradeView> getAllUserTrades() {
         RyverPrincipal principal = principalService.getPrincipal();
         return tradeService.getAllUserOpenTrades(principal.uid).stream()
@@ -42,6 +46,7 @@ public class TradeController {
 
     @GetMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
+    @ApiOperation(value = "Get a user's trades")
     public TradeView getTrade(@PathVariable Integer tradeId) {
         RyverPrincipal principal = principalService.getPrincipal();
         Trade retrievedTrade = tradeService.getTrade(tradeId);
@@ -57,6 +62,7 @@ public class TradeController {
 
     @PostMapping("/trades")
     @PreAuthorize("hasRole('USER')")
+    @ApiOperation(value = "Add trade")
     @ResponseStatus(HttpStatus.CREATED)
     public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
         RyverPrincipal principal = principalService.getPrincipal();
@@ -71,13 +77,24 @@ public class TradeController {
 
     @PutMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
+    @ApiOperation(value = "Cancel trade")
     public TradeView cancelTrade(@PathVariable Integer tradeId) {
+        RyverPrincipal principal = principalService.getPrincipal();
+        Trade retrievedTrade = tradeService.getTrade(tradeId);
+        if (retrievedTrade == null){
+            throw new TradeNotFoundException(tradeId);
+        }
+        TradeView retrievedTradeView =  TradeView.fromTrade(retrievedTrade);
+        if (principal.uid.intValue() != retrievedTradeView.getCustomerId()) {
+            throw new TradeNotAllowedException(tradeId, principal.uid.intValue());
+        }
         return TradeView.fromTrade(tradeService.cancelTrade(tradeId));
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/reset")
     @RolesAllowed("MANAGER")
+    @ApiOperation(value = "Reset Market Trades")
     public void resetTrades() {
         tradeService.resetTrades();
     }

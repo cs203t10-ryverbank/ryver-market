@@ -17,7 +17,7 @@ Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb2
 
 {
     "action":"buy",
-    "symbol":"M44U",
+    "symbol":"C6L",
     "quantity": 2000,
     "bid":0,
     "ask":0,

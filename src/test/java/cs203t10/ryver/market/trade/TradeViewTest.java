@@ -3,10 +3,9 @@ package cs203t10.ryver.market.trade;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Date;
-
 import org.junit.jupiter.api.Test;
 
+import cs203t10.ryver.market.TestConstants;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
@@ -14,15 +13,13 @@ import cs203t10.ryver.market.trade.view.TradeView;
 
 public class TradeViewTest {
 
-    Date firstDate = new Date(1602321010000L);
-
     Stock testStock = new Stock("A1");
 
     Trade testBuy = Trade.builder()
             .stock(testStock).action(Action.BUY)
-            .quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1)
-            .submittedDate(firstDate)
+            .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+            .submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(1.18).build();
 
     TradeView testBuyView = TradeView.builder()
@@ -40,9 +37,9 @@ public class TradeViewTest {
 
     Trade testSell = Trade.builder()
             .stock(testStock).action(Action.SELL)
-            .quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1)
-            .submittedDate(firstDate)
+            .quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+            .submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(1.23).build();
 
     TradeView testSellView = TradeView.builder()
@@ -91,5 +88,23 @@ public class TradeViewTest {
         assertEquals(expected, result);
     }
 
+    @Test
+    public void tradeView_AveragePrice() {
+        Trade trade= Trade.builder()
+            .action(Action.BUY).stock(TestConstants.STOCK)
+            .quantity(TestConstants.BUY_QUANTITY)
+            .filledQuantity(TestConstants.PARTIAL_QUANTITY)
+            .customerId(TestConstants.CUSTOMER_ID)
+            .accountId(TestConstants.ACCOUNT_ID)
+            .submittedDate(TestConstants.FIRST_DATE)
+            .status(Status.PARTIAL_FILLED)
+            .totalPrice(20000.0)
+            .build();
+
+        TradeView tradeView = TradeView.fromTrade(trade);
+        Double expectedAveragePrice = 4.0;
+        Double actualAveragePrice = tradeView.getAvgPrice();
+        assertEquals(expectedAveragePrice, actualAveragePrice);
+    }
 }
 

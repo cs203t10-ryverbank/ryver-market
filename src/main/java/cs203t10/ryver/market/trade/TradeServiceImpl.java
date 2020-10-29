@@ -37,6 +37,13 @@ public class TradeServiceImpl implements TradeService {
     @Autowired
     private MarketMaker marketMaker;
 
+    /**
+    *  Whenever a user submits a trade, the trade is saved and added to the market
+    *
+    *  Firstly, its a Buy or Sell trade and registers the trade accordingly
+    *  If the market is open, trade is added and the market reconciles all trades
+    *  Else, trades are just added to the market with No reconcile
+    */
     @Override
     public Trade saveTrade(TradeView tradeView) {
         // Set date for new trade
@@ -55,6 +62,9 @@ public class TradeServiceImpl implements TradeService {
         return addTradeToClosedMarket(tradeView);
     }
 
+    /**
+    *  Add trades when market is open and market reconcile all trades
+    */
     private Trade addTradeToOpenMarket(TradeView tradeView) {
         if (tradeView.getAction() == Action.SELL) {
             // Sell trades will increase the trade quantity of the stock records only when the market is open.
@@ -75,6 +85,9 @@ public class TradeServiceImpl implements TradeService {
         return toReturn;
     }
 
+    /**
+    *  Add trades to the market when it is closed
+    */
     private Trade addTradeToClosedMarket(TradeView tradeView) {
         // By default, trade will be set to OPEN status.
         tradeView.setStatus(Status.OPEN);
@@ -197,6 +210,9 @@ public class TradeServiceImpl implements TradeService {
         }
     }
 
+    /**
+    *  Deduct and add actual balance of a buy trade accordingly.
+    */
     private void completeBuyTrade(Trade trade, Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
@@ -213,13 +229,18 @@ public class TradeServiceImpl implements TradeService {
         fundTransferService.deductBalance(customerId, accountId, totalPrice);
     }
 
+    /**
+    *  Deduct and add actual balance of a sell trade accordingly.
+    */
     private void completeSellTrade(Trade trade, Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
+        // Ignore trades made by market maker.
         if (customerId == 0 && accountId == 0) {
             return;
         }
+
         // Deduct stocks from seller portfolio.
         portfolioService.processSellTrade(trade);
 
@@ -228,12 +249,18 @@ public class TradeServiceImpl implements TradeService {
         fundTransferService.addAvailableBalance(customerId, accountId, totalPrice);
     }
 
+    /**
+    *  Retrieve trade using Id
+    */
     @Override
     public Trade getTrade(Integer tradeId) {
         return tradeRepo.findById(tradeId)
                     .orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
+    /**
+    *  Retrieve best buy from the market
+    */
     @Override
     public Trade getBestBuy(String symbol) {
         Trade bestSell = getBestLimitSellBySymbol(symbol);
@@ -256,13 +283,16 @@ public class TradeServiceImpl implements TradeService {
 
         // The buy with a higher price is better, as it gives the
         // matcher (seller) more per stock traded.
-        if (bestLimit.getPrice() > bestSell.getPrice()) {
+        if (bestLimit.getPrice() >= bestSell.getPrice()) {
             return bestLimit;
         } else {
             return bestMarket;
         }
     }
 
+    /**
+    *  Retrieve best sell from the market
+    */
     @Override
     public Trade getBestSell(String symbol) {
         Trade bestBuy = getBestLimitBuyBySymbol(symbol);
@@ -284,7 +314,7 @@ public class TradeServiceImpl implements TradeService {
         }
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.
-        if (bestLimit.getPrice() < bestBuy.getPrice()) {
+        if (bestLimit.getPrice() <= bestBuy.getPrice()) {
             return bestLimit;
         } else {
             return bestMarket;
@@ -312,6 +342,9 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.findAllByCustomerId(customerId);
     }
 
+    /**
+    *  Update a trade's status, price, filled quantity
+    */
     @Override
     public Trade updateTrade(Trade newTrade) {
         Integer tradeId = newTrade.getId();
@@ -331,6 +364,9 @@ public class TradeServiceImpl implements TradeService {
         }).orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
+    /**
+    *  Cancel trade by Id
+    */
     @Override
     public Trade cancelTrade(Integer tradeId) {
         Trade trade = getTrade(tradeId);
@@ -341,7 +377,11 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.save(trade);
     }
 
-
+    /**
+    *  Save a market trade
+    *
+    *  Adds market trade into the market and reconciles the trade
+    */
     @Override
     public Trade saveMarketMakerTrade(TradeView tradeView) {
         // By default, trade will be set to OPEN status.
@@ -367,35 +407,60 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.findAllBuyTradesBySymbol(symbol);
     }
 
+    /**
+    *  Retrieve total bid volume baserd on stock id
+    *
+    *  Difference between total buy quantity and filled buy quantity
+    *  of valid buy trades (open / partially-filled)
+    */
     @Override
     public Integer getTotalBidVolume(String symbol) {
         List<Trade> buyTrades = getAllBuyTradesBySymbol(symbol);
         Integer totalBuyFilledQuantity = 0;
         Integer totalBuyQuantity = 0;
         for (Trade trade : buyTrades) {
-            totalBuyQuantity += trade.getQuantity();
-            totalBuyFilledQuantity += trade.getFilledQuantity();
-
-            System.out.println("Buy Qty: " + trade.getQuantity());
-            System.out.println("Buy Filled Qty: " + trade.getFilledQuantity());
+            if (checkValidStatus(trade)){
+                totalBuyQuantity += trade.getQuantity();
+                totalBuyFilledQuantity += trade.getFilledQuantity();
+            }
         }
         return totalBuyQuantity - totalBuyFilledQuantity;
     }
 
+    /**
+    *  Retrieve total ask volume baserd on stock id
+    *
+    *  Difference between total sold quantity and total sold filled quantity
+    *  of all sell trades (open / partially-filled)
+    */
     @Override
     public Integer getTotalAskVolume(String symbol) {
         List<Trade> sellTrades = getAllSellTradesBySymbol(symbol);
         Integer totalSellFilledQuantity = 0;
         Integer totalSellQuantity = 0;
         for (Trade trade : sellTrades) {
-            System.out.println("Ask Qty: " + trade.getQuantity());
-            System.out.println("Ask Filled Qty: " + trade.getFilledQuantity());
-            totalSellQuantity += trade.getQuantity();
-            totalSellFilledQuantity += trade.getFilledQuantity();
+            if (checkValidStatus(trade)){
+                totalSellQuantity += trade.getQuantity();
+                totalSellFilledQuantity += trade.getFilledQuantity();
+            }
         }
         return totalSellQuantity - totalSellFilledQuantity;
     }
 
+    /**
+    *  Check for valid trades (open / partially-filled)
+    */
+    public boolean checkValidStatus(Trade trade){
+        if (trade.getStatus().equals(Status.PARTIAL_FILLED)
+            ||trade.getStatus().equals(Status.OPEN)){
+                return true;
+            }
+        return false;
+    }
+
+    /**
+    *  Reset market trades
+    */
     @Override
     public void resetTrades() {
         tradeRepo.deleteAll();

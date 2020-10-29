@@ -16,6 +16,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import cs203t10.ryver.market.fund.exception.AccountNotAllowedException;
+import cs203t10.ryver.market.fund.exception.AccountNotFoundException;
 import cs203t10.ryver.market.fund.exception.InsufficientBalanceException;
 import cs203t10.ryver.market.security.SecurityUtils;
 import static cs203t10.ryver.market.security.SecurityConstants.AUTH_HEADER_KEY;
@@ -78,7 +79,7 @@ public class FundTransferService {
     }
 
     public void deductAvailableBalance(Integer customerId, Integer accountId, Double amount)
-            throws InsufficientBalanceException, AccountNotAllowedException {
+            throws InsufficientBalanceException, AccountNotAllowedException, AccountNotFoundException{
         String url = getAccountsUrl();
         HttpEntity<String> req = getUserHttpEntity();
         ResponseEntity<String> response = null;
@@ -91,8 +92,9 @@ public class FundTransferService {
             if (status.equals(HttpStatus.FORBIDDEN)) {
                 throw new AccountNotAllowedException(customerId, accountId);
             } else if (status.equals(HttpStatus.BAD_REQUEST)) {
-                //TODO: retrieve account balance from FTS
                 throw new InsufficientBalanceException(accountId, amount, 0.0);
+            } else if (status.equals(HttpStatus.NOT_FOUND)) {
+                throw new AccountNotFoundException(accountId);
             }
         }
 
@@ -102,19 +104,31 @@ public class FundTransferService {
     }
 
     public void addAvailableBalance(Integer customerId, Integer accountId, Double amount)
-            throws InsufficientBalanceException, AccountNotAllowedException {
+            throws InsufficientBalanceException, AccountNotAllowedException, AccountNotFoundException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(
                 url + "/{accountId}/{customerId}/addAvailableBalance?amount={amount}",
                 HttpMethod.PUT, req, String.class, accountId, customerId, amount);
+        } catch (HttpClientErrorException ex) {
+            HttpStatus status = ex.getStatusCode();
+            if (status.equals(HttpStatus.FORBIDDEN)) {
+                throw new AccountNotAllowedException(customerId, accountId);
+            } else if (status.equals(HttpStatus.BAD_REQUEST)) {
+                throw new InsufficientBalanceException(accountId, amount, 0.0);
+            } else if (status.equals(HttpStatus.NOT_FOUND)) {
+                throw new AccountNotFoundException(accountId);
+            }
+        }
 
         //for debugging
         System.out.println("Deduct Available Balance: " + response.getBody());
     }
 
     public void deductBalance(Integer customerId, Integer accountId, Double amount)
-            throws InsufficientBalanceException, AccountNotAllowedException {
+            throws InsufficientBalanceException, AccountNotAllowedException, AccountNotFoundException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
 
@@ -128,8 +142,9 @@ public class FundTransferService {
             if (status.equals(HttpStatus.FORBIDDEN)) {
                 throw new AccountNotAllowedException(customerId, accountId);
             } else if (status.equals(HttpStatus.BAD_REQUEST)) {
-                // TODO: retrieve account balance from FTS
                 throw new InsufficientBalanceException(accountId, amount, 0.0);
+            } else if (status.equals(HttpStatus.NOT_FOUND)) {
+                throw new AccountNotFoundException(accountId);
             }
         }
 
@@ -138,7 +153,7 @@ public class FundTransferService {
     }
 
     public void addBalance(Integer customerId, Integer accountId, Double amount)
-            throws AccountNotAllowedException {
+            throws AccountNotAllowedException, AccountNotFoundException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
         ResponseEntity<String> response = null;
@@ -150,9 +165,8 @@ public class FundTransferService {
             HttpStatus status = ex.getStatusCode();
             if (status.equals(HttpStatus.FORBIDDEN)) {
                 throw new AccountNotAllowedException(customerId, accountId);
-            } else if (status.equals(HttpStatus.BAD_REQUEST)) {
-                // TODO: retrieve account balance from FTS
-                throw new InsufficientBalanceException(accountId, amount, 0.0);
+            } else if (status.equals(HttpStatus.NOT_FOUND)) {
+                throw new AccountNotFoundException(accountId);
             }
         }
         //for debugging
@@ -160,12 +174,22 @@ public class FundTransferService {
     }
 
     public void resetAvailableBalance(Integer customerId, Integer accountId)
-            throws AccountNotAllowedException {
+            throws AccountNotAllowedException, AccountNotFoundException {
         String url = getAccountsUrl();
         HttpEntity<String> req = getHttpEntity();
-        ResponseEntity<String> response = restTemplate.exchange(
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(
                 url + "/{accountId}/{customerId}/resetAvailableBalance",
                 HttpMethod.PUT, req, String.class, accountId, customerId);
+        } catch (HttpClientErrorException ex) {
+            HttpStatus status = ex.getStatusCode();
+            if (status.equals(HttpStatus.FORBIDDEN)) {
+                throw new AccountNotAllowedException(customerId, accountId);
+            } else if (status.equals(HttpStatus.NOT_FOUND)) {
+                throw new AccountNotFoundException(accountId);
+            }
+        }
 
         //for debugging
         System.out.println("Add Balance: " + response.getBody());
