@@ -158,6 +158,9 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 "WHERE stock_id = :stock_id",
                 "AND action = :action",
                 "AND price <> 0",
+                "AND STATUS != 'FILLED'",
+                "AND STATUS != 'CANCELLED'",
+                "AND STATUS != 'EXPIRED'",
             ")",
             "AND status != 'FILLED'",
             "ORDER BY submitted_date"
