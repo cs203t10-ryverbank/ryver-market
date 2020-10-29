@@ -25,7 +25,7 @@ public class DateUtils {
         String strCurrentTime = formatter.format(date);
         LocalTime target = LocalTime.parse(strCurrentTime);
 
-        return !(target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("17:00:00")));
+        return !(target.isBefore(LocalTime.parse("09:00:00")) || target.isAfter(LocalTime.parse("19:00:00")));
     }
 
     public static boolean isWeekDay(Date date) {

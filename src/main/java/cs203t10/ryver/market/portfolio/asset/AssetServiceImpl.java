@@ -69,6 +69,7 @@ public class AssetServiceImpl implements AssetService {
         }
         Integer newQuantity = asset.getQuantity() + quantity;
         Double newValue = asset.getValue() + (quantity * unitPrice);
+        System.out.println(newValue/ newQuantity);
         Double newAveragePrice = DoubleUtils.getRoundedToNearestCent(newValue / newQuantity);
         asset.setQuantity(newQuantity);
         asset.setValue(newValue);

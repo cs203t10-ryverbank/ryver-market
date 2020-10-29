@@ -105,7 +105,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Portfolio portfolio = findByCustomerIdElseCreate(customerId);
         String code = trade.getStock().getSymbol();
         Integer filledQuantity = trade.getFilledQuantity();
-        Double unitPrice = trade.getPrice();
+        Double unitPrice = trade.getTotalPrice() / filledQuantity;
         assetService.addToAsset(customerId, code, filledQuantity, unitPrice);
         return portfolios.save(portfolio);
     }
