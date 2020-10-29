@@ -121,8 +121,14 @@ public class TradeServiceImpl implements TradeService {
                 transactedPrice = latestStock.getPrice();
             } else if (bestSell.getPrice() == 0) {
                 transactedPrice = bestBuy.getPrice();
-            } else if (bestBuy.getPrice() == 0 || bestBuy.getPrice() >= bestSell.getPrice()) {
+            } else if (bestBuy.getPrice() == 0) {
                 transactedPrice = bestSell.getPrice();
+            } else if (bestBuy.getPrice() >= bestSell.getPrice()){
+                if ( bestBuy.getSubmittedDate().before(bestSell.getSubmittedDate())){
+                    transactedPrice = bestBuy.getPrice();
+                } else {
+                    transactedPrice = bestSell.getPrice();
+                }
             } else if (bestBuy.getPrice() < bestSell.getPrice()) {
                 return;
             }
