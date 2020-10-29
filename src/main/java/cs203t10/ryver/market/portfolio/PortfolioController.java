@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.annotations.ApiOperation;
+
 import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
 import cs203t10.ryver.market.security.RyverPrincipal;
 
@@ -21,6 +23,7 @@ public class PortfolioController {
     @GetMapping("/portfolio")
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "View Portfolio")
     public PortfolioInfoViewableByCustomer viewPortfolio(@AuthenticationPrincipal RyverPrincipal principal) {
         return portfolioService.viewPortfolio(Math.toIntExact(principal.uid));
     }
@@ -28,6 +31,7 @@ public class PortfolioController {
     @PutMapping("/portfolio/{customerId}/addToInitialCapital")
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Add to Initial Capital")
     public void addToInitialCapital(@AuthenticationPrincipal RyverPrincipal principal,
         @Valid @RequestParam(value = "amount") Double amount) {
         Integer customerId = principal.uid.intValue();
@@ -37,6 +41,7 @@ public class PortfolioController {
     @PutMapping("/portfolio/{customerId}/deductFromInitialCapital")
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Deduct from Initial Capital")
     public void deductFromInitialCapital(@AuthenticationPrincipal RyverPrincipal principal,
         @Valid @RequestParam(value = "amount") Double amount) {
         Integer customerId = principal.uid.intValue();
