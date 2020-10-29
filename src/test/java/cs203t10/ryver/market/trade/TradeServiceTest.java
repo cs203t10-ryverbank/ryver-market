@@ -21,6 +21,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import cs203t10.ryver.market.TestConstants;
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.fund.exception.*;
+import cs203t10.ryver.market.stock.Stock;
+import cs203t10.ryver.market.stock.StockRecord;
+import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
@@ -35,52 +38,32 @@ public class TradeServiceTest {
     @Mock
     FundTransferService fundTransferService;
 
+    @Mock
+    StockRecordService stockRecordService;
+
     @InjectMocks
     TradeServiceImpl tradeService;
 
     TradeView marketMakerBuy = TradeView.builder()
-            .action(Action.BUY).symbol(TestConstants.STOCK.getSymbol())
-            .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
-            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
-            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
-            .bid(TestConstants.LOW_PRICE).avgPrice(0.0).build();
+        .action(Action.BUY).symbol(TestConstants.STOCK.getSymbol())
+        .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+        .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+        .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+        .bid(TestConstants.LOW_PRICE).avgPrice(0.0).build();
 
     Trade marketBuy = Trade.builder()
-            .stock(TestConstants.STOCK).action(Action.BUY)
-            .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
-            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
-            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
-            .price(0.0).build();
+        .stock(TestConstants.STOCK).action(Action.BUY)
+        .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+        .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+        .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+        .price(0.0).build();
 
     Trade marketSell = Trade.builder()
-            .stock(TestConstants.STOCK).action(Action.SELL)
-            .quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
-            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
-            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
-            .price(0.0).build();
-
-    @Test
-    public void reconcileMarket_BetterMarketBuy_MatchMarketOrder(){
-        // check partial filled
-        // check average price
-        // do for both buys and sells
-
-    }
-
-    @Test
-    public void reconcileMarket_BetterLimitBuy_MatchLimitOrder(){
-        // check partial filled
-        // check average price
-        // do for both buys and sells
-    }
-
-    @Test
-    public void reconcileMarket_SamePrice_MatchEarlierOrder(){
-        // check partial filled
-        // check average price
-        // do for both buys and sells
-
-    }
+        .stock(TestConstants.STOCK).action(Action.SELL)
+        .quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+        .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+        .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+        .price(0.0).build();
 
     @Test
     public void getBestBuy_BetterMarketBuy_ReturnMarketBuy(){
@@ -402,4 +385,65 @@ public class TradeServiceTest {
     //     verify(tradeRepo).saveWithSymbol(testBuy.toTrade(), testBuy.getSymbol());
     // }
 
+    @Test
+    public void reconcileMarket_BetterMarketBuy_MatchMarketOrder(){
+        // check partial filled
+        // check Avg price
+        // do for both buys and sells
+
+        Trade testBuy = Trade.builder()
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.LOW_PRICE).build();
+
+        Trade testBought = Trade.builder()
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(2000).filledQuantity(2000)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.FILLED)
+                .price(TestConstants.HIGH_PRICE).build();
+
+        Trade testSell = Trade.builder()
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.PARTIAL_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.LOW_PRICE).build();
+
+        Double transactedPrice = 0.0;
+        if (testBought.getPrice() == 0 && testBuy.getPrice() == 0) {
+                // Get last price if there are no prices available.
+                StockRecord latestStock
+                        = stockRecordService.getLatestStockRecordBySymbol(TestConstants.SYMBOL);
+                transactedPrice = latestStock.getPrice();
+        } else if (testBought.getPrice() == 0) {
+                transactedPrice = testBuy.getPrice();
+        } else if (testBuy.getPrice() == 0 || testBuy.getPrice() > testBought.getPrice()) {
+                transactedPrice = testBought.getPrice();
+        } else if (testBuy.getPrice() < testBought.getPrice()) {
+                return;
+        }
+
+        tradeService.reconcileMarket(TestConstants.SYMBOL);
+
+        assertEquals("FILLED", testSell.getStatus());
+        assertEquals("PARTIALLY_FILLED", testBuy.getStatus());
+    }
+
+    @Test
+    public void reconcileMarket_BetterLimitBuy_MatchLimitOrder(){
+        // check partial filled
+        // check average price
+        // do for both buys and sells
+    }
+
+    @Test
+    public void reconcileMarket_SamePrice_MatchEarlierOrder(){
+        // check partial filled
+        // check average price
+        // do for both buys and sells
+
+    }
 }
