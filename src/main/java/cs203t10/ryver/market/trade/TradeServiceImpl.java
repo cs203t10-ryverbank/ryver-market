@@ -459,7 +459,7 @@ public class TradeServiceImpl implements TradeService {
     }
 
     /**
-    *  Reset market
+    *  Reset market trades
     */
     @Override
     public void resetTrades() {
