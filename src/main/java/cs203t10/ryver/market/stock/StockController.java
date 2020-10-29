@@ -12,7 +12,7 @@ import cs203t10.ryver.market.stock.view.StockRecordView;
 import cs203t10.ryver.market.trade.TradeService;
 
 @RestController
-@RolesAllowed({"MANAGER", "USER"})
+@RolesAllowed("USER")
 public class StockController {
 
     @Autowired
