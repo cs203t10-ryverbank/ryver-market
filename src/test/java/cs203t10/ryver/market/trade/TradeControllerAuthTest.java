@@ -139,7 +139,7 @@ public class TradeControllerAuthTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(postBody))
                 .andExpect(status().isForbidden());
-        
+
     }
 
     @Test
@@ -183,8 +183,8 @@ public class TradeControllerAuthTest {
             .thenReturn(userPrincipal);
         when(tradeService.getTrade(any(Integer.class)))
             .thenReturn(testTrade);
-        
-        mockMvc.perform(delete("/trades/1"))
+
+        mockMvc.perform(put("/trades/1"))
                 .andExpect(status().isForbidden());
     }
 
@@ -195,7 +195,7 @@ public class TradeControllerAuthTest {
             .thenReturn(userPrincipal);
         when(tradeService.getTrade(any(Integer.class)))
             .thenReturn(null);
-        mockMvc.perform(delete("/trades/1"))
+        mockMvc.perform(put("/trades/1"))
                 .andExpect(status().isNotFound());
     }
 

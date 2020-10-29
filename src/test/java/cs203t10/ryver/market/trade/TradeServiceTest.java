@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Date;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -21,10 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import cs203t10.ryver.market.TestConstants;
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.fund.exception.*;
-import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
-import cs203t10.ryver.market.trade.exception.*;
 import cs203t10.ryver.market.trade.view.TradeView;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
 

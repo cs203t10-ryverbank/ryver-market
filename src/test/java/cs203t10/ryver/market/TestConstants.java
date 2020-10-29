@@ -5,8 +5,8 @@ import java.util.Date;
 import cs203t10.ryver.market.stock.Stock;
 
 public class TestConstants {
-    final public static Date FIRST_DATE = new Date(1603962000L);
-    final public static Date SECOND_DATE = new Date(1603904242L);
+    final public static Date FIRST_DATE = new Date(1603942000L);
+    final public static Date SECOND_DATE = new Date(1603952000L);
 
     final public static Integer EXISTS_ID = 1;
     final public static Integer NOT_EXISTS_ID = 2;

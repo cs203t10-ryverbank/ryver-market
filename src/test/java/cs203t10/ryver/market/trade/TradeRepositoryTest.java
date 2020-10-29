@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import cs203t10.ryver.market.TestConstants;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRepository;
 import cs203t10.ryver.market.stock.exception.*;
@@ -33,9 +34,6 @@ public class TradeRepositoryTest {
     @Autowired
     TestEntityManager entityManager;
 
-    Date firstDate = new Date(1602321010000L);
-    Date secondDate = new Date(1602324610000L);
-
     Stock a1 = new Stock("A1");
     Stock b2 = new Stock("B2");
     Stock c3 = new Stock("C3");
@@ -43,19 +41,19 @@ public class TradeRepositoryTest {
     final String FAKE_STOCK_SYMBOL = "Z26";
 
     Trade tradeA1_1 = Trade.builder()
-            .stock(a1).action(Action.BUY).quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(firstDate)
+            .stock(a1).action(Action.BUY).quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(1.18).build();
 
     // Same dates.
     Trade tradeB2_1 = Trade.builder()
-            .stock(b2).action(Action.BUY).quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(secondDate)
+            .stock(b2).action(Action.BUY).quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(1.18).build();
 
     Trade tradeB2_2 = Trade.builder()
-            .stock(b2).action(Action.BUY).quantity(10000).filledQuantity(0)
-            .customerId(2).accountId(2).submittedDate(secondDate)
+            .stock(b2).action(Action.BUY).quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(2).accountId(2).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(1.17).build();
 
     @BeforeEach
@@ -151,13 +149,13 @@ public class TradeRepositoryTest {
 
     // The best market buy is the earlier one.
     Trade tradeC3_bestMarketBuy = Trade.builder()
-            .stock(c3).action(Action.BUY).quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(firstDate)
+            .stock(c3).action(Action.BUY).quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(0.0).build();
 
     Trade tradeC3_worstMarketBuy = Trade.builder()
-            .stock(c3).action(Action.BUY).quantity(10000).filledQuantity(0)
-            .customerId(2).accountId(2).submittedDate(secondDate)
+            .stock(c3).action(Action.BUY).quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(2).accountId(2).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(0.0).build();
 
     @Test
@@ -180,13 +178,13 @@ public class TradeRepositoryTest {
 
     // The best market sell is the earlier one.
     Trade tradeC3_bestMarketSell = Trade.builder()
-            .stock(c3).action(Action.SELL).quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(firstDate)
+            .stock(c3).action(Action.SELL).quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(0.0).build();
 
     Trade tradeC3_worstMarketSell = Trade.builder()
-            .stock(c3).action(Action.SELL).quantity(10000).filledQuantity(0)
-            .customerId(2).accountId(2).submittedDate(secondDate)
+            .stock(c3).action(Action.SELL).quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+            .customerId(2).accountId(2).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(0.0).build();
 
     @Test
@@ -209,19 +207,19 @@ public class TradeRepositoryTest {
 
     // The better limit buy offers more money per stock.
     Trade tradeC3_bestLimitBuy_earliest = Trade.builder()
-            .stock(c3).action(Action.BUY).quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(firstDate)
-            .status(Status.OPEN).price(3.0).build();
+            .stock(c3).action(Action.BUY).quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.FIRST_DATE)
+            .status(Status.OPEN).price(TestConstants.HIGH_PRICE).build();
 
     Trade tradeC3_bestLimitBuy = Trade.builder()
-            .stock(c3).action(Action.BUY).quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(secondDate)
-            .status(Status.OPEN).price(3.0).build();
+            .stock(c3).action(Action.BUY).quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.SECOND_DATE)
+            .status(Status.OPEN).price(TestConstants.HIGH_PRICE).build();
 
     Trade tradeC3_worstLimitBuy = Trade.builder()
-            .stock(c3).action(Action.BUY).quantity(10000).filledQuantity(0)
-            .customerId(2).accountId(2).submittedDate(firstDate)
-            .status(Status.OPEN).price(2.0).build();
+            .stock(c3).action(Action.BUY).quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(2).accountId(2).submittedDate(TestConstants.FIRST_DATE)
+            .status(Status.OPEN).price(TestConstants.LOW_PRICE).build();
 
     @Test
     public void findBestLimitBuyTest() {
@@ -257,19 +255,19 @@ public class TradeRepositoryTest {
 
     // The better limit sell costs less per stock.
     Trade tradeC3_bestLimitSell_earliest = Trade.builder()
-            .stock(c3).action(Action.SELL).quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(firstDate)
+            .stock(c3).action(Action.SELL).quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(1.5).build();
 
     Trade tradeC3_bestLimitSell = Trade.builder()
-            .stock(c3).action(Action.SELL).quantity(10000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(secondDate)
+            .stock(c3).action(Action.SELL).quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(1.5).build();
 
     Trade tradeC3_worstLimitSell = Trade.builder()
-            .stock(c3).action(Action.SELL).quantity(10000).filledQuantity(0)
-            .customerId(2).accountId(2).submittedDate(firstDate)
-            .status(Status.OPEN).price(2.0).build();
+            .stock(c3).action(Action.SELL).quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+            .customerId(2).accountId(2).submittedDate(TestConstants.FIRST_DATE)
+            .status(Status.OPEN).price(TestConstants.LOW_PRICE).build();
 
     @Test
     public void findBestLimitSellTest() {
@@ -305,32 +303,32 @@ public class TradeRepositoryTest {
 
     Trade tradeA1_1_Buy = Trade.builder()
             .stock(a1).action(Action.BUY).quantity(1000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(secondDate)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(1.5).build();
 
     Trade tradeD4_1_Buy = Trade.builder()
             .stock(d4).action(Action.BUY).quantity(2000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(secondDate)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(1.5).build();
 
     Trade tradeD4_2_Buy = Trade.builder()
             .stock(d4).action(Action.BUY).quantity(4000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(secondDate)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(1.5).build();
 
     Trade tradeA1_1_Sell = Trade.builder()
             .stock(a1).action(Action.SELL).quantity(8000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(secondDate)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(1.5).build();
 
     Trade tradeD4_1_Sell = Trade.builder()
             .stock(d4).action(Action.SELL).quantity(16000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(secondDate)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(1.5).build();
 
     Trade tradeD4_2_Sell = Trade.builder()
             .stock(d4).action(Action.SELL).quantity(32000).filledQuantity(0)
-            .customerId(1).accountId(1).submittedDate(secondDate)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID).submittedDate(TestConstants.SECOND_DATE)
             .status(Status.OPEN).price(1.5).build();
 
 
