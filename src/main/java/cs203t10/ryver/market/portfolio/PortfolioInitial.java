@@ -26,14 +26,14 @@ public class PortfolioInitial {
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL)
     private List<Asset> assets;
 
-    @NotNull(message = "Total gain/loss cannot be null")
-    private Double totalGainLoss;
+    @NotNull(message = "Initial capital cannot be null")
+    private Double initialCapital;
 
     public Portfolio toPortfolio() {
         Portfolio portfolio = Portfolio.builder()
             .customerId(customerId)
             .assets(assets)
-            .totalGainLoss(totalGainLoss)
+            .initialCapital(initialCapital)
             .build();
         return portfolio;
     }

@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.portfolio.asset.Asset;
 import cs203t10.ryver.market.portfolio.asset.AssetService;
 import cs203t10.ryver.market.portfolio.asset.view.AssetInfoViewableByCustomer;

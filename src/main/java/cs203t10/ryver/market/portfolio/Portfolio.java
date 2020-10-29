@@ -20,13 +20,12 @@ public class Portfolio {
     @NotNull(message = "Customer ID cannot be null")
     private Integer customerId;
 
-    @EqualsAndHashCode.Exclude
     @NotNull(message = "Assets cannot be null")
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL)
     private List<Asset> assets;
 
-    @NotNull(message = "Total gain/loss cannot be null")
-    private Double totalGainLoss;
+    @NotNull(message = "Initial capital cannot be null")
+    private Double initialCapital;
 
 }
 

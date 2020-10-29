@@ -17,7 +17,6 @@ public class Asset {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @EqualsAndHashCode.Exclude
     @ManyToOne(targetEntity = Portfolio.class)
     @JoinColumn(name = "portfolio", nullable = false)
     private Portfolio portfolio;

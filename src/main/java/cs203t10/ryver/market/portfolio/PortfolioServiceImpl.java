@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.portfolio.asset.Asset;
 import cs203t10.ryver.market.portfolio.asset.AssetService;
 import cs203t10.ryver.market.portfolio.asset.view.AssetInfoViewableByCustomer;
@@ -26,6 +27,9 @@ public class PortfolioServiceImpl implements PortfolioService {
     private AssetService assetService;
 
     @Autowired
+    private FundTransferService fundTransferService;
+
+    @Autowired
     private StockRecordService stockRecordService;
 
     @Override
@@ -38,7 +42,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         Portfolio portfolio = portfolios.findByCustomerId(customerId).orElse(null);
         if (portfolio == null) {
             List<Asset> assetList = new ArrayList<>();
-            PortfolioInitial portfolioInitial = new PortfolioInitial(customerId, assetList, 0.0);
+            Double initialCapital = Double.parseDouble(fundTransferService.getTotalBalance(customerId).getBody());
+            PortfolioInitial portfolioInitial = new PortfolioInitial(customerId, assetList, initialCapital);
             return portfolios.save(portfolioInitial.toPortfolio());
         } else {
             return portfolio;
@@ -58,6 +63,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     public PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId) {
         Portfolio portfolio = findByCustomerIdElseCreate(customerId);
         List<Asset> assetList = assetService.findByPortfolioCustomerId(customerId);
+        Double currentCapital = Double.parseDouble(fundTransferService.getTotalBalance(customerId).getBody());
 
         Double unrealizedGainLoss = 0.0;
         List<AssetInfoViewableByCustomer> assetInfoList = new ArrayList<>();
@@ -76,7 +82,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         }
 
         PortfolioInfoViewableByCustomer portfolioInfoViewableByCustomer = new PortfolioInfoViewableByCustomer(
-                portfolio.getCustomerId(), assetInfoList, unrealizedGainLoss, portfolio.getTotalGainLoss());
+                portfolio.getCustomerId(), assetInfoList, unrealizedGainLoss, currentCapital - portfolio.getInitialCapital());
         return portfolioInfoViewableByCustomer;
     }
 

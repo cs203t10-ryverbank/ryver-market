@@ -30,8 +30,8 @@ Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb2
 
 ### View own portolio
 GET http://localhost:8086/portfolio
-Accept: application/json
-Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDMyNjkwM30.nFIjA1Vs_euzygcxKSaQD52MKH1hOF8AjY3rrstbav-BPHsb-EQE78w-NSJZU7GxGQZDrh6fycT9BbECLEueAA
+Content-Type: application/json
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJicnlhbiIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDgyMzYwMH0.PBEHD2XFiJYICv_WlNqJ6yUM6-Tb-5cPkr9t5RIx9hnuXl71uH3DY4FpXjzufjc-XBBrWqWfXxSyd7IL04Ejow
 
 ### Get user trades
 GET http://localhost:8086/trades

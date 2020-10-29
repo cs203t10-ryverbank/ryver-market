@@ -1,6 +1,7 @@
 package cs203t10.ryver.market.portfolio;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
@@ -16,10 +17,14 @@ public class PortfolioController {
     private PortfolioService portfolioService;
 
     @GetMapping("/portfolio")
-    @PreAuthorize("hasRole('USER')")
+    // @PreAuthorize("hasRole('USER')")
+    @ResponseStatus(HttpStatus.OK)
     public PortfolioInfoViewableByCustomer viewPortfolio(@AuthenticationPrincipal RyverPrincipal principal) {
         return portfolioService.viewPortfolio(Math.toIntExact(principal.uid));
     }
 
+//     @PutMapping("/portfolio/{customerId}/deductFromCapital")
+//     @ResponseStatus(HttpStatus)
+// }
 }
 

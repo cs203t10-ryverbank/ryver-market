@@ -69,6 +69,13 @@ public class FundTransferService {
         return entity;
     }
 
+    public ResponseEntity<String> getTotalBalance(Integer customerId) {
+        String url = getAccountsUrl();
+        HttpEntity<String> req = getUserHttpEntity();
+        ResponseEntity<String> response = restTemplate.exchange(url + "/{customerId}/getTotalBalance",
+                                          HttpMethod.GET, req, String.class, customerId);
+        return response;
+    }
 
     public void deductAvailableBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException {
