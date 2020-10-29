@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import cs203t10.ryver.market.TestConstants;
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.fund.exception.*;
 import cs203t10.ryver.market.stock.Stock;
@@ -39,266 +40,271 @@ public class TradeServiceTest {
     @InjectMocks
     TradeServiceImpl tradeService;
 
-    Date firstDate = new Date(1603962000L);
-    Date secondDate = new Date(1603904242L);
-
-    final Integer EXISTS_ID = 1;
-    final Integer NOT_EXISTS_ID = 2;
-
-    final Integer CUSTOMER_ID = 1;
-    final Integer ACCOUNT_ID = 50;
-    final String SYMBOL = "A1";
-    final Stock STOCK = new Stock(SYMBOL);
-
-    final Integer BUY_QUANTITY = 10000;
-    final Integer SELL_QUANTITY = 10000;
-    final Integer PARTIAL_QUANTITY = 5000;
-    final Double HIGH_PRICE = 3.0;
-    final Double LOW_PRICE = 2.0;
-
     TradeView marketMakerBuy = TradeView.builder()
-            .action(Action.BUY).symbol(STOCK.getSymbol())
-            .quantity(BUY_QUANTITY).filledQuantity(0)
-            .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-            .submittedDate(firstDate).status(Status.OPEN)
-            .bid(LOW_PRICE).avgPrice(0.0).build();
+            .action(Action.BUY).symbol(TestConstants.STOCK.getSymbol())
+            .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+            .bid(TestConstants.LOW_PRICE).avgPrice(0.0).build();
 
     Trade marketBuy = Trade.builder()
-            .stock(STOCK).action(Action.BUY)
-            .quantity(BUY_QUANTITY).filledQuantity(0)
-            .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-            .submittedDate(firstDate).status(Status.OPEN)
+            .stock(TestConstants.STOCK).action(Action.BUY)
+            .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
             .price(0.0).build();
 
     Trade marketSell = Trade.builder()
-            .stock(STOCK).action(Action.SELL)
-            .quantity(SELL_QUANTITY).filledQuantity(0)
-            .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-            .submittedDate(firstDate).status(Status.OPEN)
+            .stock(TestConstants.STOCK).action(Action.SELL)
+            .quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+            .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
             .price(0.0).build();
+
+    @Test
+    public void reconcileMarket_BetterMarketBuy_MatchMarketOrder(){
+        // check partial filled
+        // check average price
+        // do for both buys and sells
+
+    }
+
+    @Test
+    public void reconcileMarket_BetterLimitBuy_MatchLimitOrder(){
+        // check partial filled
+        // check average price
+        // do for both buys and sells
+    }
+
+    @Test
+    public void reconcileMarket_SamePrice_MatchEarlierOrder(){
+        // check partial filled
+        // check average price
+        // do for both buys and sells
+
+    }
 
     @Test
     public void getBestBuy_BetterMarketBuy_ReturnMarketBuy(){
         Trade limitBuy = Trade.builder()
-                .stock(STOCK).action(Action.BUY)
-                .quantity(BUY_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.LOW_PRICE).build();
 
         Trade limitSell = Trade.builder()
-                .stock(STOCK).action(Action.SELL)
-                .quantity(SELL_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(HIGH_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.SELL)
+                .quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.HIGH_PRICE).build();
 
 
         tradeRepo.saveAll(List.of(marketBuy, limitBuy, limitSell));
 
-        when(tradeRepo.findBestLimitSellBySymbol(SYMBOL)).thenReturn(Optional.of(limitSell));
-        when(tradeRepo.findBestMarketBuyBySymbol(SYMBOL)).thenReturn(Optional.of(marketBuy));
-        when(tradeRepo.findBestLimitBuyBySymbol(SYMBOL)).thenReturn(Optional.of(limitBuy));
+        when(tradeRepo.findBestLimitSellBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(limitSell));
+        when(tradeRepo.findBestMarketBuyBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(marketBuy));
+        when(tradeRepo.findBestLimitBuyBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(limitBuy));
 
-        Trade actual = tradeService.getBestBuy(SYMBOL);
+        Trade actual = tradeService.getBestBuy(TestConstants.SYMBOL);
         Trade expected = marketBuy;
 
         assertEquals(expected, actual);
-        verify(tradeRepo).findBestMarketBuyBySymbol(SYMBOL);
-        verify(tradeRepo).findBestLimitBuyBySymbol(SYMBOL);
-        verify(tradeRepo).findBestLimitSellBySymbol(SYMBOL);
+        verify(tradeRepo).findBestMarketBuyBySymbol(TestConstants.SYMBOL);
+        verify(tradeRepo).findBestLimitBuyBySymbol(TestConstants.SYMBOL);
+        verify(tradeRepo).findBestLimitSellBySymbol(TestConstants.SYMBOL);
     }
 
     @Test
     public void getBestBuy_BetterLimitBuy_ReturnLimitBuy(){
         Trade limitBuy = Trade.builder()
-                .stock(STOCK).action(Action.BUY)
-                .quantity(BUY_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(HIGH_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.HIGH_PRICE).build();
 
         Trade limitSell = Trade.builder()
-                .stock(STOCK).action(Action.SELL)
-                .quantity(SELL_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(HIGH_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.SELL)
+                .quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.HIGH_PRICE).build();
 
 
         tradeRepo.saveAll(List.of(marketBuy, limitBuy, limitSell));
 
-        when(tradeRepo.findBestLimitSellBySymbol(SYMBOL)).thenReturn(Optional.of(limitSell));
-        when(tradeRepo.findBestMarketBuyBySymbol(SYMBOL)).thenReturn(Optional.of(marketBuy));
-        when(tradeRepo.findBestLimitBuyBySymbol(SYMBOL)).thenReturn(Optional.of(limitBuy));
+        when(tradeRepo.findBestLimitSellBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(limitSell));
+        when(tradeRepo.findBestMarketBuyBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(marketBuy));
+        when(tradeRepo.findBestLimitBuyBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(limitBuy));
 
-        Trade actual = tradeService.getBestBuy(SYMBOL);
+        Trade actual = tradeService.getBestBuy(TestConstants.SYMBOL);
         Trade expected = limitBuy;
 
         assertEquals(expected, actual);
-        verify(tradeRepo).findBestMarketBuyBySymbol(SYMBOL);
-        verify(tradeRepo).findBestLimitBuyBySymbol(SYMBOL);
-        verify(tradeRepo).findBestLimitSellBySymbol(SYMBOL);
+        verify(tradeRepo).findBestMarketBuyBySymbol(TestConstants.SYMBOL);
+        verify(tradeRepo).findBestLimitBuyBySymbol(TestConstants.SYMBOL);
+        verify(tradeRepo).findBestLimitSellBySymbol(TestConstants.SYMBOL);
     }
 
     @Test
     public void getBestSell_BetterMarketSell_ReturnMarketSell(){
         Trade limitBuy = Trade.builder()
-                .stock(STOCK).action(Action.BUY)
-                .quantity(BUY_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.LOW_PRICE).build();
 
         Trade limitSell = Trade.builder()
-                .stock(STOCK).action(Action.SELL)
-                .quantity(SELL_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(HIGH_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.SELL)
+                .quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.HIGH_PRICE).build();
 
 
         tradeRepo.saveAll(List.of(marketSell, limitBuy, limitSell));
 
-        when(tradeRepo.findBestLimitSellBySymbol(SYMBOL)).thenReturn(Optional.of(limitSell));
-        when(tradeRepo.findBestMarketSellBySymbol(SYMBOL)).thenReturn(Optional.of(marketSell));
-        when(tradeRepo.findBestLimitBuyBySymbol(SYMBOL)).thenReturn(Optional.of(limitBuy));
+        when(tradeRepo.findBestLimitSellBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(limitSell));
+        when(tradeRepo.findBestMarketSellBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(marketSell));
+        when(tradeRepo.findBestLimitBuyBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(limitBuy));
 
-        Trade actual = tradeService.getBestSell(SYMBOL);
+        Trade actual = tradeService.getBestSell(TestConstants.SYMBOL);
         Trade expected = marketSell;
 
         assertEquals(expected, actual);
-        verify(tradeRepo).findBestMarketSellBySymbol(SYMBOL);
-        verify(tradeRepo).findBestLimitBuyBySymbol(SYMBOL);
-        verify(tradeRepo).findBestLimitSellBySymbol(SYMBOL);
+        verify(tradeRepo).findBestMarketSellBySymbol(TestConstants.SYMBOL);
+        verify(tradeRepo).findBestLimitBuyBySymbol(TestConstants.SYMBOL);
+        verify(tradeRepo).findBestLimitSellBySymbol(TestConstants.SYMBOL);
     }
 
     @Test
     public void getBestSell_BetterLimitSell_ReturnLimitSell(){
         Trade limitBuy = Trade.builder()
-                .stock(STOCK).action(Action.BUY)
-                .quantity(BUY_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(HIGH_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.HIGH_PRICE).build();
 
         Trade limitSell = Trade.builder()
-                .stock(STOCK).action(Action.SELL)
-                .quantity(SELL_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.SELL)
+                .quantity(TestConstants.SELL_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.LOW_PRICE).build();
 
 
         tradeRepo.saveAll(List.of(marketSell, limitBuy, limitSell));
 
-        when(tradeRepo.findBestLimitSellBySymbol(SYMBOL)).thenReturn(Optional.of(limitSell));
-        when(tradeRepo.findBestMarketSellBySymbol(SYMBOL)).thenReturn(Optional.of(marketSell));
-        when(tradeRepo.findBestLimitBuyBySymbol(SYMBOL)).thenReturn(Optional.of(limitBuy));
+        when(tradeRepo.findBestLimitSellBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(limitSell));
+        when(tradeRepo.findBestMarketSellBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(marketSell));
+        when(tradeRepo.findBestLimitBuyBySymbol(TestConstants.SYMBOL)).thenReturn(Optional.of(limitBuy));
 
-        Trade actual = tradeService.getBestSell(SYMBOL);
+        Trade actual = tradeService.getBestSell(TestConstants.SYMBOL);
         Trade expected = limitSell;
 
         assertEquals(expected, actual);
-        verify(tradeRepo).findBestMarketSellBySymbol(SYMBOL);
-        verify(tradeRepo).findBestLimitBuyBySymbol(SYMBOL);
-        verify(tradeRepo).findBestLimitSellBySymbol(SYMBOL);
+        verify(tradeRepo).findBestMarketSellBySymbol(TestConstants.SYMBOL);
+        verify(tradeRepo).findBestLimitBuyBySymbol(TestConstants.SYMBOL);
+        verify(tradeRepo).findBestLimitSellBySymbol(TestConstants.SYMBOL);
     }
 
     @Test
     public void getTotalBidVolume_IgnoreExpiredCancelledFilled_ReturnValid(){
         Trade trade1 = Trade.builder()
-                .stock(STOCK).action(Action.BUY)
-                .quantity(BUY_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(HIGH_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.HIGH_PRICE).build();
 
         Trade trade2 = Trade.builder()
-                .stock(STOCK).action(Action.BUY)
-                .quantity(BUY_QUANTITY).filledQuantity(PARTIAL_QUANTITY)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.PARTIAL_FILLED)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(TestConstants.PARTIAL_QUANTITY)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.PARTIAL_FILLED)
+                .price(TestConstants.LOW_PRICE).build();
 
         Trade trade3 = Trade.builder()
-                .stock(STOCK).action(Action.BUY)
-                .quantity(BUY_QUANTITY).filledQuantity(PARTIAL_QUANTITY)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.EXPIRED)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(TestConstants.PARTIAL_QUANTITY)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.EXPIRED)
+                .price(TestConstants.LOW_PRICE).build();
 
         Trade trade4 = Trade.builder()
-                .stock(STOCK).action(Action.BUY)
-                .quantity(BUY_QUANTITY).filledQuantity(PARTIAL_QUANTITY)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.CANCELLED)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(TestConstants.PARTIAL_QUANTITY)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.CANCELLED)
+                .price(TestConstants.LOW_PRICE).build();
 
         Trade trade5 = Trade.builder()
-                .stock(STOCK).action(Action.BUY)
-                .quantity(BUY_QUANTITY).filledQuantity(BUY_QUANTITY)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.FILLED)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.BUY)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(TestConstants.BUY_QUANTITY)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.FILLED)
+                .price(TestConstants.LOW_PRICE).build();
 
         List trades = List.of(trade1, trade2, trade3, trade4, trade5);
         tradeRepo.saveAll(trades);
 
-        when(tradeRepo.findAllBuyTradesBySymbol(SYMBOL)).thenReturn(trades);
+        when(tradeRepo.findAllBuyTradesBySymbol(TestConstants.SYMBOL)).thenReturn(trades);
 
         Integer expected = 15000;
-        Integer actual = tradeService.getTotalBidVolume(SYMBOL);
+        Integer actual = tradeService.getTotalBidVolume(TestConstants.SYMBOL);
         assertEquals(expected, actual);
-        verify(tradeRepo).findAllBuyTradesBySymbol(SYMBOL);
+        verify(tradeRepo).findAllBuyTradesBySymbol(TestConstants.SYMBOL);
     }
 
     @Test
     public void getTotalAskVolume_IgnoreExpiredCancelledFilled_ReturnValid(){
         Trade trade1 = Trade.builder()
-                .stock(STOCK).action(Action.SELL)
-                .quantity(BUY_QUANTITY).filledQuantity(0)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.OPEN)
-                .price(HIGH_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.SELL)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+                .price(TestConstants.HIGH_PRICE).build();
 
         Trade trade2 = Trade.builder()
-                .stock(STOCK).action(Action.SELL)
-                .quantity(BUY_QUANTITY).filledQuantity(PARTIAL_QUANTITY)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.PARTIAL_FILLED)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.SELL)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(TestConstants.PARTIAL_QUANTITY)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.PARTIAL_FILLED)
+                .price(TestConstants.LOW_PRICE).build();
 
         Trade trade3 = Trade.builder()
-                .stock(STOCK).action(Action.SELL)
-                .quantity(BUY_QUANTITY).filledQuantity(PARTIAL_QUANTITY)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.EXPIRED)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.SELL)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(TestConstants.PARTIAL_QUANTITY)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.EXPIRED)
+                .price(TestConstants.LOW_PRICE).build();
 
         Trade trade4 = Trade.builder()
-                .stock(STOCK).action(Action.SELL)
-                .quantity(BUY_QUANTITY).filledQuantity(PARTIAL_QUANTITY)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.CANCELLED)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.SELL)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(TestConstants.PARTIAL_QUANTITY)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.CANCELLED)
+                .price(TestConstants.LOW_PRICE).build();
 
         Trade trade5 = Trade.builder()
-                .stock(STOCK).action(Action.SELL)
-                .quantity(BUY_QUANTITY).filledQuantity(BUY_QUANTITY)
-                .customerId(CUSTOMER_ID).accountId(ACCOUNT_ID)
-                .submittedDate(firstDate).status(Status.FILLED)
-                .price(LOW_PRICE).build();
+                .stock(TestConstants.STOCK).action(Action.SELL)
+                .quantity(TestConstants.BUY_QUANTITY).filledQuantity(TestConstants.BUY_QUANTITY)
+                .customerId(TestConstants.CUSTOMER_ID).accountId(TestConstants.ACCOUNT_ID)
+                .submittedDate(TestConstants.FIRST_DATE).status(Status.FILLED)
+                .price(TestConstants.LOW_PRICE).build();
 
         List trades = List.of(trade1, trade2, trade3, trade4, trade5);
         tradeRepo.saveAll(trades);
 
-        when(tradeRepo.findAllSellTradesBySymbol(SYMBOL)).thenReturn(trades);
+        when(tradeRepo.findAllSellTradesBySymbol(TestConstants.SYMBOL)).thenReturn(trades);
 
         Integer expected = 15000;
-        Integer actual = tradeService.getTotalAskVolume(SYMBOL);
+        Integer actual = tradeService.getTotalAskVolume(TestConstants.SYMBOL);
         assertEquals(expected, actual);
-        verify(tradeRepo).findAllSellTradesBySymbol(SYMBOL);
+        verify(tradeRepo).findAllSellTradesBySymbol(TestConstants.SYMBOL);
     }
 
 
@@ -328,21 +334,21 @@ public class TradeServiceTest {
 
     @Test
     public void getTradeTest_nonExistentTrade() {
-        when(tradeRepo.findById(NOT_EXISTS_ID))
+        when(tradeRepo.findById(TestConstants.NOT_EXISTS_ID))
             .thenReturn(Optional.empty());
 
         assertThrows(TradeNotFoundException.class, () -> {
-            tradeService.getTrade(NOT_EXISTS_ID);
+            tradeService.getTrade(TestConstants.NOT_EXISTS_ID);
         });
     }
 
     @Test
     public void saveTrade_AccountDoesNotBelongToCustomer_noRegister() {
         TradeView testBuy = TradeView.builder()
-            .action(Action.BUY).symbol(SYMBOL)
+            .action(Action.BUY).symbol(TestConstants.SYMBOL)
             .quantity(10000).filledQuantity(0)
             .customerId(1).accountId(50)
-            .submittedDate(firstDate).status(Status.OPEN)
+            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
             .bid(2.0).avgPrice(0.0).build();
 
         Mockito.doThrow(new AccountNotAllowedException(1, 50))
@@ -358,10 +364,10 @@ public class TradeServiceTest {
     @Test
     public void saveTrade_InsufficientBalance_noRegister() {
         TradeView testBuy = TradeView.builder()
-            .action(Action.BUY).symbol(SYMBOL)
+            .action(Action.BUY).symbol(TestConstants.SYMBOL)
             .quantity(10000).filledQuantity(0)
             .customerId(1).accountId(1)
-            .submittedDate(firstDate).status(Status.OPEN)
+            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
             .bid(2.0).avgPrice(0.0).build();
 
         Mockito.doThrow(new InsufficientBalanceException(1, 20000.0, 0.0))
@@ -380,7 +386,7 @@ public class TradeServiceTest {
     //         .action(Action.BUY).symbol(SYMBOL)
     //         .quantity(10000).filledQuantity(0)
     //         .customerId(1).accountId(1)
-    //         .submittedDate(firstDate).status(Status.OPEN)
+    //         .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
     //         .bid(2.0).avgPrice(0.0).build();
 
     //     Mockito.doNothing()
