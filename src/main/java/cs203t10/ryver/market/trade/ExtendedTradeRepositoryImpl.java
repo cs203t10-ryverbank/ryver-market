@@ -79,7 +79,6 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 .setParameter("action", (Action.SELL).toString().toUpperCase());
         @SuppressWarnings("unchecked")
         List<Trade> results = query.getResultList();
-        System.out.println(results.size());
         return results;
     }
 

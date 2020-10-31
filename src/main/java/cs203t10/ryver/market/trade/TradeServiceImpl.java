@@ -156,14 +156,11 @@ public class TradeServiceImpl implements TradeService {
 
             // Update filledQuantity and totalPrice for trades.
             Double totalPrice = transactedQuantity * transactedPrice;
-            System.out.println("TotalPrice: " + totalPrice);
-            System.out.println("Best buy: " + bestBuy.getAvailableBalance() );
             // If market buy, check if available balance is sufficient
             if (isMarketBuy
                 && totalPrice + bestBuy.getTotalPrice() > bestBuy.getAvailableBalance() ){
                     transactedQuantity = DoubleUtils
                         .getRoundedToNearestHundred((bestBuy.getAvailableBalance()-bestBuy.getTotalPrice())/transactedPrice);
-                    System.out.println("check!!!" + transactedQuantity);
                     totalPrice = transactedPrice * transactedQuantity;
                     // Label it invalid status.
                     bestBuy.setStatus(Status.INVALID);
