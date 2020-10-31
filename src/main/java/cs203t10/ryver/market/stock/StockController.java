@@ -32,8 +32,8 @@ public class StockController {
         return latestStockRecords.stream()
                 .map(record -> {
                     String symbol = record.getStock().getSymbol();
-                    Integer bidVolume = tradeService.getTotalAskVolume(symbol);
-                    Integer askVolume = tradeService.getTotalAskVolume(symbol);
+                    Integer bidVolume = getBidVolume(symbol);
+                    Integer askVolume = getAskVolume(symbol);
 
                     Double bid = getBidPrice(record, bidVolume, symbol);
                     Double ask = getAskPrice(record, askVolume, symbol);
@@ -54,11 +54,13 @@ public class StockController {
     @ApiOperation(value = "Get a stock by symbol")
     public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
-        Integer bidVolume = tradeService.getTotalBidVolume(symbol);
-        Integer askVolume = tradeService.getTotalAskVolume(symbol);
+
+        Integer bidVolume = getBidVolume(symbol);
+        Integer askVolume = getAskVolume(symbol);
+
         Double bid = getBidPrice(latestStockRecord, bidVolume, symbol);
         Double ask = getAskPrice(latestStockRecord, askVolume, symbol);
-        
+
         stockRecordService.updateStockRecord(symbol, bid, ask);
 
         return StockRecordView.fromRecordAskBid(
@@ -93,6 +95,22 @@ public class StockController {
             ask = record.getLastAsk();
         }
         return ask;
+    }
+
+    private Integer getBidVolume(String symbol){
+        Trade bestBuy = tradeService.getBestBuy(symbol);
+        if (bestBuy == null){
+            return 0;
+        }
+        return bestBuy.getQuantity() - bestBuy.getFilledQuantity();
+    }
+
+    private Integer getAskVolume(String symbol){
+        Trade bestAsk = tradeService.getBestSell(symbol);
+        if (bestAsk == null){
+            return 0;
+        }
+        return bestAsk.getQuantity() - bestAsk.getFilledQuantity();
     }
 }
 
