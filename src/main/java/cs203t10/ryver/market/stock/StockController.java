@@ -37,6 +37,7 @@ public class StockController {
 
                     Double bid = getBidPrice(record, bidVolume, symbol);
                     Double ask = getAskPrice(record, askVolume, symbol);
+                    stockRecordService.updateStockRecord(symbol, bid, ask);
 
                     return StockRecordView.fromRecordAskBid(
                             record,
@@ -57,13 +58,8 @@ public class StockController {
         Integer askVolume = tradeService.getTotalAskVolume(symbol);
         Double bid = getBidPrice(latestStockRecord, bidVolume, symbol);
         Double ask = getAskPrice(latestStockRecord, askVolume, symbol);
-
-        if (ask == 0.0) {
-            ask = latestStockRecord.getLastAsk();
-        }
-        if (bid == 0.0){
-            bid = latestStockRecord.getLastBid();
-        }
+        
+        stockRecordService.updateStockRecord(symbol, bid, ask);
 
         return StockRecordView.fromRecordAskBid(
                 latestStockRecord,

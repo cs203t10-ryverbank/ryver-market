@@ -7,4 +7,5 @@ public interface StockRecordService {
     StockRecord getLatestStockRecordBySymbol(String symbol);
     StockRecord updateStockRecordRemoveFromMarket(String symbol, Double price, Integer quantity);
     StockRecord updateStockRecordAddToMarket(String symbol, Integer quantity);
+    public StockRecord updateStockRecord(String symbol, Double lastBid, Double lastAsk);
 }

@@ -47,5 +47,14 @@ public class StockRecordServiceImpl implements StockRecordService {
 
         return stockRecordRepo.save(stockRecord);
     }
+
+    @Override
+    public StockRecord updateStockRecord(String symbol, Double lastBid, Double lastAsk) {
+        StockRecord stockRecord = getLatestStockRecordBySymbol(symbol);
+        stockRecord.setLastBid(lastBid);
+        stockRecord.setLastAsk(lastAsk);
+
+        return stockRecordRepo.save(stockRecord);
+    }
 }
 
