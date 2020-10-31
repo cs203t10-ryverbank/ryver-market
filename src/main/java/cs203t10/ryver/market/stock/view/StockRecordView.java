@@ -35,39 +35,24 @@ public class StockRecordView {
     private Double ask = 0.0;
 
     public static StockRecordView fromRecordAskBid(StockRecord record) {
-        return fromRecordAskBid(record, null, null, 0, 0);
+        return fromRecordAskBid(record, 0.0, 0.0, 0, 0);
     }
 
     public static StockRecordView fromRecordAskBid(
-            StockRecord record, Trade bestBuy, Trade bestSell,
+            StockRecord record, Double bid, Double ask,
             Integer bidVolume, Integer askVolume) {
-        // TODO: Take in an arraylist of all stock records
 
-        // Process each stock record
-            // TotalQuantity += stockRecord.getQuantity
-            // TotalFilledQuantity += stockRecord.getFilledQuantity
-        // BidVolume = TotalQuantity - TotalFilledQuantity
-        // If bestSell.getPrice == 0 || bestBuy.getPrice == 0,  set to lastPrice.
         if (record == null) {
             throw new RuntimeException("Cannot build stock record view from null record");
         }
-        Trade bestBuyToUse = bestBuy == null ? new Trade() : bestBuy;
-        Trade bestSellToUse = bestSell == null ? new Trade() : bestSell;
 
-        Double lastPrice = record.getPrice();
-        if (bestBuyToUse.getPrice() == 0) {
-            bestBuyToUse.setPrice(lastPrice);
-        }
-        if (bestSellToUse.getPrice() == 0) {
-            bestSellToUse.setPrice(lastPrice);
-        }
         return StockRecordView.builder()
                 .symbol(record.getStock().getSymbol())
                 .lastPrice(record.getPrice())
                 .bidVolume(bidVolume)
-                .bid(bestBuyToUse.getPrice())
+                .bid(bid)
                 .askVolume(askVolume)
-                .ask(bestSellToUse.getPrice())
+                .ask(ask)
                 .build();
     }
 

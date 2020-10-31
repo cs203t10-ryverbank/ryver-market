@@ -41,6 +41,10 @@ public class StockRecord {
     @Min(value = 0, message = "Price cannot be less than 0")
     private Double price;
 
+    private Double lastBid;
+
+    private Double lastAsk;
+
     @NotNull(message = "Total volume cannot be null")
     @Min(value = 0, message = "Total volume cannot be less than 0")
     private Integer totalVolume;
