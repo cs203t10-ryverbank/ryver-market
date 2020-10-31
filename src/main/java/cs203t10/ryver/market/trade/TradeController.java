@@ -80,6 +80,12 @@ public class TradeController {
         }
 
         Trade savedTrade = tradeService.saveTrade(tradeView);
+        // TradeView savedTradeView = TradeView.fromTrade(savedTrade);
+        // if (savedTradeView.getStatus() == Status.INVALID){
+        //     savedTradeView.setStatus(Status.PARTIAL_FILLED);
+        // }
+        // return savedTradeView;
+
         return TradeView.fromTrade(savedTrade);
     }
 

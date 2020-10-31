@@ -9,6 +9,7 @@ public interface ExtendedTradeRepository {
     List<Trade> findAllByCustomerId(Long customerId);
     List<Trade> findAllSellTradesBySymbol(String symbol);
     List<Trade> findAllBuyTradesBySymbol(String symbol);
+    void resetAllInvalidTradesBySymbol(String symbol);
     Optional<Trade> findBestMarketBuyBySymbol(String symbol);
     Optional<Trade> findBestMarketSellBySymbol(String symbol);
     Optional<Trade> findBestLimitBuyBySymbol(String symbol);

@@ -70,6 +70,10 @@ public class TradeView {
         if (trade.getFilledQuantity() != 0) {
             view.setAvgPrice(trade.getTotalPrice() / trade.getFilledQuantity());
         }
+        // Return partial-filled
+        if (trade.getStatus() == Status.INVALID){
+            view.setStatus(Status.PARTIAL_FILLED);
+        }
         return view;
     }
 
