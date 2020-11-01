@@ -29,7 +29,7 @@ public class PortfolioController {
     }
 
     @PutMapping("/portfolio/{customerId}/addToInitialCapital")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('MANAGER')")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Add to Initial Capital")
     public void addToInitialCapital(@AuthenticationPrincipal RyverPrincipal principal,
