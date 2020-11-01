@@ -6,7 +6,7 @@ import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
 public interface PortfolioService {
     Portfolio findByCustomerId(Integer customerId);
     Portfolio findByCustomerIdElseCreate(Integer customerId);
-    Portfolio savePortfolio(PortfolioInitial portfolioInitial);
+    Portfolio savePortfolio(Portfolio portfolioInitial);
     PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId);
     Integer getAvailableQuantityOfAsset(Integer customerId, String code);
     Portfolio addToInitialCapital(Integer customerId, Double amount);

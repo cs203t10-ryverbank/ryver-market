@@ -42,17 +42,17 @@ public class PortfolioServiceImpl implements PortfolioService {
         if (portfolio == null) {
             List<Asset> assetList = new ArrayList<>();
             Double initialCapital = Double.parseDouble(fundTransferService.getTotalBalance(customerId).getBody());
-            PortfolioInitial portfolioInitial = new PortfolioInitial(customerId, assetList, initialCapital);
-            return portfolios.save(portfolioInitial.toPortfolio());
+            Portfolio portfolioInitial = new Portfolio(customerId, assetList, initialCapital);
+            return portfolios.save(portfolioInitial);
         } else {
             return portfolio;
         }
     }
 
     @Override
-    public Portfolio savePortfolio(PortfolioInitial portfolioInitial) {
+    public Portfolio savePortfolio(Portfolio portfolioInitial) {
         try {
-            return portfolios.save(portfolioInitial.toPortfolio());
+            return portfolios.save(portfolioInitial);
         } catch (DataIntegrityViolationException e) {
             throw new PortfolioAlreadyExistsException(portfolioInitial.getCustomerId());
         }
