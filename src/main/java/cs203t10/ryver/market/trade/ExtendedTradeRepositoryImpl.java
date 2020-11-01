@@ -117,6 +117,18 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
     }
 
     @Override
+    @Transactional
+    public void deleteAllClosedTrades() {
+        final String sql = String.join(" ",
+            "DELETE TRADE",
+            "WHERE status = 'CLOSED'"
+        );
+        Query query = entityManager
+                .createNativeQuery(sql, Trade.class);
+        query.executeUpdate();
+    }
+
+    @Override
     public Optional<Trade> findBestMarketBuyBySymbol(String symbol) {
         return findBestMarketBySymbol(symbol, Action.BUY);
     }
@@ -139,6 +151,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
             "AND status != 'CANCELLED'",
             "AND status != 'EXPIRED'",
             "AND STATUS != 'INVALID'",
+            "AND status != 'CLOSED'",
             "ORDER BY submitted_date"
         );
         Query query = entityManager
@@ -179,6 +192,7 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 "AND STATUS != 'CANCELLED'",
                 "AND STATUS != 'EXPIRED'",
                 "AND STATUS != 'INVALID'",
+                "AND status != 'CLOSED'",
             ")",
             "AND status != 'FILLED'",
             "ORDER BY submitted_date"
@@ -236,7 +250,8 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
             "AND action = :action",
             "AND status != 'FILLED'",
             "AND status != 'CANCELLED'",
-            "AND status != 'EXPIRED'"
+            "AND status != 'EXPIRED'",
+            "AND status != 'CLOSED'"
         );
         Query query = entityManager.createNativeQuery(sql);
         BigInteger result = (BigInteger) query
@@ -244,6 +259,20 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 .setParameter("action", action.toString().toUpperCase())
                 .getSingleResult();
         return result.longValue();
+    }
+
+    @Override
+    public List<Trade> findAllClosedTrades() {
+        final String sql = String.join(" ",
+            "SELECT * FROM TRADE",
+            "WHERE status = 'CLOSED'",
+            "ORDER BY submitted_date"
+        );
+        Query query = entityManager
+                .createNativeQuery(sql, Trade.class);
+        @SuppressWarnings("unchecked")
+        List<Trade> results = query.getResultList();
+        return results;
     }
 
 }
