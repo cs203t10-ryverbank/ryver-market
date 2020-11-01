@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.trade.Trade.Action;
+import cs203t10.ryver.market.trade.exception.*;
 import lombok.*;
 
 @Data @Builder
@@ -24,6 +25,15 @@ public class TradeView {
 
     @Builder.Default
     private Integer quantity = 0;
+
+    private static final int TRADE_MIN_RES = 100;
+    public Integer getQuantity() {
+        if (quantity % TRADE_MIN_RES != 0) {
+            throw new TradeForbiddenException(quantity);
+        } else {
+            return quantity;
+        }
+    }
 
     @Builder.Default
     private Integer filledQuantity = 0;
