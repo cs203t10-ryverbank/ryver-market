@@ -23,4 +23,5 @@ public interface TradeService {
     Trade cancelTrade(Integer tradeId);
     void resetTrades();
     void reconcileMarket(String symbol);
+    Trade addTradeToOpenMarket(TradeView tradeView, Double availableBalance);
 }
