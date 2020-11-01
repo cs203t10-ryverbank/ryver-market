@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
+import cs203t10.ryver.market.portfolio.asset.StockNotOwnedException;
 import cs203t10.ryver.market.security.PrincipalService;
 import cs203t10.ryver.market.security.RyverPrincipal;
 import cs203t10.ryver.market.stock.exception.NoSuchStockException;
@@ -94,6 +96,8 @@ public class TradeController {
             return TradeView.fromTrade(savedTrade);
         } catch (NoSuchStockException e){
             throw new TradeForbiddenException(rawTradeView.getSymbol());
+        } catch (StockNotOwnedException e){
+            throw new TradeForbiddenException(rawTradeView.getSymbol(), rawTradeView.getQuantity());
         }
 
     }

@@ -15,5 +15,9 @@ public class TradeForbiddenException extends RuntimeException {
         super(String.format("No such stock : %s", symbol));
     }
 
+    public TradeForbiddenException(String symbol, Integer quantity) {
+        super(String.format("Not enough stock : %s to sell. User does not have %s stocks", symbol, quantity));
+    }
+
 }
 
