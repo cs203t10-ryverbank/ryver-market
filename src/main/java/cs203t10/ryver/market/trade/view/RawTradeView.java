@@ -8,17 +8,19 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.springframework.beans.BeanUtils;
-
 import cs203t10.ryver.market.trade.Trade.Status;
-import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.exception.*;
 import lombok.*;
 
 @Data @Builder
 @AllArgsConstructor @NoArgsConstructor
-public class TradeView {
+public class RawTradeView {
+
+    @AssertTrue(message = "Bid/ask price must be specified")
+    private boolean isActionPriceSpecified() {
+        return (action == Action.BUY && bid != null) || (action == Action.SELL && ask != null);
+    }
 
     private Integer id;
 
@@ -60,51 +62,33 @@ public class TradeView {
      *
      * If prices are the same, earlier trade will be matched first
      */
-    @Builder.Default
-    private Double bid = 0.0;
+    private Double bid;
 
-    @Builder.Default
-    private Double ask = 0.0;
+    private Double ask;
 
     @Builder.Default
     private Double avgPrice = 0.0;
 
-    public static TradeView fromTrade(Trade trade) {
-        if (trade == null) {
-            throw new RuntimeException("Cannot build trade view from null trade");
-        }
-        TradeView view = new TradeView();
-        BeanUtils.copyProperties(trade, view);
-        // Set the symbol for the trade view
-        view.setSymbol(trade.getStock().getSymbol());
-        // Set the bid or ask of the trade view
-        if (trade.getAction().equals(Action.BUY)) {
-            view.setBid(trade.getPrice());
-        } else {
-            view.setAsk(trade.getPrice());
-        }
-        // Set the average price of the trade view
-        if (trade.getFilledQuantity() != 0) {
-            view.setAvgPrice(trade.getTotalPrice() / trade.getFilledQuantity());
-        }
-        // Return partial-filled
-        if (trade.getStatus() == Status.INVALID){
-            view.setStatus(Status.PARTIAL_FILLED);
-        }
-        return view;
-    }
 
     /**
      * Converts a view into a Trade, without the Stock entity foreign key.
      */
-    public Trade toTrade() {
-        Trade trade = new Trade();
-        BeanUtils.copyProperties(this, trade);
-        // Set the price of the trade
-        trade.setPrice(action.equals(Action.BUY) ? bid : ask);
-        // Set the total price of the trade
-        trade.setTotalPrice(avgPrice * filledQuantity);
-        return trade;
+    public TradeView toTradeView() {
+        TradeView tradeView = TradeView.builder()
+                                .id(id)
+                                .action(action)
+                                .symbol(symbol)
+                                .quantity(quantity)
+                                .filledQuantity(filledQuantity)
+                                .customerId(customerId)
+                                .accountId(accountId)
+                                .submittedDate(submittedDate)
+                                .status(status)
+                                .bid(bid)
+                                .ask(ask)
+                                .avgPrice(avgPrice)
+                                .build();
+        return tradeView;
     }
 
 }

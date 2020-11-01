@@ -351,7 +351,7 @@ public class TradeServiceTest {
             .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
             .bid(2.0).avgPrice(0.0).build();
 
-        Mockito.doThrow(new InsufficientBalanceException(1, 20000.0, 0.0))
+        Mockito.doThrow(new InsufficientBalanceException(1, 20000.0))
                 .when(fundTransferService)
                 .deductAvailableBalance(any(Integer.class), any(Integer.class), any(Double.class));
 
@@ -427,7 +427,7 @@ public class TradeServiceTest {
         }
 
         tradeService.reconcileMarket(TestConstants.SYMBOL);
-
+        
         assertEquals("FILLED", testSell.getStatus());
         assertEquals("PARTIALLY_FILLED", testBuy.getStatus());
     }

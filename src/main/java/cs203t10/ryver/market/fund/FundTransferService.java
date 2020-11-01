@@ -94,7 +94,7 @@ public class FundTransferService {
             if (status.equals(HttpStatus.FORBIDDEN)) {
                 throw new AccountNotAllowedException(customerId, accountId);
             } else if (status.equals(HttpStatus.BAD_REQUEST)) {
-                throw new InsufficientBalanceException(accountId, amount, 0.0);
+                throw new InsufficientBalanceException(accountId, amount);
             } else if (status.equals(HttpStatus.NOT_FOUND)) {
                 throw new AccountNotFoundException(accountId);
             }
@@ -119,7 +119,7 @@ public class FundTransferService {
             if (status.equals(HttpStatus.FORBIDDEN)) {
                 throw new AccountNotAllowedException(customerId, accountId);
             } else if (status.equals(HttpStatus.BAD_REQUEST)) {
-                throw new InsufficientBalanceException(accountId, amount, 0.0);
+                throw new InsufficientBalanceException(accountId, amount);
             } else if (status.equals(HttpStatus.NOT_FOUND)) {
                 throw new AccountNotFoundException(accountId);
             }
@@ -144,7 +144,7 @@ public class FundTransferService {
             if (status.equals(HttpStatus.FORBIDDEN)) {
                 throw new AccountNotAllowedException(customerId, accountId);
             } else if (status.equals(HttpStatus.BAD_REQUEST)) {
-                throw new InsufficientBalanceException(accountId, amount, 0.0);
+                throw new InsufficientBalanceException(accountId, amount);
             } else if (status.equals(HttpStatus.NOT_FOUND)) {
                 throw new AccountNotFoundException(accountId);
             }

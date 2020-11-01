@@ -22,6 +22,7 @@ import cs203t10.ryver.market.security.RyverPrincipal;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.exception.TradeNotAllowedException;
 import cs203t10.ryver.market.trade.exception.TradeNotFoundException;
+import cs203t10.ryver.market.trade.view.RawTradeView;
 import cs203t10.ryver.market.trade.view.TradeView;
 
 import io.swagger.annotations.ApiOperation;
@@ -72,13 +73,13 @@ public class TradeController {
     @PreAuthorize("hasRole('USER')")
     @ApiOperation(value = "Add trade")
     @ResponseStatus(HttpStatus.CREATED)
-    public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
+    public TradeView addTrade(@Valid @RequestBody RawTradeView rawTradeView) {
         RyverPrincipal principal = principalService.getPrincipal();
 
-        if (principal.uid.intValue() != tradeView.getCustomerId()) {
-            throw new TradeNotAllowedException(tradeView.getCustomerId());
+        if (principal.uid.intValue() != rawTradeView.getCustomerId()) {
+            throw new TradeNotAllowedException(rawTradeView.getCustomerId());
         }
-
+        TradeView tradeView = rawTradeView.toTradeView();
         Trade savedTrade = tradeService.saveTrade(tradeView);
         // TradeView savedTradeView = TradeView.fromTrade(savedTrade);
         // if (savedTradeView.getStatus() == Status.INVALID){

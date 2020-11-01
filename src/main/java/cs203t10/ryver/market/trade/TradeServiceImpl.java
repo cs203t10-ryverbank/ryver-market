@@ -502,7 +502,9 @@ public class TradeServiceImpl implements TradeService {
         if (trade == null) {
             throw new TradeNotFoundException(tradeId);
         }
-        trade.setStatus(Status.CANCELLED);
+        if (trade.getStatus() == Status.OPEN || trade.getStatus() == Status.PARTIAL_FILLED) {
+            trade.setStatus(Status.CANCELLED);
+        }
         return tradeRepo.save(trade);
     }
 
