@@ -95,9 +95,11 @@ public class PortfolioServiceImpl implements PortfolioService {
     public Portfolio addToInitialCapital(Integer customerId, Double amount) {
         Portfolio portfolio = portfolios.findByCustomerId(customerId).orElse(null);
         if (portfolio == null) {
-            return findByCustomerIdElseCreate(customerId);
+            return null;
         }
+        System.out.println(portfolio.getInitialCapital());
         portfolio.setInitialCapital(portfolio.getInitialCapital() + amount);
+        System.out.println(portfolio.getInitialCapital());
         return portfolios.save(portfolio);
     }
 
@@ -105,7 +107,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     public Portfolio deductFromInitialCapital(Integer customerId, Double amount) {
         Portfolio portfolio = portfolios.findByCustomerId(customerId).orElse(null);
         if (portfolio == null) {
-            return findByCustomerIdElseCreate(customerId);
+            return null;
         }
         portfolio.setInitialCapital(portfolio.getInitialCapital() - amount);
         return portfolios.save(portfolio);
