@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cs203t10.ryver.market.security.PrincipalService;
 import cs203t10.ryver.market.security.RyverPrincipal;
+import cs203t10.ryver.market.stock.exception.NoSuchStockException;
 import cs203t10.ryver.market.trade.Trade.Status;
+import cs203t10.ryver.market.trade.exception.TradeForbiddenException;
 import cs203t10.ryver.market.trade.exception.TradeNotAllowedException;
 import cs203t10.ryver.market.trade.exception.TradeNotFoundException;
 import cs203t10.ryver.market.trade.view.RawTradeView;
@@ -74,20 +76,26 @@ public class TradeController {
     @ApiOperation(value = "Add trade")
     @ResponseStatus(HttpStatus.CREATED)
     public TradeView addTrade(@Valid @RequestBody RawTradeView rawTradeView) {
-        RyverPrincipal principal = principalService.getPrincipal();
+        try{
+            RyverPrincipal principal = principalService.getPrincipal();
 
-        if (principal.uid.intValue() != rawTradeView.getCustomerId()) {
-            throw new TradeNotAllowedException(rawTradeView.getCustomerId());
+            if (principal.uid.intValue() != rawTradeView.getCustomerId()) {
+                throw new TradeNotAllowedException(rawTradeView.getCustomerId());
+            }
+
+            TradeView tradeView = rawTradeView.toTradeView();
+            Trade savedTrade = tradeService.saveTrade(tradeView);
+            // TradeView savedTradeView = TradeView.fromTrade(savedTrade);
+            // if (savedTradeView.getStatus() == Status.INVALID){
+            //     savedTradeView.setStatus(Status.PARTIAL_FILLED);
+            // }
+            // return savedTradeView;
+
+            return TradeView.fromTrade(savedTrade);
+        } catch (NoSuchStockException e){
+            throw new TradeForbiddenException(rawTradeView.getSymbol());
         }
-        TradeView tradeView = rawTradeView.toTradeView();
-        Trade savedTrade = tradeService.saveTrade(tradeView);
-        // TradeView savedTradeView = TradeView.fromTrade(savedTrade);
-        // if (savedTradeView.getStatus() == Status.INVALID){
-        //     savedTradeView.setStatus(Status.PARTIAL_FILLED);
-        // }
-        // return savedTradeView;
 
-        return TradeView.fromTrade(savedTrade);
     }
 
     @PutMapping("/trades/{tradeId}")
