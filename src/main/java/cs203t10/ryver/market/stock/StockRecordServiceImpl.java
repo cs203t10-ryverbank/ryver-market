@@ -70,6 +70,11 @@ public class StockRecordServiceImpl implements StockRecordService {
         return stockRecordRepo.save(stockRecord);
     }
 
+    @Override
+    public void reset(){
+        stockRecordRepo.deleteAll();
+    }
+
 
 
 }
