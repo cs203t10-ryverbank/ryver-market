@@ -18,4 +18,6 @@ public interface ExtendedTradeRepository {
     Long getBuyFilledQuantityBySymbol(String symbol);
     Long getSellQuantityBySymbol(String symbol);
     Long getSellFilledQuantityBySymbol(String symbol);
+    List<Trade> findAllClosedTrades();
+    void deleteAllClosedTrades();
 }

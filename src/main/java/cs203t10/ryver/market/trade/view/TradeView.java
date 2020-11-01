@@ -87,9 +87,14 @@ public class TradeView {
         if (trade.getFilledQuantity() != 0) {
             view.setAvgPrice(trade.getTotalPrice() / trade.getFilledQuantity());
         }
-        // Return partial-filled
+        // Return partial-filled when trade is "invalid"
         if (trade.getStatus() == Status.INVALID){
             view.setStatus(Status.PARTIAL_FILLED);
+        }
+
+        // Return open when market is closed
+        if (trade.getStatus() == Status.CLOSED){
+            view.setStatus(Status.OPEN);
         }
         return view;
     }

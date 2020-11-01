@@ -2,6 +2,8 @@ package cs203t10.ryver.market.trade;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import cs203t10.ryver.market.portfolio.PortfolioService;
 import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
+import cs203t10.ryver.market.stock.scrape.FakeScrapingService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeView;
@@ -37,6 +40,11 @@ public class TradeServiceImpl implements TradeService {
 
     @Autowired
     private MarketMaker marketMaker;
+
+    @Autowired
+    private FakeScrapingService fakeScrapingService;
+
+
 
     /**
     *  Whenever a user submits a trade, the trade is saved and added to the market
@@ -70,7 +78,8 @@ public class TradeServiceImpl implements TradeService {
     /**
     *  Add trades when market is open and market reconcile all trades
     */
-    private Trade addTradeToOpenMarket(TradeView tradeView, Double availableBalance) {
+    @Override
+    public Trade addTradeToOpenMarket(TradeView tradeView, Double availableBalance) {
         if (tradeView.getAction() == Action.SELL) {
             // Sell trades will increase the trade quantity of the stock
             // records only when the market is open.
@@ -100,7 +109,7 @@ public class TradeServiceImpl implements TradeService {
     */
     private Trade addTradeToClosedMarket(TradeView tradeView, Double availableBalance) {
         // By default, trade will be set to OPEN status.
-        tradeView.setStatus(Status.OPEN);
+        tradeView.setStatus(Status.CLOSED);
 
         // Save trade.
         Trade trade = tradeView.toTrade();
@@ -117,6 +126,7 @@ public class TradeServiceImpl implements TradeService {
      * transfer service, then remove the trade quantity from the stock records.
      */
     @Override
+    @Transactional
     public void reconcileMarket(String symbol) {
         Trade bestSell = getBestSell(symbol);
         Trade bestBuy = getBestBuy(symbol);
@@ -215,8 +225,10 @@ public class TradeServiceImpl implements TradeService {
             ? latestStock.getLastAsk() : tradeView.getBid();
         Double availableBalance = bid * tradeView.getQuantity();
 
+        boolean isMarketOpen = DateUtils.isMarketOpen(tradeView.getSubmittedDate());
+
         // Update lastBuy on stock records if it is not market buy
-        if (bid > latestStock.getLastBid() && !isMarketBuy){
+        if (bid > latestStock.getLastBid() && !isMarketBuy && isMarketOpen){
             latestStock.setLastBid(bid);
             stockRecordService.updateStockRecord(tradeView.getSymbol(),
                                                 latestStock.getLastBid(),
@@ -260,8 +272,10 @@ public class TradeServiceImpl implements TradeService {
         Double ask = isMarketSell
             ? latestStock.getLastBid() : tradeView.getAsk();
 
+        boolean isMarketOpen = DateUtils.isMarketOpen(tradeView.getSubmittedDate());
+
         // Update lastAsk on stock records if it is not a market sell
-        if ( ask < latestStock.getLastAsk() && !isMarketSell){
+        if ( ask < latestStock.getLastAsk() && !isMarketSell && isMarketOpen){
             latestStock.setLastAsk(ask);
             stockRecordService.updateStockRecord(tradeView.getSymbol(),
                                                 latestStock.getLastBid(),
@@ -596,6 +610,8 @@ public class TradeServiceImpl implements TradeService {
     public void resetTrades() {
         tradeRepo.deleteAll();
         portfolioService.resetPortfolios();
+        stockRecordService.reset();
+        fakeScrapingService.loadStockRecords();
         marketMaker.makeNewTrades();
     }
 

@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.stock.StockRepository;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
+import cs203t10.ryver.market.trade.view.TradeView;
 
 @Component
 @Service
@@ -36,31 +39,22 @@ public class ScheduledTradeService {
     @Autowired
     private FundTransferService fundTransferService;
 
-    @Autowired 
+    @Autowired
     private AssetService assetService;
 
     // TODO: Verify this works on AWS
     // Cron expression: open market at 9am from Monday to Friday.
     @Scheduled(cron = "0 0 09 * * MON-FRI", zone = "Asia/Singapore")
     public void openMarket() {
-        List<Trade> tradeList = tradeRepo.findAll();
+        List<Trade> tradeList = tradeRepo.findAllClosedTrades();
 
         // Update the stock record for any open sell trade.
         for (Trade trade : tradeList) {
-            if (!trade.getStatus().equals(Status.OPEN)) {
-                continue;
-            }
-
-            if (trade.getAction() == Action.SELL) {
-                stockRecordService.updateStockRecordAddToMarket(trade.getStock().getSymbol(), trade.getQuantity());
-            }
+            trade.setStatus(Status.OPEN);
+            tradeRepo.save(trade);
+            tradeService.reconcileMarket(trade.getStock().getSymbol());
         }
 
-        // Match all pending open trades.
-        List<Stock> allStocks = stockRepo.findAll();
-        for (Stock stock : allStocks) {
-            tradeService.reconcileMarket(stock.getSymbol());
-        }
     }
 
     // TODO: Verify this works on AWS

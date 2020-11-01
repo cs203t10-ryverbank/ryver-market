@@ -11,4 +11,5 @@ public interface StockRecordService {
     StockRecord updateStockRecordAddToMarket(String symbol, Integer quantity);
     StockRecord updateStockRecord(String symbol, Double lastBid, Double lastAsk);
     StockRecord updateStockRecord(String symbol, Trade bestBuy, Trade bestSell);
+    void reset();
 }
