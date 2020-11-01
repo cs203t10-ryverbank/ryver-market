@@ -97,7 +97,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         if (portfolio == null) {
             return null;
         }
+        System.out.println(portfolio.getInitialCapital());
         portfolio.setInitialCapital(portfolio.getInitialCapital() + amount);
+        System.out.println(portfolio.getInitialCapital());
         return portfolios.save(portfolio);
     }
 

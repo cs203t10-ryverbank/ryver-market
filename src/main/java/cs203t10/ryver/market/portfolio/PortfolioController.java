@@ -32,9 +32,8 @@ public class PortfolioController {
     @PreAuthorize("hasRole('USER') or hasRole('MANAGER')")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Add to Initial Capital")
-    public void addToInitialCapital(@AuthenticationPrincipal RyverPrincipal principal,
+    public void addToInitialCapital(@PathVariable Integer customerId,
         @Valid @RequestParam(value = "amount") Double amount) {
-        Integer customerId = principal.uid.intValue();
         portfolioService.addToInitialCapital(customerId, amount);
     }
 
