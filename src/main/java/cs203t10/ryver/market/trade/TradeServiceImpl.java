@@ -86,6 +86,7 @@ public class TradeServiceImpl implements TradeService {
         // Save trade.
         Trade trade = tradeView.toTrade();
         trade.setAvailableBalance(availableBalance);
+
         Trade toReturn = tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
 
         // Reconcile market status after adding trade.
@@ -253,7 +254,7 @@ public class TradeServiceImpl implements TradeService {
         StockRecord latestStock = stockRecordService
                                 .getLatestStockRecordBySymbol(tradeView.getSymbol());
 
-        boolean isMarketSell = tradeView.getBid() == 0;
+        boolean isMarketSell = tradeView.getAsk() == 0;
 
         // If it is a market sell, set to last bid.
         Double ask = isMarketSell
@@ -350,11 +351,16 @@ public class TradeServiceImpl implements TradeService {
 
         // The buy with a higher price is better, as it gives the
         // matcher (seller) more per stock traded.
+        System.out.println("limit: "+  bestLimit.getPrice());
+        System.out.println("sell: "+ bestSell.getPrice());
         if (bestLimit.getPrice() > bestSell.getPrice()) {
+            System.out.println("Best buy : return limit");
             return bestLimit;
         } else if (bestLimit.getPrice().equals(bestSell.getPrice())){
-            getEarlierTrade(bestMarket, bestLimit);
+            System.out.println("Best buy : return earlier");
+            return getEarlierTrade(bestMarket, bestLimit);
         }
+        System.out.println("Best buy : return market");
         return bestMarket;
     }
 
@@ -382,12 +388,61 @@ public class TradeServiceImpl implements TradeService {
         // The sell with a lower price is better, as it lets the
         // matcher (buyer) get more stocks for a lower price.
         if (bestLimit.getPrice() < bestBuy.getPrice()) {
+            System.out.println("Best sell : return limit");
             return bestLimit;
         } else if (bestLimit.getPrice().equals(bestBuy.getPrice())){
-            getEarlierTrade(bestMarket, bestLimit);
+            System.out.println("Best sell : return earlier");
+            return getEarlierTrade(bestMarket, bestLimit);
         }
+
+        System.out.println("Best sell : return market");
         return bestMarket;
     }
+
+    @Override
+    public Trade getBestSellForStockView(String symbol) {
+        Trade bestBuy = getBestLimitBuyBySymbol(symbol);
+        Trade bestMarket = getBestMarketSellBySymbol(symbol);
+        Trade bestLimit = getBestLimitSellBySymbol(symbol);
+        if (bestMarket == null && bestLimit == null) {
+            return null;
+        }
+        if (bestLimit == null) {
+            return bestMarket;
+        }
+        if (bestMarket == null) {
+            return bestLimit;
+        }
+
+        if (bestBuy == null) {
+            return getEarlierTrade(bestMarket, bestLimit);
+        }
+        return getEarlierTrade(bestMarket, bestLimit);
+    }
+
+    @Override
+    public Trade getBestBuyForStockView(String symbol) {
+        Trade bestSell = getBestLimitSellBySymbol(symbol);
+        Trade bestMarket = getBestMarketBuyBySymbol(symbol);
+        Trade bestLimit = getBestLimitBuyBySymbol(symbol);
+        if (bestMarket == null && bestLimit == null) {
+            return null;
+        }
+        if (bestLimit == null) {
+            return bestMarket;
+        }
+        if (bestMarket == null) {
+            return bestLimit;
+        }
+
+        if (bestSell == null) {
+            return getEarlierTrade(bestMarket, bestLimit);
+        }
+
+        return getEarlierTrade(bestMarket, bestLimit);
+    }
+
+
 
     private Trade getBestMarketBuyBySymbol(String symbol) {
         return tradeRepo.findBestMarketBuyBySymbol(symbol).orElse(null);
@@ -397,11 +452,13 @@ public class TradeServiceImpl implements TradeService {
         return tradeRepo.findBestMarketSellBySymbol(symbol).orElse(null);
     }
 
-    private Trade getBestLimitBuyBySymbol(String symbol) {
+    @Override
+    public Trade getBestLimitBuyBySymbol(String symbol) {
         return tradeRepo.findBestLimitBuyBySymbol(symbol).orElse(null);
     }
 
-    private Trade getBestLimitSellBySymbol(String symbol) {
+    @Override
+    public Trade getBestLimitSellBySymbol(String symbol) {
         return tradeRepo.findBestLimitSellBySymbol(symbol).orElse(null);
     }
 

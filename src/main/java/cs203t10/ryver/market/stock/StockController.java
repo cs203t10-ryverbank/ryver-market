@@ -76,29 +76,32 @@ public class StockController {
     private Double getBidPrice(StockRecord record, Integer bidVolume, String symbol){
         // If bid or ask volume hits 0, set bid/ask to last bid/ask
         // Else, set bid/ask to best buy/sell
-        Double bid = bidVolume == 0
-            ? record.getLastBid() : tradeService.getBestBuy(symbol).getPrice() ;
-        // If best buy or best sell is a market order,
-        // set bid/ask to last bid/ last ask
-        if (bid == 0.0){
-            bid = record.getLastBid();
+        Trade bestLimitBuy = tradeService.getBestLimitBuyBySymbol(symbol);
+
+        if (bidVolume == 0){
+            return record.getLastBid();
         }
 
-        return bid;
+        if (bestLimitBuy != null ){
+            return bestLimitBuy.getPrice();
+        }
+
+        return record.getLastBid();
     }
 
     private Double getAskPrice(StockRecord record, Integer askVolume, String symbol){
-        Double ask = askVolume == 0
-            ? record.getLastAsk() : tradeService.getBestSell(symbol).getPrice() ;
-
-        if (ask == 0.0){
-            ask = record.getLastAsk();
+        Trade bestLimitSell = tradeService.getBestLimitSellBySymbol(symbol);
+        if (askVolume == 0){
+            return record.getLastAsk();
         }
-        return ask;
+        if (bestLimitSell != null ){
+            return bestLimitSell.getPrice();
+        }
+        return record.getLastAsk();
     }
 
     private Integer getBidVolume(String symbol){
-        Trade bestBuy = tradeService.getBestBuy(symbol);
+        Trade bestBuy = tradeService.getBestBuyForStockView(symbol);
         if (bestBuy == null){
             return 0;
         }
@@ -106,11 +109,11 @@ public class StockController {
     }
 
     private Integer getAskVolume(String symbol){
-        Trade bestAsk = tradeService.getBestSell(symbol);
-        if (bestAsk == null){
+        Trade bestSell = tradeService.getBestSellForStockView(symbol);
+        if (bestSell == null){
             return 0;
         }
-        return bestAsk.getQuantity() - bestAsk.getFilledQuantity();
+        return bestSell.getQuantity() - bestSell.getFilledQuantity();
     }
 }
 
