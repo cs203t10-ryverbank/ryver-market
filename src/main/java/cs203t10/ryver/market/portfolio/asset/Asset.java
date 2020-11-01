@@ -4,6 +4,8 @@ import javax.persistence.*;
 
 import javax.validation.constraints.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import cs203t10.ryver.market.portfolio.Portfolio;
 
 import lombok.*;
@@ -12,6 +14,7 @@ import lombok.*;
 @Getter @Setter @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
 @EqualsAndHashCode
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Asset {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +29,9 @@ public class Asset {
 
     @NotNull(message = "Quantity cannot be null")
     private Integer quantity;
+
+    @NotNull(message = "Available quantity cannot be null")
+    private Integer availableQuantity;
 
     @NotNull(message = "Average price cannot be null")
     private Double averagePrice;

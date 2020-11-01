@@ -8,9 +8,10 @@ public interface PortfolioService {
     Portfolio findByCustomerIdElseCreate(Integer customerId);
     Portfolio savePortfolio(PortfolioInitial portfolioInitial);
     PortfolioInfoViewableByCustomer viewPortfolio(Integer customerId);
-    Integer getQuantityOfAsset(Integer customerId, String code);
+    Integer getAvailableQuantityOfAsset(Integer customerId, String code);
     Portfolio addToInitialCapital(Integer customerId, Double amount);
     Portfolio deductFromInitialCapital(Integer customerId, Double amount);
+    Portfolio registerSellTrade(Integer customerId, String code, Integer quantity);
     Portfolio processBuyTrade(Trade trade);
     Portfolio processSellTrade(Trade trade);
     void resetPortfolios();

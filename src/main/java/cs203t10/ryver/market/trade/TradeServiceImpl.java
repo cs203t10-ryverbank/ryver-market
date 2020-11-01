@@ -257,9 +257,11 @@ public class TradeServiceImpl implements TradeService {
         fundTransferService.deductAvailableBalance(customerId, accountId, 0.0);
 
         // Check if account has enough stocks from portfolio.
-        Integer assetQuantityOwned = portfolioService.getQuantityOfAsset(customerId, symbol);
-        if (quantity > assetQuantityOwned) {
+        Integer assetAvailableQuantityOwned = portfolioService.getAvailableQuantityOfAsset(customerId, symbol);
+        if (quantity > assetAvailableQuantityOwned) {
             throw new InsufficientStockQuantityException(customerId, symbol);
+        } else {
+            portfolioService.registerSellTrade(customerId, symbol, quantity);
         }
     }
 

@@ -6,6 +6,8 @@ import javax.persistence.*;
 
 import javax.validation.constraints.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.*;
 
 import cs203t10.ryver.market.portfolio.asset.Asset;
@@ -14,6 +16,7 @@ import cs203t10.ryver.market.portfolio.asset.Asset;
 @Getter @Setter @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
 @EqualsAndHashCode
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Portfolio {
 
     @Id

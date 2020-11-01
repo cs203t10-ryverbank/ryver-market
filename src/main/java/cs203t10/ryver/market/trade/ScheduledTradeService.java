@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.fund.FundTransferService;
+import cs203t10.ryver.market.portfolio.asset.AssetService;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.stock.StockRepository;
@@ -34,6 +35,9 @@ public class ScheduledTradeService {
 
     @Autowired
     private FundTransferService fundTransferService;
+
+    @Autowired 
+    private AssetService assetService;
 
     // TODO: Verify this works on AWS
     // Cron expression: open market at 9am from Monday to Friday.
@@ -94,6 +98,9 @@ public class ScheduledTradeService {
             }
             fundTransferService.resetAvailableBalance(customerId, accountId);
         }
+
+        // Reset available quantity of all assets
+        assetService.resetAssetAvailableQuantity();
     }
 
 }

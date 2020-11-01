@@ -2,6 +2,8 @@ package cs203t10.ryver.market.fund;
 
 import java.util.List;
 
+import javax.management.InstanceNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -36,11 +38,11 @@ public class FundTransferService {
         // Find an instance of the ryver market service
         List<ServiceInstance> instances = discoveryClient.getInstances("ryver-fts");
         if (instances.size() == 0) {
-            //throw new NoInstanceException("ryver-market");
             System.out.println("no ryver-fts");
+            return null;
+        } else {
+            return instances.get(0).getUri().toString();
         }
-
-        return instances.get(0).getUri().toString();
     }
 
     private String getAccountsUrl() {

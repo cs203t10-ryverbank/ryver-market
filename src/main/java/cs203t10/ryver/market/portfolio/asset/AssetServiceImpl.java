@@ -29,9 +29,9 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Integer getQuantityByPortfolioCustomerIdAndCode(Integer customerId, String code) {
+    public Integer getAvailableQuantityByPortfolioCustomerIdAndCode(Integer customerId, String code) {
         Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
-        return asset.getQuantity();
+        return asset.getAvailableQuantity();
     }
 
     @Override
@@ -39,8 +39,11 @@ public class AssetServiceImpl implements AssetService {
             Integer quantity, Double averagePrice) {
         Portfolio portfolio = portfoliosService.findByCustomerId(customerId);
         Asset asset = Asset.builder()
-            .portfolio(portfolio).code(code)
-            .quantity(quantity).averagePrice(averagePrice)
+            .portfolio(portfolio)
+            .code(code)
+            .quantity(quantity)
+            .availableQuantity(quantity)
+            .averagePrice(averagePrice)
             .value(quantity * averagePrice)
             .build();
         return assets.save(asset);
@@ -60,6 +63,13 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
+    public Asset deductAvailableQuantity(Integer customerId, String code, Integer quantity) {
+        Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
+        asset.setAvailableQuantity(asset.getAvailableQuantity() - quantity);
+        return assets.save(asset);
+    }
+
+    @Override
     public Asset addToAsset(Integer customerId, String code,
             Integer quantity, Double unitPrice) {
         Asset asset = assets.findByPortfolioCustomerIdAndCode(customerId, code).orElse(null);
@@ -67,15 +77,24 @@ public class AssetServiceImpl implements AssetService {
             return addAsset(customerId, code, quantity, unitPrice);
         }
         Integer newQuantity = asset.getQuantity() + quantity;
+        Integer newAvailableQuantity = asset.getAvailableQuantity() + quantity;
         Double newValue = asset.getValue() + (quantity * unitPrice);
-        System.out.println(newValue/ newQuantity);
         Double newAveragePrice = newValue / newQuantity;
         asset.setQuantity(newQuantity);
+        asset.setAvailableQuantity(newAvailableQuantity);
         asset.setValue(newValue);
         asset.setAveragePrice(newAveragePrice);
         return assets.save(asset);
     }
 
+    @Override
+    public void resetAssetAvailableQuantity() {
+        List<Asset> assetList = assets.findAll();
+        for (Asset asset : assetList) {
+            asset.setAvailableQuantity(asset.getQuantity());
+            assets.save(asset);
+        }
+    }
 
     @Override
     public void resetAssets() {

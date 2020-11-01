@@ -87,8 +87,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public Integer getQuantityOfAsset(Integer customerId, String code) {
-        return assetService.getQuantityByPortfolioCustomerIdAndCode(customerId, code);
+    public Integer getAvailableQuantityOfAsset(Integer customerId, String code) {
+        return assetService.getAvailableQuantityByPortfolioCustomerIdAndCode(customerId, code);
     }
 
     @Override
@@ -101,6 +101,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         return portfolios.save(portfolio);
     }
 
+    @Override
     public Portfolio deductFromInitialCapital(Integer customerId, Double amount) {
         Portfolio portfolio = portfolios.findByCustomerId(customerId).orElse(null);
         if (portfolio == null) {
@@ -110,21 +111,17 @@ public class PortfolioServiceImpl implements PortfolioService {
         return portfolios.save(portfolio);
     }
 
+    @Override
     public Portfolio processSellTrade(Trade trade) {
         Integer customerId = trade.getCustomerId();
-        Portfolio portfolio = findByCustomerIdElseCreate(customerId);
+        Portfolio portfolio = findByCustomerId(customerId);
         String code = trade.getStock().getSymbol();
         Integer filledQuantity = trade.getFilledQuantity();
         assetService.deductFromAsset(customerId, code, filledQuantity);
-
-        StockRecord stockRecord = stockRecordService.getLatestStockRecordBySymbol(code);
-        Double currentPrice = stockRecord.getPrice();
-        Double sellPrice = trade.getPrice();
-        Double gainLoss = filledQuantity * (sellPrice - currentPrice);
-        // portfolio.setTotalGainLoss(portfolio.getTotalGainLoss() + gainLoss);
         return portfolios.save(portfolio);
     }
 
+    @Override
     public Portfolio processBuyTrade(Trade trade) {
         Integer customerId = trade.getCustomerId();
         Portfolio portfolio = findByCustomerIdElseCreate(customerId);
@@ -132,6 +129,13 @@ public class PortfolioServiceImpl implements PortfolioService {
         Integer filledQuantity = trade.getFilledQuantity();
         Double unitPrice = trade.getTotalPrice() / filledQuantity;
         assetService.addToAsset(customerId, code, filledQuantity, unitPrice);
+        return portfolios.save(portfolio);
+    }
+
+    @Override
+    public Portfolio registerSellTrade(Integer customerId, String code, Integer quantity) {
+        Portfolio portfolio = findByCustomerId(customerId);
+        assetService.deductAvailableQuantity(customerId, code, quantity);
         return portfolios.save(portfolio);
     }
 
