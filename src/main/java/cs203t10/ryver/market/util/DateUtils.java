@@ -16,7 +16,8 @@ public class DateUtils {
      * Market is open from 9am to 5pm every weekday.
      */
     public static boolean isMarketOpen(Date date) {
-        return isBetween9to5(date) && isWeekDay(date);
+        return true;
+        //return isBetween9to5(date) && isWeekDay(date);
     }
 
     public static boolean isBetween9to5(Date date) {
