@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import cs203t10.ryver.market.trade.Trade;
 
 import cs203t10.ryver.market.stock.exception.*;
 
@@ -47,5 +48,29 @@ public class StockRecordServiceImpl implements StockRecordService {
 
         return stockRecordRepo.save(stockRecord);
     }
+
+    @Override
+    public StockRecord updateStockRecord(String symbol, Double lastBid, Double lastAsk) {
+        StockRecord stockRecord = getLatestStockRecordBySymbol(symbol);
+        stockRecord.setLastBid(lastBid);
+        stockRecord.setLastAsk(lastAsk);
+
+        return stockRecordRepo.save(stockRecord);
+    }
+
+    @Override
+    public StockRecord updateStockRecord(String symbol, Trade bestBuy, Trade bestSell) {
+        StockRecord stockRecord = getLatestStockRecordBySymbol(symbol);
+        if (bestSell != null && bestSell.getPrice() != 0.0){
+            stockRecord.setLastAsk(bestSell.getPrice());
+        }
+        if (bestBuy != null && bestBuy.getPrice() != 0.0){
+            stockRecord.setLastBid(bestBuy.getPrice());
+        }
+        return stockRecordRepo.save(stockRecord);
+    }
+
+
+
 }
 

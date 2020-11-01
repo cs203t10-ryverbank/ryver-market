@@ -41,15 +41,6 @@ public class Trade {
     @Builder.Default
     private Integer quantity = 0;
 
-    private static final int TRADE_MIN_RES = 100;
-    public Integer getQuantity() {
-        if (quantity % TRADE_MIN_RES != 0) {
-            throw new TradeForbiddenException(quantity);
-        } else {
-            return quantity;
-        }
-    }
-
     @Builder.Default
     private Integer filledQuantity = 0;
 

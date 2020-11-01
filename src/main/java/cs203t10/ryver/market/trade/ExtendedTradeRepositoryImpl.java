@@ -8,9 +8,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.Modifying;
 
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.trade.Trade.Action;
@@ -76,10 +78,10 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
         Query query = entityManager
                 .createNativeQuery(sql, Trade.class)
                 .setParameter("stock_id", symbol)
-                .setParameter("action", (Action.SELL).toString().toUpperCase());
+                .setParameter("action"
+                , (Action.SELL).toString().toUpperCase());
         @SuppressWarnings("unchecked")
         List<Trade> results = query.getResultList();
-        System.out.println(results.size());
         return results;
     }
 
@@ -96,8 +98,22 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
                 .setParameter("action", (Action.BUY).toString().toUpperCase());
         @SuppressWarnings("unchecked")
         List<Trade> results = query.getResultList();
-        System.out.println(results.size());
         return results;
+    }
+
+    @Override
+    @Transactional
+    public void resetAllInvalidTradesBySymbol(String symbol) {
+        final String sql = String.join(" ",
+            "UPDATE TRADE",
+            "SET status = 'PARTIAL_FILLED'",
+            "WHERE stock_id = :stock_id",
+            "AND status = 'INVALID'"
+        );
+        Query query = entityManager
+                .createNativeQuery(sql, Trade.class)
+                .setParameter("stock_id", symbol);
+        query.executeUpdate();
     }
 
     @Override

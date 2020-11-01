@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.stock.StockRecord;
-import cs203t10.ryver.market.stock.StockRecordRepository;
+import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.TradeRepository;
 import cs203t10.ryver.market.trade.TradeService;
 import cs203t10.ryver.market.trade.Trade.Action;
@@ -24,20 +24,23 @@ public class MarketMaker {
     public static final double NEW_ASK_RATIO = 1.1;
 
     @Autowired
-    private StockRecordRepository stockRecordRepo;
-
-    @Autowired
     private TradeRepository tradeRepo;
 
     @Autowired
     private TradeService tradeService;
 
+    @Autowired
+    private StockRecordService stockRecordService;
+
     public void makeNewTrades() {
-        List<StockRecord> latestRecords = stockRecordRepo.findAllLatestPerStock();
+        List<StockRecord> latestRecords = stockRecordService.getAllLatestStockRecords();
         for (StockRecord record : latestRecords) {
             String symbol = record.getStock().getSymbol();
-            makeNewBuyTradesAtPrice(symbol, record.getPrice() * NEW_BID_RATIO);
-            makeNewSellTradesAtPrice(symbol, record.getPrice() * NEW_ASK_RATIO);
+            Double bid = record.getPrice() * NEW_BID_RATIO;
+            Double ask = record.getPrice() * NEW_ASK_RATIO;
+            makeNewBuyTradesAtPrice(symbol, bid);
+            makeNewSellTradesAtPrice(symbol, ask);
+            stockRecordService.updateStockRecord(symbol, bid, ask);
         }
     }
 

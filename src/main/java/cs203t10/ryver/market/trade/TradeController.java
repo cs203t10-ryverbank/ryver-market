@@ -57,7 +57,6 @@ public class TradeController {
     public TradeView getTrade(@PathVariable Integer tradeId) {
         RyverPrincipal principal = principalService.getPrincipal();
         Trade retrievedTrade = tradeService.getTrade(tradeId);
-        System.out.println("test: " + retrievedTrade == null);
         TradeView retrievedTradeView =  TradeView.fromTrade(retrievedTrade);
         if (retrievedTradeView.getStatus() == Status.INVALID) {
             retrievedTradeView.setStatus(Status.PARTIAL_FILLED);
@@ -81,6 +80,12 @@ public class TradeController {
         }
 
         Trade savedTrade = tradeService.saveTrade(tradeView);
+        // TradeView savedTradeView = TradeView.fromTrade(savedTrade);
+        // if (savedTradeView.getStatus() == Status.INVALID){
+        //     savedTradeView.setStatus(Status.PARTIAL_FILLED);
+        // }
+        // return savedTradeView;
+
         return TradeView.fromTrade(savedTrade);
     }
 
