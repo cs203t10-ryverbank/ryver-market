@@ -9,9 +9,9 @@ import cs203t10.ryver.market.TestConstants;
 import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
-import cs203t10.ryver.market.trade.view.TradeView;
+import cs203t10.ryver.market.trade.view.TradeViewViewable;
 
-public class TradeViewTest {
+public class TradeViewViewableTest {
 
     Stock testStock = new Stock("A1");
 
@@ -22,7 +22,7 @@ public class TradeViewTest {
             .submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(1.18).build();
 
-    TradeView testBuyView = TradeView.builder()
+    TradeViewViewable testBuyView = TradeViewViewable.builder()
             .action(testBuy.getAction())
             .symbol(testStock.getSymbol())
             .quantity(testBuy.getQuantity())
@@ -42,7 +42,7 @@ public class TradeViewTest {
             .submittedDate(TestConstants.FIRST_DATE)
             .status(Status.OPEN).price(1.23).build();
 
-    TradeView testSellView = TradeView.builder()
+    TradeViewViewable testSellView = TradeViewViewable.builder()
             .action(testSell.getAction())
             .symbol(testStock.getSymbol())
             .quantity(testSell.getQuantity())
@@ -57,20 +57,20 @@ public class TradeViewTest {
 
     @Test
     public void fromBuyTradeTest() {
-        var result = TradeView.fromTrade(testBuy);
+        var result = TradeViewViewable.fromTrade(testBuy);
         assertEquals(testBuyView, result);
     }
 
     @Test
     public void fromSellTradeTest() {
-        var result = TradeView.fromTrade(testSell);
+        var result = TradeViewViewable.fromTrade(testSell);
         assertEquals(testSellView, result);
     }
 
     @Test
     public void fromTradeTest_nullTrade_throws() {
         assertThrows(RuntimeException.class, () -> {
-            TradeView.fromTrade(null);
+            TradeViewViewable.fromTrade(null);
         });
     }
 
@@ -101,7 +101,7 @@ public class TradeViewTest {
             .totalPrice(20000.0)
             .build();
 
-        TradeView tradeView = TradeView.fromTrade(trade);
+        TradeViewViewable tradeView = TradeViewViewable.fromTrade(trade);
         Double expectedAveragePrice = 4.0;
         Double actualAveragePrice = tradeView.getAvgPrice();
         assertEquals(expectedAveragePrice, actualAveragePrice);

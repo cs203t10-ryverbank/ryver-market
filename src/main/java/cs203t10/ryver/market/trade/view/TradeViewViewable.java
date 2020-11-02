@@ -15,7 +15,7 @@ import lombok.*;
 
 @Data @Builder
 @AllArgsConstructor @NoArgsConstructor
-public class TradeView {
+public class TradeViewViewable {
 
     private Integer id;
 
@@ -47,6 +47,12 @@ public class TradeView {
     private Date submittedDate;
 
     private Status status;
+    public Status getStatus() {
+        if (status == null) {
+            return Status.OPEN;
+        }
+        return status;
+    }
 
     /**
      * The better-priced trade will be matched first.
@@ -62,11 +68,11 @@ public class TradeView {
     @Builder.Default
     private Double avgPrice = 0.0;
 
-    public static TradeView fromTrade(Trade trade) {
+    public static TradeViewViewable fromTrade(Trade trade) {
         if (trade == null) {
             throw new RuntimeException("Cannot build trade view from null trade");
         }
-        TradeView view = new TradeView();
+        TradeViewViewable view = new TradeViewViewable();
         BeanUtils.copyProperties(trade, view);
         // Set the symbol for the trade view
         view.setSymbol(trade.getStock().getSymbol());

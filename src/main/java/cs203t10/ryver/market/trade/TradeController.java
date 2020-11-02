@@ -22,7 +22,7 @@ import cs203t10.ryver.market.security.RyverPrincipal;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.exception.TradeNotAllowedException;
 import cs203t10.ryver.market.trade.exception.TradeNotFoundException;
-import cs203t10.ryver.market.trade.view.TradeView;
+import cs203t10.ryver.market.trade.view.TradeViewViewable;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -38,10 +38,10 @@ public class TradeController {
 
     @GetMapping("/trades")
     @ApiOperation(value = "Get all user trades")
-    public List<TradeView> getAllUserTrades() {
+    public List<TradeViewViewable> getAllUserTrades() {
         RyverPrincipal principal = principalService.getPrincipal();
         return tradeService.getAllUserOpenTrades(principal.uid).stream()
-                .map(TradeView::fromTrade)
+                .map(TradeViewViewable::fromTrade)
                 .map(tradeView -> {
                     if (tradeView.getStatus() == Status.INVALID) {
                         tradeView.setStatus(Status.PARTIAL_FILLED);
@@ -54,10 +54,10 @@ public class TradeController {
     @GetMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
     @ApiOperation(value = "Get a user's trades")
-    public TradeView getTrade(@PathVariable Integer tradeId) {
+    public TradeViewViewable getTrade(@PathVariable Integer tradeId) {
         RyverPrincipal principal = principalService.getPrincipal();
         Trade retrievedTrade = tradeService.getTrade(tradeId);
-        TradeView retrievedTradeView =  TradeView.fromTrade(retrievedTrade);
+        TradeViewViewable retrievedTradeView =  TradeViewViewable.fromTrade(retrievedTrade);
         if (retrievedTradeView.getStatus() == Status.INVALID) {
             retrievedTradeView.setStatus(Status.PARTIAL_FILLED);
         }
@@ -72,7 +72,7 @@ public class TradeController {
     @PreAuthorize("hasRole('USER')")
     @ApiOperation(value = "Add trade")
     @ResponseStatus(HttpStatus.CREATED)
-    public TradeView addTrade(@Valid @RequestBody TradeView tradeView) {
+    public TradeViewViewable addTrade(@Valid @RequestBody TradeViewViewable tradeView) {
         RyverPrincipal principal = principalService.getPrincipal();
 
         if (principal.uid.intValue() != tradeView.getCustomerId()) {
@@ -86,23 +86,23 @@ public class TradeController {
         // }
         // return savedTradeView;
 
-        return TradeView.fromTrade(savedTrade);
+        return TradeViewViewable.fromTrade(savedTrade);
     }
 
     @PutMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
     @ApiOperation(value = "Cancel trade")
-    public TradeView cancelTrade(@PathVariable Integer tradeId) {
+    public TradeViewViewable cancelTrade(@PathVariable Integer tradeId) {
         RyverPrincipal principal = principalService.getPrincipal();
         Trade retrievedTrade = tradeService.getTrade(tradeId);
         if (retrievedTrade == null){
             throw new TradeNotFoundException(tradeId);
         }
-        TradeView retrievedTradeView =  TradeView.fromTrade(retrievedTrade);
+        TradeViewViewable retrievedTradeView =  TradeViewViewable.fromTrade(retrievedTrade);
         if (principal.uid.intValue() != retrievedTradeView.getCustomerId()) {
             throw new TradeNotAllowedException(tradeId, principal.uid.intValue());
         }
-        return TradeView.fromTrade(tradeService.cancelTrade(tradeId));
+        return TradeViewViewable.fromTrade(tradeService.cancelTrade(tradeId));
     }
 
     @ResponseStatus(HttpStatus.OK)

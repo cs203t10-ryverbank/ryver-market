@@ -26,7 +26,7 @@ import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
-import cs203t10.ryver.market.trade.view.TradeView;
+import cs203t10.ryver.market.trade.view.TradeViewViewable;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +44,7 @@ public class TradeServiceTest {
     @InjectMocks
     TradeServiceImpl tradeService;
 
-    TradeView marketMakerBuy = TradeView.builder()
+    TradeViewViewable marketMakerBuy = TradeViewViewable.builder()
         .action(Action.BUY).symbol(TestConstants.STOCK.getSymbol())
         .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
         .customerId(0).accountId(0)
@@ -325,7 +325,7 @@ public class TradeServiceTest {
 
     @Test
     public void saveTrade_AccountDoesNotBelongToCustomer_noRegister() {
-        TradeView testBuy = TradeView.builder()
+        TradeViewViewable testBuy = TradeViewViewable.builder()
             .action(Action.BUY).symbol(TestConstants.SYMBOL)
             .quantity(10000).filledQuantity(0)
             .customerId(1).accountId(50)
@@ -344,7 +344,7 @@ public class TradeServiceTest {
 
     @Test
     public void saveTrade_InsufficientBalance_noRegister() {
-        TradeView testBuy = TradeView.builder()
+        TradeViewViewable testBuy = TradeViewViewable.builder()
             .action(Action.BUY).symbol(TestConstants.SYMBOL)
             .quantity(10000).filledQuantity(0)
             .customerId(1).accountId(1)

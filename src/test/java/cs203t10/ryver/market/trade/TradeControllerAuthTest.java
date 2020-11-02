@@ -36,7 +36,7 @@ import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
-import cs203t10.ryver.market.trade.view.TradeView;
+import cs203t10.ryver.market.trade.view.TradeViewViewable;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -120,7 +120,7 @@ public class TradeControllerAuthTest {
     public void addTradeAsOtherCustomer() throws Exception {
         Date testDate = new Date(1602321010000L);
 
-        TradeView testTradeView = TradeView.builder()
+        TradeViewViewable testTradeView = TradeViewViewable.builder()
                 .action(Action.BUY).symbol("TEST")
                 .quantity(1000).bid(3.28)
                 .ask(3.27).avgPrice(3.30)
@@ -147,7 +147,7 @@ public class TradeControllerAuthTest {
     public void addTradeAsManager() throws Exception {
         Date testDate = new Date(1602321010000L);
 
-        TradeView testTradeView = TradeView.builder()
+        TradeViewViewable testTradeView = TradeViewViewable.builder()
                 .action(Action.BUY).symbol("TEST")
                 .quantity(1000).bid(3.28)
                 .ask(3.27).avgPrice(3.30)
