@@ -2,8 +2,6 @@ package cs203t10.ryver.market.fund;
 
 import java.util.List;
 
-import javax.management.InstanceNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -19,6 +17,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import cs203t10.ryver.market.fund.exception.AccountNotAllowedException;
 import cs203t10.ryver.market.fund.exception.AccountNotFoundException;
+import cs203t10.ryver.market.fund.exception.InstanceNotFoundException;
 import cs203t10.ryver.market.fund.exception.InsufficientBalanceException;
 import cs203t10.ryver.market.security.SecurityUtils;
 import static cs203t10.ryver.market.security.SecurityConstants.AUTH_HEADER_KEY;
@@ -39,17 +38,16 @@ public class FundTransferService {
         List<ServiceInstance> instances = discoveryClient.getInstances("ryver-fts");
         if (instances.size() == 0) {
             System.out.println("no ryver-fts");
-            return null;
-        } else {
-            return instances.get(0).getUri().toString();
+            throw new InstanceNotFoundException("ryver-fts");
         }
+        return instances.get(0).getUri().toString();
     }
 
     private String getAccountsUrl() {
         return getFtsHostUrl() + "/accounts";
     }
 
-    private HttpEntity<String> getHttpEntity() {
+    private HttpEntity<String> getMarketHttpEntity() {
         HttpHeaders headers = new HttpHeaders();
 
         //set header to AUTH: Bearer ...
@@ -108,7 +106,7 @@ public class FundTransferService {
     public void addAvailableBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException, AccountNotFoundException {
         String url = getAccountsUrl();
-        HttpEntity<String> req = getHttpEntity();
+        HttpEntity<String> req = getMarketHttpEntity();
         ResponseEntity<String> response = null;
         try {
             response = restTemplate.exchange(
@@ -132,7 +130,7 @@ public class FundTransferService {
     public void deductBalance(Integer customerId, Integer accountId, Double amount)
             throws InsufficientBalanceException, AccountNotAllowedException, AccountNotFoundException {
         String url = getAccountsUrl();
-        HttpEntity<String> req = getHttpEntity();
+        HttpEntity<String> req = getMarketHttpEntity();
 
         ResponseEntity<String> response = null;
 
@@ -157,7 +155,7 @@ public class FundTransferService {
     public void addBalance(Integer customerId, Integer accountId, Double amount)
             throws AccountNotAllowedException, AccountNotFoundException {
         String url = getAccountsUrl();
-        HttpEntity<String> req = getHttpEntity();
+        HttpEntity<String> req = getMarketHttpEntity();
         ResponseEntity<String> response = null;
 
         try {
@@ -178,7 +176,7 @@ public class FundTransferService {
     public void resetAvailableBalance(Integer customerId, Integer accountId)
             throws AccountNotAllowedException, AccountNotFoundException {
         String url = getAccountsUrl();
-        HttpEntity<String> req = getHttpEntity();
+        HttpEntity<String> req = getMarketHttpEntity();
         ResponseEntity<String> response = null;
         try {
             response = restTemplate.exchange(
