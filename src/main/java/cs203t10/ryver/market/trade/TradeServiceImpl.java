@@ -199,9 +199,13 @@ public class TradeServiceImpl implements TradeService {
      * Register a buy trade on the fund transfer service by deducting the
      * available balance of the appropriate user.
      *
-     * The market maker does not need to register trades.
+     * The market maker does not need to register trades. Market maker trades
+     * are denoted by customerId == 0 and accountId == 0.
      *
-     * The market maker has customerId = 0 and accountId = 0.
+     * @param tradeView The trade data that is definable by the trade creator.
+     *
+     * @return The available balance deducted from the appropriate user.
+     * Available balance is determined by the trade's bid price, or the market ask price.
      */
     private Double registerBuyTrade(TradeViewCreatable tradeView) {
         Integer customerId = tradeView.getCustomerId();
