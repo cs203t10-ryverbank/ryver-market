@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cs203t10.ryver.market.trade.TradeService;
+import cs203t10.ryver.market.util.DateUtils;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +43,14 @@ public class RyverBankMarketServiceApplication {
     @ApiOperation(value = "Reset Market Trades")
     public void resetTrades() {
         tradeService.resetTrades();
+    }
+
+    @PostMapping("/trades/toggle-date-util")
+    @RolesAllowed("MANAGER")
+    @ApiOperation(value = "Toggle checks for market open")
+    public String toggleDateUtil() {
+        DateUtils.enabled = !DateUtils.enabled;
+        return "DateUtils " + (DateUtils.enabled ? "enabled" : "disabled");
     }
 
 }
