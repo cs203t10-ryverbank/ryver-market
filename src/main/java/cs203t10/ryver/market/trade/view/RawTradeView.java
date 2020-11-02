@@ -55,7 +55,8 @@ public class RawTradeView {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date submittedDate;
 
-    private Status status;
+    @Builder.Default
+    private Status status = Status.OPEN;
 
     /**
      * The better-priced trade will be matched first.
