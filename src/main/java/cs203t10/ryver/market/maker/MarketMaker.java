@@ -14,6 +14,7 @@ import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeViewCreatable;
 import cs203t10.ryver.market.trade.view.TradeViewViewable;
+import cs203t10.ryver.market.util.DoubleUtils;
 
 // TODO: At 9am, inject liquidity - can use cron Expression
 
@@ -37,8 +38,8 @@ public class MarketMaker {
         List<StockRecord> latestRecords = stockRecordService.getAllLatestStockRecords();
         for (StockRecord record : latestRecords) {
             String symbol = record.getStock().getSymbol();
-            Double bid = record.getPrice() * NEW_BID_RATIO;
-            Double ask = record.getPrice() * NEW_ASK_RATIO;
+            Double bid = DoubleUtils.getRoundedToNearestCent(record.getPrice() * NEW_BID_RATIO);
+            Double ask = DoubleUtils.getRoundedToNearestCent(record.getPrice() * NEW_ASK_RATIO);
             makeNewBuyTradesAtPrice(symbol, bid);
             makeNewSellTradesAtPrice(symbol, ask);
             stockRecordService.updateStockRecord(symbol, bid, ask);
