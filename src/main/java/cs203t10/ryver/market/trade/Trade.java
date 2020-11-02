@@ -3,12 +3,9 @@ package cs203t10.ryver.market.trade;
 import java.util.Date;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import cs203t10.ryver.market.stock.Stock;
-import cs203t10.ryver.market.trade.exception.*;
 
 import lombok.*;
 
