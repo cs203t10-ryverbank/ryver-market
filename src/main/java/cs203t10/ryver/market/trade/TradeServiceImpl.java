@@ -15,7 +15,7 @@ import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
-import cs203t10.ryver.market.trade.view.TradeViewViewable;
+import cs203t10.ryver.market.trade.view.TradeViewCreatable;
 import cs203t10.ryver.market.util.DateUtils;
 import cs203t10.ryver.market.util.DoubleUtils;
 
@@ -46,7 +46,7 @@ public class TradeServiceImpl implements TradeService {
     *  Else, trades are just added to the market with No reconcile
     */
     @Override
-    public Trade saveTrade(TradeViewViewable tradeView) {
+    public Trade saveTrade(TradeViewCreatable tradeView) {
         // Set date for new trade
         tradeView.setSubmittedDate(DateUtils.getCurrentDate());
 
@@ -70,7 +70,7 @@ public class TradeServiceImpl implements TradeService {
     /**
     *  Add trades when market is open and market reconcile all trades
     */
-    private Trade addTradeToOpenMarket(TradeViewViewable tradeView, Double availableBalance) {
+    private Trade addTradeToOpenMarket(TradeViewCreatable tradeView, Double availableBalance) {
         if (tradeView.getAction() == Action.SELL) {
             // Sell trades will increase the trade quantity of the stock
             // records only when the market is open.
@@ -79,9 +79,6 @@ public class TradeServiceImpl implements TradeService {
             stockRecordService
                 .updateStockRecordAddToMarket(tradeView.getSymbol(), tradeView.getQuantity());
         }
-
-        // By default, trade will be set to OPEN status.
-        tradeView.setStatus(Status.OPEN);
 
         // Save trade.
         Trade trade = tradeView.toTrade();
@@ -98,10 +95,7 @@ public class TradeServiceImpl implements TradeService {
     /**
     *  Add trades to the market when it is closed
     */
-    private Trade addTradeToClosedMarket(TradeViewViewable tradeView, Double availableBalance) {
-        // By default, trade will be set to OPEN status.
-        tradeView.setStatus(Status.OPEN);
-
+    private Trade addTradeToClosedMarket(TradeViewCreatable tradeView, Double availableBalance) {
         // Save trade.
         Trade trade = tradeView.toTrade();
         trade.setAvailableBalance(availableBalance);
@@ -199,7 +193,7 @@ public class TradeServiceImpl implements TradeService {
      *
      * The market maker has customerId = 0 and accountId = 0.
      */
-    private Double registerBuyTrade(TradeViewViewable tradeView) {
+    private Double registerBuyTrade(TradeViewCreatable tradeView) {
         Integer customerId = tradeView.getCustomerId();
         Integer accountId = tradeView.getAccountId();
         if (customerId == 0 && accountId == 0) {
@@ -240,7 +234,7 @@ public class TradeServiceImpl implements TradeService {
      *
      * The market maker has customerId = 0 and accountId = 0.
      */
-    private void registerSellTrade(TradeViewViewable tradeView) {
+    private void registerSellTrade(TradeViewCreatable tradeView) {
         Integer customerId = tradeView.getCustomerId();
         Integer accountId = tradeView.getAccountId();
         if (customerId == 0 && accountId == 0) {
@@ -512,10 +506,7 @@ public class TradeServiceImpl implements TradeService {
     *  Adds market trade into the market and reconciles the trade
     */
     @Override
-    public Trade saveMarketMakerTrade(TradeViewViewable tradeView) {
-        // By default, trade will be set to OPEN status.
-        tradeView.setStatus(Status.OPEN);
-
+    public Trade saveMarketMakerTrade(TradeViewCreatable tradeView) {
         // Save trade.
         Trade trade = tradeView.toTrade();
         tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());

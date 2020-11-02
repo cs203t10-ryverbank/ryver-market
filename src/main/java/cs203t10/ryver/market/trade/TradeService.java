@@ -2,11 +2,11 @@ package cs203t10.ryver.market.trade;
 
 import java.util.List;
 
-import cs203t10.ryver.market.trade.view.TradeViewViewable;
+import cs203t10.ryver.market.trade.view.TradeViewCreatable;
 
 public interface TradeService {
-    Trade saveTrade(TradeViewViewable tradeView);
-    Trade saveMarketMakerTrade(TradeViewViewable tradeView);
+    Trade saveTrade(TradeViewCreatable tradeView);
+    Trade saveMarketMakerTrade(TradeViewCreatable tradeView);
     Trade getTrade(Integer tradeId);
     List<Trade> getAllSellTradesBySymbol(String symbol);
     List<Trade> getAllBuyTradesBySymbol(String symbol);

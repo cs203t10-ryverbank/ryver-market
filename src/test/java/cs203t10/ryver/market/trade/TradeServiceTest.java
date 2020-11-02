@@ -21,11 +21,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import cs203t10.ryver.market.TestConstants;
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.fund.exception.*;
-import cs203t10.ryver.market.stock.Stock;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
+import cs203t10.ryver.market.trade.view.TradeViewCreatable;
 import cs203t10.ryver.market.trade.view.TradeViewViewable;
 import cs203t10.ryver.market.exception.TradeNotFoundException;
 
@@ -44,11 +44,11 @@ public class TradeServiceTest {
     @InjectMocks
     TradeServiceImpl tradeService;
 
-    TradeViewViewable marketMakerBuy = TradeViewViewable.builder()
+    TradeViewCreatable marketMakerBuy = TradeViewCreatable.builder()
         .action(Action.BUY).symbol(TestConstants.STOCK.getSymbol())
         .quantity(TestConstants.BUY_QUANTITY).filledQuantity(0)
         .customerId(0).accountId(0)
-        .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+        .submittedDate(TestConstants.FIRST_DATE)
         .bid(TestConstants.LOW_PRICE).avgPrice(0.0).build();
 
     Trade marketBuy = Trade.builder()
@@ -229,7 +229,7 @@ public class TradeServiceTest {
                 .submittedDate(TestConstants.FIRST_DATE).status(Status.FILLED)
                 .price(TestConstants.LOW_PRICE).build();
 
-        List trades = List.of(trade1, trade2, trade3, trade4, trade5);
+        List<Trade> trades = List.of(trade1, trade2, trade3, trade4, trade5);
         tradeRepo.saveAll(trades);
 
         when(tradeRepo.findAllBuyTradesBySymbol(TestConstants.SYMBOL)).thenReturn(trades);
@@ -277,7 +277,7 @@ public class TradeServiceTest {
                 .submittedDate(TestConstants.FIRST_DATE).status(Status.FILLED)
                 .price(TestConstants.LOW_PRICE).build();
 
-        List trades = List.of(trade1, trade2, trade3, trade4, trade5);
+        List<Trade> trades = List.of(trade1, trade2, trade3, trade4, trade5);
         tradeRepo.saveAll(trades);
 
         when(tradeRepo.findAllSellTradesBySymbol(TestConstants.SYMBOL)).thenReturn(trades);
@@ -325,11 +325,11 @@ public class TradeServiceTest {
 
     @Test
     public void saveTrade_AccountDoesNotBelongToCustomer_noRegister() {
-        TradeViewViewable testBuy = TradeViewViewable.builder()
+        TradeViewCreatable testBuy = TradeViewCreatable.builder()
             .action(Action.BUY).symbol(TestConstants.SYMBOL)
             .quantity(10000).filledQuantity(0)
             .customerId(1).accountId(50)
-            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+            .submittedDate(TestConstants.FIRST_DATE)
             .bid(2.0).avgPrice(0.0).build();
 
         Mockito.doThrow(new AccountNotAllowedException(1, 50))
@@ -344,11 +344,11 @@ public class TradeServiceTest {
 
     @Test
     public void saveTrade_InsufficientBalance_noRegister() {
-        TradeViewViewable testBuy = TradeViewViewable.builder()
+        TradeViewCreatable testBuy = TradeViewCreatable.builder()
             .action(Action.BUY).symbol(TestConstants.SYMBOL)
             .quantity(10000).filledQuantity(0)
             .customerId(1).accountId(1)
-            .submittedDate(TestConstants.FIRST_DATE).status(Status.OPEN)
+            .submittedDate(TestConstants.FIRST_DATE)
             .bid(2.0).avgPrice(0.0).build();
 
         Mockito.doThrow(new InsufficientBalanceException(1, 20000.0, 0.0))

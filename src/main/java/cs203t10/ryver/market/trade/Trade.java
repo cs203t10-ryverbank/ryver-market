@@ -67,7 +67,8 @@ public class Trade {
     }
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    @Builder.Default
+    private Status status = Status.OPEN;
 
     @Builder.Default
     private Double totalPrice = 0.0;

@@ -12,6 +12,7 @@ import cs203t10.ryver.market.trade.TradeRepository;
 import cs203t10.ryver.market.trade.TradeService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
+import cs203t10.ryver.market.trade.view.TradeViewCreatable;
 import cs203t10.ryver.market.trade.view.TradeViewViewable;
 
 // TODO: At 9am, inject liquidity - can use cron Expression
@@ -49,14 +50,13 @@ public class MarketMaker {
         Long totalQuantity = tradeRepo.getBuyQuantityBySymbol(symbol) - tradeRepo.getBuyFilledQuantityBySymbol(symbol);
         // If liquidity is low, then make new trades
         if (totalQuantity < MIN_QUANTITY) {
-            tradeService.saveMarketMakerTrade(TradeViewViewable.builder()
+            tradeService.saveMarketMakerTrade(TradeViewCreatable.builder()
                     .action(Action.BUY)
                     .symbol(symbol)
                     .quantity((int) (MIN_QUANTITY - totalQuantity))
                     .customerId(0)
                     .accountId(0)
                     .submittedDate(new Date())
-                    .status(Status.OPEN)
                     .bid(price)
                     .build());
         }
@@ -68,14 +68,13 @@ public class MarketMaker {
                 - tradeRepo.getSellFilledQuantityBySymbol(symbol);
         // If liquidity is low, then make new trades
         if (totalQuantity < MIN_QUANTITY) {
-            tradeService.saveMarketMakerTrade(TradeViewViewable.builder()
+            tradeService.saveMarketMakerTrade(TradeViewCreatable.builder()
                     .action(Action.SELL)
                     .symbol(symbol)
                     .quantity((int) (MIN_QUANTITY - totalQuantity))
                     .customerId(0)
                     .accountId(0)
                     .submittedDate(new Date())
-                    .status(Status.OPEN)
                     .ask(price)
                     .build());
         }
