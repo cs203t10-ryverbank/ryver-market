@@ -13,7 +13,7 @@ Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb2
 ### Create new trade
 POST http://localhost:8080/trades
 Content-Type: application/json
-Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb29kX3VzZXJfMSIsInVpZCI6NCwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTYwNDU2ODg3NH0.Zrjp5_w1YkdFpZUpT-1dAjzdtLK89vdZYkjcidIZAI7kxTNd1HuNXc-g2njXnZd-30nFzSaT2HeKAgSvr9KVLQ
+Authorization: Basic marktan password
 
 {
     "action":"buy",
@@ -23,7 +23,7 @@ Authorization: Bearer Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnb2
     "ask":0,
     "avg_price":0,
     "account_id":1,
-    "customer_id": 4
+    "customer_id": 10
 }
 
 ### Create new trade with non-existent stock
