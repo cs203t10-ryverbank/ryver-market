@@ -107,13 +107,5 @@ public class TradeController {
         return TradeViewViewable.fromTrade(tradeService.cancelTrade(tradeToCancel));
     }
 
-    @ResponseStatus(HttpStatus.OK)
-    @PostMapping("/reset")
-    @RolesAllowed("MANAGER")
-    @ApiOperation(value = "Reset Market Trades")
-    public void resetTrades() {
-        tradeService.resetTrades();
-    }
-
 }
 
