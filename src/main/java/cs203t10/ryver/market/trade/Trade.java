@@ -3,6 +3,7 @@ package cs203t10.ryver.market.trade;
 import java.util.Date;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -23,6 +24,7 @@ public class Trade {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
 
     @AllArgsConstructor
     public enum Action {
@@ -60,7 +62,8 @@ public class Trade {
         PARTIAL_FILLED("partial-filled"),
         INVALID("invalid"),
         CANCELLED("cancelled"),
-        EXPIRED("expired");
+        EXPIRED("expired"),
+        CLOSED("closed");
 
         @Getter @JsonValue
         private String status;

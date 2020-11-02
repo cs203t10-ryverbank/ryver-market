@@ -17,9 +17,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
+import cs203t10.ryver.market.portfolio.asset.StockNotOwnedException;
 import cs203t10.ryver.market.security.PrincipalService;
 import cs203t10.ryver.market.security.RyverPrincipal;
+import cs203t10.ryver.market.stock.exception.NoSuchStockException;
 import cs203t10.ryver.market.trade.Trade.Status;
+import cs203t10.ryver.market.trade.exception.TradeForbiddenException;
 import cs203t10.ryver.market.trade.exception.TradeNotAllowedException;
 import cs203t10.ryver.market.trade.exception.TradeNotFoundException;
 import cs203t10.ryver.market.trade.view.TradeViewCreatable;

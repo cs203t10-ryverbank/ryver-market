@@ -2,6 +2,9 @@ package cs203t10.ryver.market.trade.view;
 
 import java.util.Date;
 
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -19,8 +22,10 @@ public class TradeViewViewable {
 
     private Integer id;
 
+    @NotNull(message="Action must be specified")
     private Action action;
 
+    @NotNull(message="Symbol must be specified")
     private String symbol;
 
     @Builder.Default
@@ -38,21 +43,18 @@ public class TradeViewViewable {
     @Builder.Default
     private Integer filledQuantity = 0;
 
+    @NotNull(message="Customer id must be specified")
     private Integer customerId;
 
+    @NotNull(message="Account id must be specified")
     private Integer accountId;
 
     @JsonProperty("date")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date submittedDate;
 
-    private Status status;
-    public Status getStatus() {
-        if (status == null) {
-            return Status.OPEN;
-        }
-        return status;
-    }
+    @Builder.Default
+    private Status status = Status.OPEN;
 
     /**
      * The better-priced trade will be matched first.
@@ -86,9 +88,14 @@ public class TradeViewViewable {
         if (trade.getFilledQuantity() != 0) {
             view.setAvgPrice(trade.getTotalPrice() / trade.getFilledQuantity());
         }
-        // Return partial-filled
+        // Return partial-filled when trade is "invalid"
         if (trade.getStatus() == Status.INVALID){
             view.setStatus(Status.PARTIAL_FILLED);
+        }
+
+        // Return open when market is closed
+        if (trade.getStatus() == Status.CLOSED){
+            view.setStatus(Status.OPEN);
         }
         return view;
     }
