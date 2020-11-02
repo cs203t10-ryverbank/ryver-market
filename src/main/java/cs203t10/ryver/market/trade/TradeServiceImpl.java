@@ -222,7 +222,7 @@ public class TradeServiceImpl implements TradeService {
         boolean isMarketOpen = DateUtils.isMarketOpen(tradeView.getSubmittedDate());
 
         // Update lastBuy on stock records if it is not market buy
-        if (bid > latestStock.getLastBid() && !isMarketBuy && isMarketOpen){
+        if (bid > latestStock.getLastBid() && !isMarketBuy && isMarketOpen) {
             latestStock.setLastBid(bid);
             stockRecordService.updateStockRecord(tradeView.getSymbol(),
                                                 latestStock.getLastBid(),
