@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,22 +11,11 @@ import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.portfolio.asset.AssetService;
-import cs203t10.ryver.market.stock.Stock;
-import cs203t10.ryver.market.stock.StockRecordService;
-import cs203t10.ryver.market.stock.StockRepository;
-import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
-import cs203t10.ryver.market.trade.view.TradeView;
 
 @Component
 @Service
 public class ScheduledTradeService {
-
-    @Autowired
-    private StockRepository stockRepo;
-
-    @Autowired
-    private StockRecordService stockRecordService;
 
     @Autowired
     private TradeService tradeService;

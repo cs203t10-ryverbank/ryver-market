@@ -104,14 +104,7 @@ public class TradeServiceImpl implements TradeService {
     /**
     *  Add trades to the market when it is closed
     */
-<<<<<<< HEAD
     private Trade addTradeToClosedMarket(TradeViewCreatable tradeView, Double availableBalance) {
-=======
-    private Trade addTradeToClosedMarket(TradeView tradeView, Double availableBalance) {
-        // By default, trade will be set to OPEN status.
-        tradeView.setStatus(Status.CLOSED);
-
->>>>>>> 857d9626320ba261c0448dc6703bcb9aaab3a97e
         // Save trade.
         Trade trade = tradeView.toTrade();
         trade.setAvailableBalance(availableBalance);
