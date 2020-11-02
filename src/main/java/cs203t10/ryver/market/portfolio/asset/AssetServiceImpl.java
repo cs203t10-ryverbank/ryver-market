@@ -30,8 +30,12 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public Integer getAvailableQuantityByPortfolioCustomerIdAndCode(Integer customerId, String code) {
-        Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
-        return asset.getAvailableQuantity();
+        try {
+            Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
+            return asset.getAvailableQuantity();
+        } catch (StockNotOwnedException e) {
+            return 0;
+        }
     }
 
     @Override

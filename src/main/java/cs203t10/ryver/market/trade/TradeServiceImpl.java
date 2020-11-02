@@ -12,6 +12,7 @@ import cs203t10.ryver.market.exception.TradeNotFoundException;
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.maker.MarketMaker;
 import cs203t10.ryver.market.portfolio.PortfolioService;
+import cs203t10.ryver.market.portfolio.asset.AssetService;
 import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
@@ -25,6 +26,9 @@ import cs203t10.ryver.market.util.DoubleUtils;
 @Component
 @Service
 public class TradeServiceImpl implements TradeService {
+
+    @Autowired
+    private AssetService assetService;
 
     @Autowired
     private FundTransferService fundTransferService;
@@ -259,6 +263,13 @@ public class TradeServiceImpl implements TradeService {
 
         String symbol = tradeView.getSymbol();
         Integer quantity = tradeView.getQuantity();
+
+        // Prevent short selling by checking if the customer has sufficient stock.
+        int ownedQuantity = assetService.getAvailableQuantityByPortfolioCustomerIdAndCode(customerId, symbol);
+        System.out.println("CUSTOMER " + customerId + " OWNS " + ownedQuantity + " OF " + symbol);
+        if (ownedQuantity < quantity) {
+            throw new InsufficientStockQuantityException(customerId, symbol);
+        }
 
         // Get latest stock
         StockRecord latestStock = stockRecordService
