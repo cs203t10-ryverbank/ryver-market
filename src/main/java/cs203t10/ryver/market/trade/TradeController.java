@@ -75,8 +75,10 @@ public class TradeController {
     public TradeViewViewable addTrade(@Valid @RequestBody TradeViewCreatable tradeView) {
         RyverPrincipal principal = principalService.getPrincipal();
 
-        if (principal.uid.intValue() != tradeView.getCustomerId()) {
-            throw new TradeNotAllowedException(tradeView.getCustomerId());
+        Integer requesterId = principal.uid.intValue();
+        Integer traderId = tradeView.getCustomerId();
+        if (!requesterId.equals(traderId)) {
+            throw new TradeNotAllowedException(requesterId);
         }
 
         Trade savedTrade = tradeService.saveTrade(tradeView);
