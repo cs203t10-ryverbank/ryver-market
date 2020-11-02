@@ -20,6 +20,7 @@ public interface TradeService {
     Trade getBestSell(String symbol);
     Trade updateTrade(Trade trade);
     List<Trade> getAllUserOpenTrades(Long customerId);
+    Trade cancelTrade(Trade trade);
     Trade cancelTrade(Integer tradeId);
     void resetTrades();
     void reconcileMarket(String symbol);

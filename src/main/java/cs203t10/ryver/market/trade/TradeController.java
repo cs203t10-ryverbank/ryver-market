@@ -96,14 +96,15 @@ public class TradeController {
     @ApiOperation(value = "Cancel trade")
     public TradeViewViewable cancelTrade(@PathVariable Integer tradeId) {
         RyverPrincipal principal = principalService.getPrincipal();
-        Trade retrievedTrade = tradeService.getTrade(tradeId);
-        if (retrievedTrade == null) {
+        Integer requesterId = principal.uid.intValue();
+        Trade tradeToCancel = tradeService.getTrade(tradeId);
+        if (tradeToCancel == null) {
             throw new TradeNotFoundException(tradeId);
         }
-        if (principal.uid.intValue() != retrievedTrade.getCustomerId()) {
-            throw new TradeNotAllowedException(tradeId, principal.uid.intValue());
+        if (!requesterId.equals(tradeToCancel.getCustomerId())) {
+            throw new TradeNotAllowedException(tradeId, requesterId);
         }
-        return TradeViewViewable.fromTrade(tradeService.cancelTrade(tradeId));
+        return TradeViewViewable.fromTrade(tradeService.cancelTrade(tradeToCancel));
     }
 
     @ResponseStatus(HttpStatus.OK)

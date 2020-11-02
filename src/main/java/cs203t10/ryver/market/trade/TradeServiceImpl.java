@@ -506,7 +506,24 @@ public class TradeServiceImpl implements TradeService {
     }
 
     /**
-    *  Cancel trade by Id
+     * Cancel a given trade.
+     */
+    @Override
+    public Trade cancelTrade(Trade trade) {
+        if (trade.getStatus() == Status.OPEN || trade.getStatus() == Status.PARTIAL_FILLED) {
+            // Restore the available balance of the account.
+            fundTransferService.addAvailableBalance(
+                    trade.getCustomerId(),
+                    trade.getAccountId(),
+                    trade.getAvailableBalance());
+            trade.setAvailableBalance(0.0);
+            trade.setStatus(Status.CANCELLED);
+        }
+        return tradeRepo.save(trade);
+    }
+
+    /**
+    *  Cancel trade by ID.
     */
     @Override
     public Trade cancelTrade(Integer tradeId) {
@@ -514,10 +531,7 @@ public class TradeServiceImpl implements TradeService {
         if (trade == null) {
             throw new TradeNotFoundException(tradeId);
         }
-        if (trade.getStatus() == Status.OPEN || trade.getStatus() == Status.PARTIAL_FILLED) {
-            trade.setStatus(Status.CANCELLED);
-        }
-        return tradeRepo.save(trade);
+        return cancelTrade(trade);
     }
 
     /**
