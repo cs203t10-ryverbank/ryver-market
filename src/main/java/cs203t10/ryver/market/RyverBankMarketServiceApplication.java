@@ -66,7 +66,7 @@ public class RyverBankMarketServiceApplication {
             default:
                 break;
         }
-        return "Market is " + value;
+        return "Market is " + (dateService.isArtificial() ? "artificial" : "default") + ", currently " + dateService.isMarketOpen();
     }
 
 }

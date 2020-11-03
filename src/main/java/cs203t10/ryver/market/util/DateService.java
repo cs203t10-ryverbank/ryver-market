@@ -49,6 +49,10 @@ public class DateService {
         }
     }
 
+    public boolean isMarketOpen() {
+        return isMarketOpen(getCurrentDate());
+    }
+
     /**
      * Market is open from 9am to 5pm every weekday.
      */
