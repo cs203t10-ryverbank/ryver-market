@@ -7,7 +7,6 @@ import javax.validation.constraints.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import cs203t10.ryver.market.portfolio.Portfolio;
-
 import lombok.*;
 
 @Entity
@@ -33,8 +32,9 @@ public class Asset {
     @NotNull(message = "Available quantity cannot be null")
     private Integer availableQuantity;
 
-    @NotNull(message = "Average price cannot be null")
-    private Double averagePrice;
+    public Double getAveragePrice() {
+        return value / quantity;
+    }
 
     @NotNull(message = "Value cannot be null")
     private Double value;

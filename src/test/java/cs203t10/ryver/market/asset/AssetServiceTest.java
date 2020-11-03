@@ -51,7 +51,6 @@ public class AssetServiceTest {
                           .code("TEST")
                           .portfolio(testPortfolio)
                           .quantity(1000)
-                          .averagePrice(1.11)
                           .value(1110.0)
                           .build();
         testAssetList.add(testAsset);
@@ -61,7 +60,6 @@ public class AssetServiceTest {
                               .code("TEST")
                               .portfolio(testPortfolio)
                               .quantity(500)
-                              .averagePrice(1.11)
                               .value(555.0)
                               .build();
 
@@ -89,7 +87,6 @@ public class AssetServiceTest {
                           .code("TEST")
                           .portfolio(testPortfolio)
                           .quantity(1000)
-                          .averagePrice(1.11)
                           .value(1110.0)
                           .build();
         testAssetList.add(testAsset);
@@ -99,13 +96,12 @@ public class AssetServiceTest {
                               .code("TEST")
                               .portfolio(testPortfolio)
                               .quantity(1500)
-                              .averagePrice(1.47)
                               .value(2210.0)
                               .build();
 
         when(assets.findByPortfolioCustomerIdAndCode(testCustomerId, testAsset.getCode())).thenReturn(Optional.of(testAsset));
         when(assets.save(any(Asset.class))).thenAnswer(i -> i.getArguments()[0]);
-        
+
         Asset returnedAsset = assetService.addToAsset(testCustomerId, testAsset.getCode(), 500, 2.20);
         assertEquals(expectedAsset, returnedAsset);
         verify(assets).save(expectedAsset);
