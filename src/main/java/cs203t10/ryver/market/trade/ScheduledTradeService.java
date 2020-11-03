@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.portfolio.asset.AssetService;
 import cs203t10.ryver.market.trade.Trade.Status;
+import cs203t10.ryver.market.util.DateService;
 
 @Component
 @Service
@@ -29,9 +30,18 @@ public class ScheduledTradeService {
     @Autowired
     private AssetService assetService;
 
+    @Autowired
+    private DateService dateService;
+
     // TODO: Verify this works on AWS
     // Cron expression: open market at 9am from Monday to Friday.
     @Scheduled(cron = "0 0 09 * * MON-FRI", zone = "Asia/Singapore")
+    public void openMarketIfDefault() {
+        if (!dateService.isArtificial()) {
+            openMarket();
+        }
+    }
+
     public void openMarket() {
         List<Trade> tradeList = tradeRepo.findAllClosedTrades();
 
@@ -47,6 +57,12 @@ public class ScheduledTradeService {
     // TODO: Verify this works on AWS
     // Cron expression: close market at 5pm from Monday to Friday.
     @Scheduled(cron = "0 0 17 * * MON-FRI", zone = "Asia/Singapore")
+    public void closeMarketIfDefault() {
+        if (!dateService.isArtificial()) {
+            closeMarket();
+        }
+    }
+
     public void closeMarket() {
         List<Trade> tradeList = tradeRepo.findAll();
         Set<List<Integer>> customerAccountSet = new HashSet<>();

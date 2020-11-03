@@ -20,7 +20,7 @@ import cs203t10.ryver.market.stock.scrape.FakeScrapingService;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.Trade.Status;
 import cs203t10.ryver.market.trade.view.TradeViewCreatable;
-import cs203t10.ryver.market.util.DateUtils;
+import cs203t10.ryver.market.util.DateService;
 import cs203t10.ryver.market.util.DoubleUtils;
 
 @Component
@@ -48,6 +48,9 @@ public class TradeServiceImpl implements TradeService {
     @Autowired
     private FakeScrapingService fakeScrapingService;
 
+    @Autowired
+    private DateService dateService;
+
 
 
     /**
@@ -60,7 +63,7 @@ public class TradeServiceImpl implements TradeService {
     @Override
     public Trade saveTrade(TradeViewCreatable tradeView) {
         // Set date for new trade
-        tradeView.setSubmittedDate(DateUtils.getCurrentDate());
+        tradeView.setSubmittedDate(dateService.getCurrentDate());
 
         // Register the trade against the FTS and ensure the trade is valid.
         Double availableBalance = 0.0;
@@ -73,7 +76,7 @@ public class TradeServiceImpl implements TradeService {
             registerSellTrade(tradeView);
         }
 
-        if (DateUtils.isMarketOpen(tradeView.getSubmittedDate())) {
+        if (dateService.isMarketOpen(tradeView.getSubmittedDate())) {
             return addTradeToOpenMarket(tradeView, availableBalance);
         }
         return addTradeToClosedMarket(tradeView, availableBalance);
@@ -227,7 +230,7 @@ public class TradeServiceImpl implements TradeService {
             ? latestStock.getLastAsk() : tradeView.getBid();
         Double availableBalance = bid * tradeView.getQuantity();
 
-        boolean isMarketOpen = DateUtils.isMarketOpen(tradeView.getSubmittedDate());
+        boolean isMarketOpen = dateService.isMarketOpen(tradeView.getSubmittedDate());
 
         // Update lastBuy on stock records if it is not market buy
         if (bid > latestStock.getLastBid() && !isMarketBuy && isMarketOpen) {
@@ -281,7 +284,7 @@ public class TradeServiceImpl implements TradeService {
         Double ask = isMarketSell
             ? latestStock.getLastBid() : tradeView.getAsk();
 
-        boolean isMarketOpen = DateUtils.isMarketOpen(tradeView.getSubmittedDate());
+        boolean isMarketOpen = dateService.isMarketOpen(tradeView.getSubmittedDate());
 
         // Update lastAsk on stock records if it is not a market sell
         if ( ask < latestStock.getLastAsk() && !isMarketSell && isMarketOpen){

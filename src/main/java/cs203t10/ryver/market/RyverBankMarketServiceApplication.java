@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cs203t10.ryver.market.trade.TradeService;
-import cs203t10.ryver.market.util.DateUtils;
+import cs203t10.ryver.market.util.DateService;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +28,9 @@ public class RyverBankMarketServiceApplication {
 
     @Autowired
     private TradeService tradeService;
+
+    @Autowired
+    private DateService dateService;
 
     public static void main(String[] args) {
         SpringApplication.run(RyverBankMarketServiceApplication.class, args);
@@ -46,12 +49,24 @@ public class RyverBankMarketServiceApplication {
         tradeService.resetTrades();
     }
 
-    @PostMapping("/market/flip-open/{value}")
+    @PostMapping("/market/{value}")
     @RolesAllowed("MANAGER")
-    @ApiOperation(value = "Flip or unflip market open or close")
-    public String toggleDateUtil(@PathVariable boolean value) {
-        DateUtils.flipped = value;
-        return "Market is " + (DateUtils.flipped ? "flipped" : "regular");
+    @ApiOperation(value = "Artificially open or close the market. Set to either open, close, or default")
+    public String setMarketOpen(@PathVariable String value) {
+        switch (value) {
+            case "open":
+                dateService.setOpen(true);
+                break;
+            case "close":
+                dateService.setOpen(false);
+                break;
+            case "default":
+                dateService.setOpen(null);
+                break;
+            default:
+                break;
+        }
+        return "Market is " + value;
     }
 
 }
