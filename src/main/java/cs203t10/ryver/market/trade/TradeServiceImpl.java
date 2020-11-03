@@ -92,8 +92,12 @@ public class TradeServiceImpl implements TradeService {
             // records only when the market is open.
             // If the market is closed, the quantity only increases after
             // the market is opened.
+            stockRecordService.updateLastAskOnStockRecord(tradeView);
             stockRecordService
                 .updateStockRecordAddToMarket(tradeView.getSymbol(), tradeView.getQuantity());
+        }
+        if (tradeView.getAction() == Action.BUY) {
+            stockRecordService.updateLastBidOnStockRecord(tradeView);
         }
 
         // Save trade.
@@ -221,7 +225,6 @@ public class TradeServiceImpl implements TradeService {
         if (customerId == 0 && accountId == 0) {
             return 0.0;
         }
-
         // Get latest stock
         StockRecord latestStock = stockRecordService
                                 .getLatestStockRecordBySymbol(tradeView.getSymbol());
@@ -230,16 +233,6 @@ public class TradeServiceImpl implements TradeService {
         Double bid = isMarketBuy
             ? latestStock.getLastAsk() : tradeView.getBid();
         Double availableBalance = bid * tradeView.getQuantity();
-
-        boolean isMarketOpen = dateService.isMarketOpen(tradeView.getSubmittedDate());
-
-        // Update lastBuy on stock records if it is not market buy
-        if (bid > latestStock.getLastBid() && !isMarketBuy && isMarketOpen) {
-            latestStock.setLastBid(bid);
-            stockRecordService.updateStockRecord(tradeView.getSymbol(),
-                                                latestStock.getLastBid(),
-                                                latestStock.getLastAsk());
-        }
 
         fundTransferService.deductAvailableBalance(
                 customerId, accountId,
@@ -670,6 +663,8 @@ public class TradeServiceImpl implements TradeService {
         tradeRepo.resetAllInvalidTradesBySymbol(symbol);
         reconcileStockRecords(symbol, getBestBuy(symbol), getBestSell(symbol));
     }
+
+
 
 }
 
