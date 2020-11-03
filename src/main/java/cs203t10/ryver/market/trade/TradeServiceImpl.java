@@ -114,6 +114,7 @@ public class TradeServiceImpl implements TradeService {
     private Trade addTradeToClosedMarket(TradeViewCreatable tradeView, Double availableBalance) {
         // Save trade.
         Trade trade = tradeView.toTrade();
+        trade.setStatus(Status.CLOSED);
         trade.setAvailableBalance(availableBalance);
         Trade toReturn = tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
 
