@@ -10,7 +10,7 @@ import java.util.Date;
 
 public class DateUtils {
 
-    public static boolean enabled = true;
+    public static boolean flipped = false;
 
     private DateUtils() { }
 
@@ -18,16 +18,10 @@ public class DateUtils {
      * Market is open from 9am to 5pm every weekday.
      */
     public static boolean isMarketOpen(Date date) {
-        if (!enabled) {
-            return true;
-        }
-        return isBetween9to5(date) && isWeekDay(date);
+        return flipped ^ (isBetween9to5(date) && isWeekDay(date));
     }
 
     public static boolean isBetween9to5(Date date) {
-        if (!enabled) {
-            return true;
-        }
         // Trade is made between 9am and 5pm.
         DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
         String strCurrentTime = formatter.format(date);
@@ -37,9 +31,6 @@ public class DateUtils {
     }
 
     public static boolean isWeekDay(Date date) {
-        if (!enabled) {
-            return true;
-        }
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
