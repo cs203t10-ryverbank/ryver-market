@@ -24,6 +24,7 @@ import cs203t10.ryver.market.trade.exception.TradeNotAllowedException;
 import cs203t10.ryver.market.trade.exception.TradeNotFoundException;
 import cs203t10.ryver.market.trade.view.TradeViewCreatable;
 import cs203t10.ryver.market.trade.view.TradeViewViewable;
+import cs203t10.ryver.market.util.DateService;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
@@ -32,6 +33,8 @@ public class TradeController {
 
     @Autowired
     private TradeService tradeService;
+    @Autowired
+    private DateService dateService;
 
     @Autowired
     private PrincipalService principalService;
@@ -106,6 +109,34 @@ public class TradeController {
         }
         return TradeViewViewable.fromTrade(tradeService.cancelTrade(tradeToCancel));
     }
+
+    @PostMapping("/reset")
+    @RolesAllowed("MANAGER")
+    @ApiOperation(value = "Reset Market Trades")
+    public void resetTrades() {
+        tradeService.resetTrades();
+    }
+
+    @PostMapping("/market/{value}")
+    @RolesAllowed("MANAGER")
+    @ApiOperation(value = "Artificially open or close the market. Set to either open, close, or default")
+    public String setMarketOpen(@PathVariable String value) {
+        switch (value) {
+            case "open":
+                dateService.setOpen(true);
+                break;
+            case "close":
+                dateService.setOpen(false);
+                break;
+            case "default":
+                dateService.setOpen(null);
+                break;
+            default:
+                break;
+        }
+        return "Market is " + (dateService.isArtificial() ? "artificial" : "default") + ", currently " + dateService.isMarketOpen();
+    }
+
 
 }
 
