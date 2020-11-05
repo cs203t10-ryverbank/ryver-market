@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.context.annotation.Configuration;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Hidden;
 
 @SpringBootApplication
 @Configuration
@@ -23,7 +23,7 @@ public class RyverBankMarketServiceApplication {
     }
 
     @GetMapping("/")
-    @ApiOperation(value = "Check the service name")
+    @Hidden
     public String getRoot() {
         return "ryver-market service";
     }
