@@ -10,8 +10,10 @@ import org.springframework.beans.BeanUtils;
 import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.trade.Trade.Action;
 import cs203t10.ryver.market.trade.exception.*;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.*;
 
+@Hidden
 @Data @Builder
 @AllArgsConstructor @NoArgsConstructor
 public class TradeViewCreatable {
