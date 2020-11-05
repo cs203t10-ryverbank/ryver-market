@@ -25,7 +25,11 @@ import cs203t10.ryver.market.trade.exception.TradeNotFoundException;
 import cs203t10.ryver.market.trade.view.TradeViewCreatable;
 import cs203t10.ryver.market.trade.view.TradeViewViewable;
 import cs203t10.ryver.market.util.DateService;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
 
 @RestController
 @RolesAllowed("USER")
@@ -40,7 +44,10 @@ public class TradeController {
     private PrincipalService principalService;
 
     @GetMapping("/trades")
-    @ApiOperation(value = "Get all user trades")
+    @Operation(summary = "Get all user trades")
+    @ApiResponse(responseCode = "200", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = TradeViewViewable[].class)))
     public List<TradeViewViewable> getAllUserTrades() {
         RyverPrincipal principal = principalService.getPrincipal();
         return tradeService.getAllUserOpenTrades(principal.uid).stream()
@@ -56,7 +63,10 @@ public class TradeController {
 
     @GetMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
-    @ApiOperation(value = "Get a user's trades")
+    @Operation(summary = "Get a user's trades")
+    @ApiResponse(responseCode = "200", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = TradeViewViewable.class)))
     public TradeViewViewable getTrade(@PathVariable Integer tradeId) {
         RyverPrincipal principal = principalService.getPrincipal();
         Trade retrievedTrade = tradeService.getTrade(tradeId);
@@ -73,7 +83,10 @@ public class TradeController {
 
     @PostMapping("/trades")
     @PreAuthorize("hasRole('USER')")
-    @ApiOperation(value = "Add trade")
+    @Operation(summary = "Add trade")
+    @ApiResponse(responseCode = "201", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = TradeViewViewable.class)))
     @ResponseStatus(HttpStatus.CREATED)
     public TradeViewViewable addTrade(@Valid @RequestBody TradeViewCreatable tradeView) {
         RyverPrincipal principal = principalService.getPrincipal();
@@ -96,7 +109,10 @@ public class TradeController {
 
     @PutMapping("/trades/{tradeId}")
     @PreAuthorize("hasRole('USER')")
-    @ApiOperation(value = "Cancel trade")
+    @Operation(summary = "Cancel trade")
+    @ApiResponse(responseCode = "200", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = TradeViewViewable.class)))
     public TradeViewViewable cancelTrade(@PathVariable Integer tradeId) {
         RyverPrincipal principal = principalService.getPrincipal();
         Integer requesterId = principal.uid.intValue();
@@ -112,14 +128,14 @@ public class TradeController {
 
     @PostMapping("/reset")
     @RolesAllowed("MANAGER")
-    @ApiOperation(value = "Reset Market Trades")
+    @Hidden
     public void resetTrades() {
         tradeService.resetTrades();
     }
 
     @PostMapping("/market/{value}")
     @RolesAllowed("MANAGER")
-    @ApiOperation(value = "Artificially open or close the market. Set to either open, close, or default")
+    @Hidden
     public String setMarketOpen(@PathVariable String value) {
         switch (value) {
             case "open":
