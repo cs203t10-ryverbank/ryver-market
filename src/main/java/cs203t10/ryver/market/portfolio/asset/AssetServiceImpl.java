@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import cs203t10.ryver.market.portfolio.Portfolio;
 import cs203t10.ryver.market.portfolio.PortfolioService;
+import cs203t10.ryver.market.portfolio.asset.exception.StockNotOwnedException;
 
 @Service
 public class AssetServiceImpl implements AssetService {
@@ -25,7 +26,7 @@ public class AssetServiceImpl implements AssetService {
     @Override
     public Asset findByPortfolioCustomerIdAndCode(Integer customerId, String code) {
         return assets.findByPortfolioCustomerIdAndCode(customerId, code)
-                    .orElseThrow(() -> new StockNotOwnedException(customerId, code));
+            .orElseThrow(() -> new StockNotOwnedException(customerId, code));
     }
 
     @Override
@@ -39,8 +40,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Asset addAsset(Integer customerId, String code,
-            Integer quantity, Double value) {
+    public Asset addAsset(Integer customerId, String code, Integer quantity, Double value) {
         Portfolio portfolio = portfoliosService.findByCustomerId(customerId);
         Asset asset = Asset.builder()
             .portfolio(portfolio)
@@ -56,12 +56,15 @@ public class AssetServiceImpl implements AssetService {
     public Asset deductFromAsset(Integer customerId, String code, Integer quantity) {
         Asset asset = findByPortfolioCustomerIdAndCode(customerId, code);
         Integer newQuantity = asset.getQuantity() - quantity;
+        Double avePrice = asset.getValue() / asset.getQuantity();
+        Double newValue = newQuantity * avePrice;
         if (newQuantity == 0) {
             assets.delete(asset);
             return null;
         }
         asset.setQuantity(newQuantity);
-        asset.setValue(newQuantity * asset.getAveragePrice());
+        asset.setAvailableQuantity(asset.getAvailableQuantity() - quantity);
+        asset.setValue(newValue);
         return assets.save(asset);
     }
 

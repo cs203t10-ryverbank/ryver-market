@@ -51,6 +51,7 @@ public class AssetServiceTest {
                           .code("TEST")
                           .portfolio(testPortfolio)
                           .quantity(1000)
+                          .availableQuantity(900)
                           .value(1110.0)
                           .build();
         testAssetList.add(testAsset);
@@ -60,6 +61,7 @@ public class AssetServiceTest {
                               .code("TEST")
                               .portfolio(testPortfolio)
                               .quantity(500)
+                              .availableQuantity(400)
                               .value(555.0)
                               .build();
 
@@ -87,15 +89,17 @@ public class AssetServiceTest {
                           .code("TEST")
                           .portfolio(testPortfolio)
                           .quantity(1000)
+                          .availableQuantity(900)
                           .value(1110.0)
                           .build();
-        testAssetList.add(testAsset);
+        testAssetList.add(testAsset);                           
 
         Asset expectedAsset = Asset.builder()
                               .id(testAsset.getId())
                               .code("TEST")
                               .portfolio(testPortfolio)
                               .quantity(1500)
+                              .availableQuantity(1400)
                               .value(2210.0)
                               .build();
 
@@ -103,6 +107,44 @@ public class AssetServiceTest {
         when(assets.save(any(Asset.class))).thenAnswer(i -> i.getArguments()[0]);
 
         Asset returnedAsset = assetService.addToAsset(testCustomerId, testAsset.getCode(), 500, 2.20);
+        assertEquals(expectedAsset, returnedAsset);
+        verify(assets).save(expectedAsset);
+    }
+
+    @Test
+    public void deductAvailableQuantity_Valid_StockOwned_ReturnsAsset() {
+        Random rand = new Random();
+        Integer testCustomerId = rand.nextInt(Integer.MAX_VALUE);
+        List<Asset> testAssetList = new ArrayList<>();
+
+        Portfolio testPortfolio = Portfolio.builder()
+                                .customerId(testCustomerId)
+                                .assets(testAssetList)
+                                .initialCapital(0.0)
+                                .build();
+
+        Asset testAsset = Asset.builder()
+                          .code("TEST")
+                          .portfolio(testPortfolio)
+                          .quantity(1000)
+                          .availableQuantity(900)
+                          .value(1110.0)
+                          .build();
+        testAssetList.add(testAsset);                           
+
+        Asset expectedAsset = Asset.builder()
+                              .id(testAsset.getId())
+                              .code("TEST")
+                              .portfolio(testPortfolio)
+                              .quantity(1000)
+                              .availableQuantity(400)
+                              .value(1110.0)
+                              .build();
+
+        when(assets.findByPortfolioCustomerIdAndCode(testCustomerId, testAsset.getCode())).thenReturn(Optional.of(testAsset));
+        when(assets.save(any(Asset.class))).thenAnswer(i -> i.getArguments()[0]);
+
+        Asset returnedAsset = assetService.deductAvailableQuantity(testCustomerId, testAsset.getCode(), 500);
         assertEquals(expectedAsset, returnedAsset);
         verify(assets).save(expectedAsset);
     }

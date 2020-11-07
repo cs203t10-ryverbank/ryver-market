@@ -13,7 +13,7 @@ import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.maker.MarketMaker;
 import cs203t10.ryver.market.portfolio.PortfolioService;
 import cs203t10.ryver.market.portfolio.asset.AssetService;
-import cs203t10.ryver.market.portfolio.asset.InsufficientStockQuantityException;
+import cs203t10.ryver.market.portfolio.asset.exception.InsufficientStockQuantityException;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
 import cs203t10.ryver.market.stock.scrape.FakeScrapingService;
