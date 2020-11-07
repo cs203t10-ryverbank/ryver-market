@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 
 import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
+import cs203t10.ryver.market.security.PrincipalService;
 import cs203t10.ryver.market.security.RyverPrincipal;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +25,9 @@ public class PortfolioController {
     @Autowired
     private PortfolioService portfolioService;
 
+    @Autowired
+    private PrincipalService principalService;
+
     @GetMapping("/portfolio")
     @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
@@ -31,7 +35,8 @@ public class PortfolioController {
     @ApiResponse(responseCode = "200", 
                 content = @Content(mediaType = "application/json", 
                 schema = @Schema(implementation = PortfolioInfoViewableByCustomer.class)))
-    public PortfolioInfoViewableByCustomer viewPortfolio(@AuthenticationPrincipal RyverPrincipal principal) {
+    public PortfolioInfoViewableByCustomer viewPortfolio() {
+        RyverPrincipal principal = principalService.getPrincipal();
         return portfolioService.viewPortfolio(Math.toIntExact(principal.uid));
     }
 
