@@ -35,27 +35,14 @@ public class ReconciliationService {
         // and bestBuy.
         while (bestSell != null && bestBuy != null) {
             // Determine transactedPrice.
-            Double transactedPrice = 0.0;
-            Boolean isMarketBuy = bestBuy.getPrice() == 0;
-            if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0) {
-                transactedPrice = tradeService.determineTransactedPriceIfBothMarketOrders(bestSell, bestBuy);
-            } else if (bestSell.getPrice() == 0) {
-                transactedPrice = bestBuy.getPrice();
-            } else if (bestBuy.getPrice() == 0) {
-                transactedPrice = bestSell.getPrice();
-            } else if (bestBuy.getPrice() >= bestSell.getPrice()){
-                transactedPrice = tradeService.determineTransactedPriceIfBothLimitOrders(bestSell, bestBuy);
-            } else if (bestBuy.getPrice() < bestSell.getPrice()) {
+            Double transactedPrice = determineTransactedPrice(bestBuy, bestSell);
+            if (transactedPrice < 0.0){
                 break;
             }
+            Boolean isMarketBuy = bestBuy.getPrice() == 0;
 
             // Determine transactedQuantity.
-            Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
-            Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
-            Integer transactedQuantity = buyQuantity;
-            if (sellQuantity < buyQuantity) {
-                transactedQuantity = sellQuantity;
-            }
+            Integer transactedQuantity = determineTransactedQuantity(bestBuy, bestSell);
 
 
             // Update filledQuantity and totalPrice for trades.
@@ -108,6 +95,33 @@ public class ReconciliationService {
                 tradeService.getBestBuy(symbol),
                 tradeService.getBestSell(symbol));
     }
+
+    private double determineTransactedPrice(Trade bestBuy, Trade bestSell){
+        if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0) {
+            return tradeService.determineTransactedPriceIfBothMarketOrders(bestSell, bestBuy);
+        } else if (bestSell.getPrice() == 0) {
+            return bestBuy.getPrice();
+        } else if (bestBuy.getPrice() == 0) {
+            return bestSell.getPrice();
+        } else if (bestBuy.getPrice() >= bestSell.getPrice()){
+            return tradeService.determineTransactedPriceIfBothLimitOrders(bestSell, bestBuy);
+        } else if (bestBuy.getPrice() < bestSell.getPrice()) {
+            return -1.0; // No suitable trade is found
+        }
+        return -1.0;
+    }
+
+    private Integer determineTransactedQuantity(Trade bestBuy, Trade bestSell){
+        // Determine transactedQuantity.
+        Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
+        Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
+        Integer transactedQuantity = buyQuantity;
+        if (sellQuantity < buyQuantity) {
+            transactedQuantity = sellQuantity;
+        }
+        return transactedQuantity;
+    }
+
 
 }
 
