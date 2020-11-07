@@ -19,7 +19,7 @@ import cs203t10.ryver.market.util.DateService;
 public class ScheduledTradeService {
 
     @Autowired
-    private TradeService tradeService;
+    private ReconciliationService reconService;
 
     @Autowired
     private TradeRepository tradeRepo;
@@ -49,7 +49,7 @@ public class ScheduledTradeService {
         for (Trade trade : tradeList) {
             trade.setStatus(Status.OPEN);
             tradeRepo.save(trade);
-            tradeService.reconcileMarket(trade.getStock().getSymbol());
+            reconService.reconcileMarket(trade.getStock().getSymbol());
         }
 
     }

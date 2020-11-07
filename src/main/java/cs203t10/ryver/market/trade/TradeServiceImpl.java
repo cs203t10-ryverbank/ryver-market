@@ -51,7 +51,8 @@ public class TradeServiceImpl implements TradeService {
     @Autowired
     private DateService dateService;
 
-
+    @Autowired
+    private ReconciliationService reconService;
 
     /**
     *  Whenever a user submits a trade, the trade is saved and added to the market
@@ -107,7 +108,7 @@ public class TradeServiceImpl implements TradeService {
         Trade toReturn = tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
 
         // Reconcile market status after adding trade.
-        reconcileMarket(tradeView.getSymbol());
+        reconService.reconcileMarket(tradeView.getSymbol());
 
         return toReturn;
     }
@@ -123,88 +124,6 @@ public class TradeServiceImpl implements TradeService {
         Trade toReturn = tradeRepo.saveWithSymbol(trade, tradeView.getSymbol());
 
         return toReturn;
-    }
-
-    /**
-     * Reconcile the market by searching for matching buy and sell trades.
-     *
-     * If market trades are matched, then they will be completed on the fund
-     * transfer service, then remove the trade quantity from the stock records.
-     */
-    @Override
-    @Transactional
-    public void reconcileMarket(String symbol) {
-        Trade bestSell = getBestSell(symbol);
-        Trade bestBuy = getBestBuy(symbol);
-        // The market undergoes reconciliation as long as there is a bestSell
-        // and bestBuy.
-        while (bestSell != null && bestBuy != null) {
-            // Determine transactedPrice.
-            Double transactedPrice = 0.0;
-            Boolean isMarketBuy = bestBuy.getPrice() == 0;
-            if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0) {
-                transactedPrice = determineTransactedPriceIfBothMarketOrders(symbol, bestSell, bestBuy);
-            } else if (bestSell.getPrice() == 0) {
-                transactedPrice = bestBuy.getPrice();
-            } else if (bestBuy.getPrice() == 0) {
-                transactedPrice = bestSell.getPrice();
-            } else if (bestBuy.getPrice() >= bestSell.getPrice()){
-                transactedPrice = determineTransactedPriceIfBothLimitOrders(bestSell, bestBuy);
-            } else if (bestBuy.getPrice() < bestSell.getPrice()) {
-                break;
-            }
-
-            // Determine transactedQuantity.
-            Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
-            Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
-            Integer transactedQuantity = buyQuantity;
-            if (sellQuantity < buyQuantity) {
-                transactedQuantity = sellQuantity;
-            }
-
-
-            // Update filledQuantity and totalPrice for trades.
-            Double totalPrice = transactedQuantity * transactedPrice;
-            // If market buy, check if available balance is sufficient
-            if (isMarketBuy
-                && totalPrice + bestBuy.getTotalPrice() > bestBuy.getAvailableBalance() ){
-                    transactedQuantity = DoubleUtils
-                        .getRoundedToNearestHundred((bestBuy.getAvailableBalance()-bestBuy.getTotalPrice())/transactedPrice);
-                    totalPrice = transactedPrice * transactedQuantity;
-                    // Label it invalid status temporarily.
-                    bestBuy.setStatus(Status.INVALID);
-                }
-
-            bestBuy.setFilledQuantity(bestBuy.getFilledQuantity() + transactedQuantity);
-            bestSell.setFilledQuantity(bestSell.getFilledQuantity() + transactedQuantity);
-            bestBuy.setTotalPrice(bestBuy.getTotalPrice() + totalPrice);
-            bestSell.setTotalPrice(bestSell.getTotalPrice() + totalPrice);
-
-            // Update trade.
-            updateTrade(bestSell);
-            updateTrade(bestBuy);
-
-            // Deduct and add actual balance accordingly.
-            completeSellTrade(bestSell, totalPrice);
-            completeBuyTrade(bestBuy, totalPrice);
-
-            // Make stock records.
-            // Transacted quantity is recorded as negative, as these stocks are leaving the market.
-            // Total volume of stocks in stock records will decrease.
-            stockRecordService.updateStockRecordRemoveFromMarket(symbol, transactedPrice, transactedQuantity);
-
-            // Get new bestSell and bestBuy.
-            bestSell = getBestSell(symbol);
-            bestBuy = getBestBuy(symbol);
-
-            //
-            reconcileStockRecords(symbol, bestBuy, bestSell);
-        }
-        reconcileInvalidTrades(symbol);
-    }
-
-    private void reconcileStockRecords(String symbol, Trade bestBuy, Trade bestSell){
-        stockRecordService.updateStockRecord(symbol, bestBuy, bestSell);
     }
 
     /**
@@ -270,7 +189,8 @@ public class TradeServiceImpl implements TradeService {
 
         // Get latest stock
         StockRecord latestStock = stockRecordService
-                                .getLatestStockRecordBySymbol(tradeView.getSymbol());
+            .getLatestStockRecordBySymbol(
+                    tradeView.getSymbol());
 
         boolean isMarketSell = tradeView.getAsk() == 0;
 
@@ -281,11 +201,12 @@ public class TradeServiceImpl implements TradeService {
         boolean isMarketOpen = dateService.isMarketOpen(tradeView.getSubmittedDate());
 
         // Update lastAsk on stock records if it is not a market sell
-        if ( ask < latestStock.getLastAsk() && !isMarketSell && isMarketOpen){
+        if (ask < latestStock.getLastAsk() && !isMarketSell && isMarketOpen) {
             latestStock.setLastAsk(ask);
-            stockRecordService.updateStockRecord(tradeView.getSymbol(),
-                                                latestStock.getLastBid(),
-                                                latestStock.getLastAsk());
+            stockRecordService.updateStockRecord(
+                    tradeView.getSymbol(),
+                    latestStock.getLastBid(),
+                    latestStock.getLastAsk());
         }
 
         // Deducts $0 from the account available balance to check if account belongs to customer.
@@ -304,7 +225,7 @@ public class TradeServiceImpl implements TradeService {
     /**
     *  Deduct and add actual balance of a buy trade accordingly.
     */
-    private void completeBuyTrade(Trade trade, Double totalPrice) {
+    public void completeBuyTrade(Trade trade, Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
@@ -323,7 +244,7 @@ public class TradeServiceImpl implements TradeService {
     /**
     *  Deduct and add actual balance of a sell trade accordingly.
     */
-    private void completeSellTrade(Trade trade, Double totalPrice) {
+    public void completeSellTrade(Trade trade, Double totalPrice) {
         Integer customerId = trade.getCustomerId();
         Integer accountId = trade.getAccountId();
 
@@ -346,7 +267,7 @@ public class TradeServiceImpl implements TradeService {
     @Override
     public Trade getTrade(Integer tradeId) {
         return tradeRepo.findById(tradeId)
-                    .orElseThrow(() -> new TradeNotFoundException(tradeId));
+                .orElseThrow(() -> new TradeNotFoundException(tradeId));
     }
 
     /**
@@ -366,7 +287,6 @@ public class TradeServiceImpl implements TradeService {
         if (bestMarket == null) {
             return bestLimit;
         }
-
         if (bestSell == null) {
             return getEarlierTrade(bestMarket, bestLimit);
         }
@@ -378,7 +298,8 @@ public class TradeServiceImpl implements TradeService {
         if (bestLimit.getPrice() > bestSell.getPrice()) {
             System.out.println("Best buy : return limit");
             return bestLimit;
-        } else if (bestLimit.getPrice().equals(bestSell.getPrice())){
+        }
+        if (bestLimit.getPrice().equals(bestSell.getPrice())) {
             System.out.println("Best buy : return earlier");
             return getEarlierTrade(bestMarket, bestLimit);
         }
@@ -581,7 +502,7 @@ public class TradeServiceImpl implements TradeService {
         Integer totalBuyFilledQuantity = 0;
         Integer totalBuyQuantity = 0;
         for (Trade trade : buyTrades) {
-            if (checkValidStatus(trade)){
+            if (checkValidStatus(trade)) {
                 totalBuyQuantity += trade.getQuantity();
                 totalBuyFilledQuantity += trade.getFilledQuantity();
             }
@@ -601,7 +522,7 @@ public class TradeServiceImpl implements TradeService {
         Integer totalSellFilledQuantity = 0;
         Integer totalSellQuantity = 0;
         for (Trade trade : sellTrades) {
-            if (checkValidStatus(trade)){
+            if (checkValidStatus(trade)) {
                 totalSellQuantity += trade.getQuantity();
                 totalSellFilledQuantity += trade.getFilledQuantity();
             }
@@ -614,9 +535,9 @@ public class TradeServiceImpl implements TradeService {
     */
     public boolean checkValidStatus(Trade trade){
         if (trade.getStatus().equals(Status.PARTIAL_FILLED)
-            ||trade.getStatus().equals(Status.OPEN)){
-                return true;
-            }
+                ||trade.getStatus().equals(Status.OPEN)){
+            return true;
+        }
         return false;
     }
 
@@ -635,35 +556,32 @@ public class TradeServiceImpl implements TradeService {
 
     private Trade getEarlierTrade(Trade trade1, Trade trade2){
         // Return the earlier market buy or limit buy
-        return trade1.getSubmittedDate().before(trade2.getSubmittedDate())
-        ? trade1 : trade2;
+        return trade1.getSubmittedDate()
+            .before(trade2.getSubmittedDate())
+                ? trade1 : trade2;
     }
 
-    private Double determineTransactedPriceIfBothMarketOrders(String symbol, Trade bestSell, Trade bestBuy){
+    @Override
+    public Double determineTransactedPriceIfBothMarketOrders(Trade bestSell, Trade bestBuy) {
         StockRecord latestStock
-                    = stockRecordService.getLatestStockRecordBySymbol(symbol);
+                = stockRecordService.
+                        getLatestStockRecordBySymbol(
+                                bestSell.getStock().getSymbol());
         Double lastAsk = latestStock.getLastAsk();
         Double lastBid = latestStock.getLastBid();
-        if (bestSell.getSubmittedDate().before(bestBuy.getSubmittedDate())){
+        if (bestSell.getSubmittedDate().before(bestBuy.getSubmittedDate())) {
             return lastAsk;
-        } else {
-             return lastBid;
         }
+        return lastBid;
     }
 
-    private Double determineTransactedPriceIfBothLimitOrders(Trade bestSell, Trade bestBuy){
-        if ( bestBuy.getSubmittedDate().before(bestSell.getSubmittedDate())){
+    @Override
+    public Double determineTransactedPriceIfBothLimitOrders(Trade bestSell, Trade bestBuy){
+        if (bestBuy.getSubmittedDate().before(bestSell.getSubmittedDate())) {
             return bestBuy.getPrice();
-        } else {
-            return bestSell.getPrice();
         }
+        return bestSell.getPrice();
     }
-
-    private void reconcileInvalidTrades(String symbol){
-        tradeRepo.resetAllInvalidTradesBySymbol(symbol);
-        reconcileStockRecords(symbol, getBestBuy(symbol), getBestSell(symbol));
-    }
-
 
 
 }
