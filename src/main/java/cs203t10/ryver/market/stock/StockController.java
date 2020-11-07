@@ -12,7 +12,10 @@ import cs203t10.ryver.market.stock.view.StockRecordView;
 import cs203t10.ryver.market.trade.Trade;
 import cs203t10.ryver.market.trade.TradeService;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
 
 @RestController
 @RolesAllowed("USER")
@@ -25,7 +28,10 @@ public class StockController {
     private TradeService tradeService;
 
     @GetMapping("/stocks")
-    @ApiOperation(value = "Get all stocks")
+    @Operation(summary = "Get all stocks")
+    @ApiResponse(responseCode = "200", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = StockRecordView[].class)))
     public List<StockRecordView> getAllLatestStockRecords() {
         List<StockRecord> latestStockRecords = stockRecordService.getAllLatestStockRecords();
 
@@ -51,7 +57,10 @@ public class StockController {
     }
 
     @GetMapping("/stocks/{symbol}")
-    @ApiOperation(value = "Get a stock by symbol")
+    @Operation(summary = "Get a stock by symbol")
+    @ApiResponse(responseCode = "200", 
+                content = @Content(mediaType = "application/json", 
+                schema = @Schema(implementation = StockRecordView.class)))
     public StockRecordView getLatestStockRecord(@PathVariable String symbol) {
         StockRecord latestStockRecord = stockRecordService.getLatestStockRecordBySymbol(symbol);
 
