@@ -11,6 +11,8 @@ import cs203t10.ryver.market.fund.FundTransferService;
 import cs203t10.ryver.market.portfolio.asset.Asset;
 import cs203t10.ryver.market.portfolio.asset.AssetService;
 import cs203t10.ryver.market.portfolio.asset.view.AssetInfoViewableByCustomer;
+import cs203t10.ryver.market.portfolio.exception.PortfolioAlreadyExistsException;
+import cs203t10.ryver.market.portfolio.exception.PortfolioNotFoundException;
 import cs203t10.ryver.market.portfolio.view.PortfolioInfoViewableByCustomer;
 import cs203t10.ryver.market.stock.StockRecord;
 import cs203t10.ryver.market.stock.StockRecordService;
