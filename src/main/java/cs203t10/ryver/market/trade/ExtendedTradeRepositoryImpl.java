@@ -178,7 +178,6 @@ public class ExtendedTradeRepositoryImpl implements ExtendedTradeRepository {
 
     private Optional<Trade> findBestLimitBySymbol(String symbol, Action action) {
         String bestFunction = action.equals(Action.BUY) ? "MAX" : "MIN";
-        // TODO: edit status to use query manager
         final String sql = String.join(" ",
             "SELECT * FROM TRADE",
             "WHERE stock_id = :stock_id",

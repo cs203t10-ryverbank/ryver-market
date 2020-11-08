@@ -99,7 +99,6 @@ public class FundTransferService {
         }
 
 
-        //for debugging
         System.out.println("Deduct Available Balance: " + response.getBody());
     }
 
@@ -123,7 +122,6 @@ public class FundTransferService {
             }
         }
 
-        //for debugging
         System.out.println("Deduct Available Balance: " + response.getBody());
     }
 
@@ -148,7 +146,6 @@ public class FundTransferService {
             }
         }
 
-        //for debugging
         System.out.println("Deduct Balance: " + response.getBody());
     }
 
@@ -169,7 +166,6 @@ public class FundTransferService {
                 throw new AccountNotFoundException(accountId);
             }
         }
-        //for debugging
         System.out.println("Add Balance: " + response.getBody());
     }
 
@@ -191,7 +187,6 @@ public class FundTransferService {
             }
         }
 
-        //for debugging
         System.out.println("Add Balance: " + response.getBody());
     }
 

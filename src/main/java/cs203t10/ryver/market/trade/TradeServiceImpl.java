@@ -211,8 +211,6 @@ public class TradeServiceImpl implements TradeService {
 
         // Deducts $0 from the account available balance to check if account belongs to customer.
         fundTransferService.deductAvailableBalance(customerId, accountId, 0.0);
-        // TODO: Throw 400? CHECK!!
-
         // Check if account has enough stocks from portfolio.
         Integer assetAvailableQuantityOwned = portfolioService.getAvailableQuantityOfAsset(customerId, symbol);
         if (quantity > assetAvailableQuantityOwned) {

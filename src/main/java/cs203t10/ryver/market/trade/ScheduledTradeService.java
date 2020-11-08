@@ -33,7 +33,6 @@ public class ScheduledTradeService {
     @Autowired
     private DateService dateService;
 
-    // TODO: Verify this works on AWS
     // Cron expression: open market at 9am from Monday to Friday.
     @Scheduled(cron = "0 0 09 * * MON-FRI", zone = "Asia/Singapore")
     public void openMarketIfDefault() {
@@ -54,7 +53,6 @@ public class ScheduledTradeService {
 
     }
 
-    // TODO: Verify this works on AWS
     // Cron expression: close market at 5pm from Monday to Friday.
     @Scheduled(cron = "0 0 17 * * MON-FRI", zone = "Asia/Singapore")
     public void closeMarketIfDefault() {
@@ -69,7 +67,6 @@ public class ScheduledTradeService {
 
         // Close trades for all trades in the tradeList
         for (Trade trade : tradeList) {
-            // TODO: Implement tradeRepo.findAllNonExpired() instead.
             if (trade.getStatus().equals(Status.EXPIRED)) {
                 continue;
             }
