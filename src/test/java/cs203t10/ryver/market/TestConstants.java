@@ -17,8 +17,10 @@ public class TestConstants {
     final public static Stock STOCK = new Stock(SYMBOL);
 
     final public static Integer BUY_QUANTITY = 10000;
+    final public static Integer BUY_QUANTITY_MARKET_TO_HIGH_PRICE_NOT_ENOUGH = 8300;
     final public static Integer SELL_QUANTITY = 10000;
     final public static Integer PARTIAL_QUANTITY = 5000;
+    final public static Double MARKET_PRICE = 2.5;
     final public static Double HIGH_PRICE = 3.0;
     final public static Double LOW_PRICE = 2.0;
 }

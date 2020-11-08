@@ -16,7 +16,7 @@ import lombok.*;
 public class ReconciliationService {
 
     @AllArgsConstructor @Getter
-    private static class PriceQuantityTrades {
+    public static class PriceQuantityTrades {
         private Double price;
         private Integer quantity;
         private Trade bestSell;
@@ -95,7 +95,6 @@ public class ReconciliationService {
             transactedQuantity = DoubleUtils.getFlooredToNearestHundred(
                     (bestBuy.getAvailableBalance() - bestBuy.getTotalPrice()) / transactedPrice
             );
-            totalPrice = transactedPrice * transactedQuantity;
             // Label it invalid status temporarily.
             bestBuy.setStatus(Status.INVALID);
         }
@@ -141,33 +140,6 @@ public class ReconciliationService {
                 tradeService.getBestBuy(symbol),
                 tradeService.getBestSell(symbol));
     }
-
-    private double determineTransactedPrice(Trade bestBuy, Trade bestSell){
-        if (bestSell.getPrice() == 0 && bestBuy.getPrice() == 0) {
-            return tradeService.determineTransactedPriceIfBothMarketOrders(bestSell, bestBuy);
-        } else if (bestSell.getPrice() == 0) {
-            return bestBuy.getPrice();
-        } else if (bestBuy.getPrice() == 0) {
-            return bestSell.getPrice();
-        } else if (bestBuy.getPrice() >= bestSell.getPrice()){
-            return tradeService.determineTransactedPriceIfBothLimitOrders(bestSell, bestBuy);
-        } else if (bestBuy.getPrice() < bestSell.getPrice()) {
-            return -1.0; // No suitable trade is found
-        }
-        return -1.0;
-    }
-
-    private Integer determineTransactedQuantity(Trade bestBuy, Trade bestSell){
-        // Determine transactedQuantity.
-        Integer sellQuantity = bestSell.getQuantity() - bestSell.getFilledQuantity();
-        Integer buyQuantity = bestBuy.getQuantity() - bestBuy.getFilledQuantity();
-        Integer transactedQuantity = buyQuantity;
-        if (sellQuantity < buyQuantity) {
-            transactedQuantity = sellQuantity;
-        }
-        return transactedQuantity;
-    }
-
 
 }
 
