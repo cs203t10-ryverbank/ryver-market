@@ -19,11 +19,14 @@ public interface TradeService {
     Trade getBestBuy(String symbol);
     Trade getBestSell(String symbol);
     Trade updateTrade(Trade trade);
+    void completeBuyTrade(Trade trade, Double totalPrice);
+    void completeSellTrade(Trade trade, Double totalPrice);
     List<Trade> getAllUserOpenTrades(Long customerId);
     Trade cancelTrade(Trade trade);
     Trade cancelTrade(Integer tradeId);
     void resetTrades();
-    void reconcileMarket(String symbol);
     Trade addTradeToOpenMarket(TradeViewCreatable tradeView, Double availableBalance);
+    Double determineTransactedPriceIfBothMarketOrders(Trade bestSell, Trade bestBuy);
+    Double determineTransactedPriceIfBothLimitOrders(Trade bestSell, Trade bestBuy);
 }
 

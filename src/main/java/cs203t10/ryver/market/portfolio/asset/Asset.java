@@ -10,7 +10,7 @@ import cs203t10.ryver.market.portfolio.Portfolio;
 import lombok.*;
 
 @Entity
-@Getter @Setter @Builder(toBuilder = true)
+@Data @Builder(toBuilder = true)
 @AllArgsConstructor @NoArgsConstructor
 @EqualsAndHashCode
 @JsonIgnoreProperties(ignoreUnknown = true)

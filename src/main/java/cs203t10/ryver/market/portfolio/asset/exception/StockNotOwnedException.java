@@ -1,4 +1,4 @@
-package cs203t10.ryver.market.portfolio.asset;
+package cs203t10.ryver.market.portfolio.asset.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
